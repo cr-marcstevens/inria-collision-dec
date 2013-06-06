@@ -1,0 +1,19 @@
+package "isd"
+version "0.1"
+
+option "input" i "Input file (default : standart input)" string typestr="filename" optional
+
+option "seed" s "Seed of the pseudo random generator" longlong optional
+
+option "max_iter" I "Number of iterations to perform before stopping" longlong optional default="0"
+option "max_sol"  S "Number of solutions to find before stopping" longlong optional default="0"
+option "max_time" T "Number of second to spend before stopping" longlong optional default="0"
+
+option "w" w "Maximum weight of the word to find (overrides input file value)" int optional
+option "l" l "Height of the window" int required
+option "l2" L "Height of the window" int optional
+option "threshold" t "Threshold on the weight of the first word" int optional
+
+option "skip" k	"Number of iteration to skip before beginning" int optional default="0"
+
+option "verbose" v "verbosity level" int optional default="1"

@@ -1,0 +1,23 @@
+What this program does : 
+This program takes as input a binary matrix M, target symdromes and a integer w (see Input file format), and looks for w rows in M that once xored give one the syndromes. Current implementation takes into account only the first syndrome.
+
+Building the program :
+You need the m4ri lib (m4ri.sagemath.org). Update the M4RI variable in the Makefile to set up the path to the lib.
+Current Makefile has a hardcoded path to a recent gcc (on my computer) that possesses the -flto optimisation. Update the Makefile.
+Set up the cycle counter : run sh do in the cpucycles folder.
+Run make in the main folder
+
+Input file format :
+Input file are pure ASCII files. They are formatted this way 
+The first line must match the "%d %d %d %d" scanf input. The integers are (in this order) : the number of rows n, the number of columns r, the researched weight w and the number of target syndromes N. From this point, characters different from ASCII 0 and 1 will be ignored. The N*r following characters are the N target syndromes. The n*r following characters are the element of the matrix, one row after another. See small_challenge.txt for an example and io.c for implementation.
+
+Using the program :
+Put your program in the file format used by the program. 
+Parameters -S -I and -T define the stop conditions of the program. The program will stop when one of them is satisfied (respectively number of solutions, number of iterations and seconds spent). If their value is 0, the stop condition is disabled.
+The algorithm parameter p is hard coded in the binaries; the parameter l is specified via the -l parameter.
+Input will be read from the file specified with the -i parameter or stdin if omited.
+
+Example : ./dumer4 -i small_challenge.txt -l 15 -S 1
+
+Modifying the program :
+The program should be usable as a libray with few modifications. See the main function to set up the parameters of the isd function. The found solutions can be processed as they are found or all at once when the program stops. See process_solutions.c .
