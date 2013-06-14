@@ -28,16 +28,17 @@ void unpack3_counter(unsigned int* c1, unsigned int* c2, unsigned int* c3, unsig
 	*c1 = col_1; *c2 = col_2; *c3 = col_3;
 }
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r, unsigned int local_l, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
+void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r, unsigned int local_l, unsigned int local_l2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
 	L = simple_HprimemodT;
-
 	N = local_N;
 	syndsprime = local_syndsprime;
-
 	n = local_n;
 	r = local_r;
 	l = local_l;
+	(void) local_l2;
 	w = local_w;
+	h = local_h;
+
 	k = n-r;
 
 	L_len = k+l;
@@ -47,8 +48,6 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 
 	htable_init(1ULL << l, nCr(L_len, p/2));
 	xors_table = (word*) malloc(nCr(L_len, p/2) * sizeof(word));
-	h = local_h;
-
 }
 
 void sub_isd() {

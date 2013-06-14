@@ -56,6 +56,7 @@ void process_solutions_on_the_fly(sw_list** h, unsigned int w, unsigned int l, m
 
 		eprime = eprime->next;
 	}
+	free(eprimeBT);
 	sw_list_free(solution);
 	sw_list_free(*h);
 	*h = NULL;

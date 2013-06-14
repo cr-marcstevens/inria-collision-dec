@@ -21,8 +21,8 @@ void generate_id_permutation(unsigned int* perm,unsigned int* perm_inv, unsigned
 void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state);
 void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int n);
 
-int isd_parity(word w);
-int isd_weight(word w);
+unsigned int isd_parity(word w);
+unsigned int isd_weight(word w);
 
 uint64_t random_seed();
 

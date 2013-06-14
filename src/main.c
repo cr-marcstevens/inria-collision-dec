@@ -46,16 +46,25 @@ int main(int argc, char **argv)
 	fclose(fd);
 
 	// TODO : call workfactor if l not given
-	// TODO : what about l2 ?
 	unsigned int l = args_info.l_arg;
 	if (l <= 0 || l >= (unsigned int) HzeroT->ncols){
 		fprintf(stderr, "l must be >0 and <r\n");
 		exit(EXIT_FAILURE);
 	}
 
+	unsigned int l2 = args_info.l2_given ? (unsigned int) args_info.l2_arg : l/2;
+	/*
+	if (args_info.l2_given) {
+		l2 = args_info.l2_arg
+	}
+	else {
+		l2 = l/2;
+	}
+*/
 	if (args_info.w_given) {
 		w = args_info.w_arg;
 	}
+
 
 	// number of bits to consider if we handle one word of data. Should be word_len except for tiny problem where r is smaller than this.
 	unsigned int eff_word_len = min((unsigned int) HzeroT->ncols, word_len);
@@ -80,7 +89,7 @@ int main(int argc, char **argv)
 
 	printf("seed : 0x%016lx\n", seed);
 
-	isd(HzeroT, l, w, N, synds, weight_threshold, args_info.max_iter_arg, args_info.max_sol_arg, args_info.max_time_arg, state, args_info.skip_arg);
+	isd(HzeroT, l, l2, w, N, synds, weight_threshold, args_info.max_iter_arg, args_info.max_sol_arg, args_info.max_time_arg, state, args_info.skip_arg);
 
 	CSD_free(HzeroT, N, synds);
 	free(state);

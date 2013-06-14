@@ -56,10 +56,10 @@ void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int 
 	}
 }
 
-int isd_parity(word w) {
+unsigned int isd_parity(word w) {
 	return __builtin_parityll(w);
 }
 
-int isd_weight(word w) {
+unsigned int isd_weight(word w) {
 	return __builtin_popcountll(w);
 }
