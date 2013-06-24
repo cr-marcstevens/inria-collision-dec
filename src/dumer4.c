@@ -69,8 +69,8 @@ void sub_isd() {
 	htable_stats();
 	exit(1);
 	*/
-	for (c3 = L_len/2; c3 < L_len; ++c3) {
-		for (c4 = c3+1; c4 < L_len; ++c4) {
+	for (c3 = L_len/2 + 1; c3 < L_len; ++c3) {
+		for (c4 = L_len/2; c4 < c3; ++c4) {
 			res = synd ^ L[c3] ^ L[c4];
 			for(current = htable_get(res >> shift); current != NONE; current = htable_next(res >> shift, current)) {
 				incr_nb_collision_counter();

@@ -22,6 +22,7 @@ int main(int argc, char **argv)
 	}
 	else {
 		seed = random_seed();
+		seed &= 0x7FFFFFFFFFFFFFFFUL; // gengetopt doesn't accept unsigned longs so we choose a 63 bits seed to simplify the replay
 	}
 
 	ranctx* state = (ranctx*) malloc(sizeof(ranctx));

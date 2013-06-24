@@ -192,6 +192,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, uns
 	printf("w : %d\n", w);
 	printf("N : %d\n", N);
 	printf("l : %d\n", l);
+	printf("l2 : %d\n", l2);
 	printf("max_iter : %lld\n", max_iter);
 	printf("max_time : %lld\n", max_time);
 	printf("max_sol : %lld\n", max_sol);

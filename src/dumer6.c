@@ -6,6 +6,7 @@
 #include "htable.h"
 #include "sparse_words_list.h"
 #include "time.h"
+#include "measure.h"
 #include "cpucycles/cpucycles.h"
 
 #define p 6
@@ -72,16 +73,19 @@ void sub_isd() {
 			}
 		}
 	}
-	for (c4 = L_len/2; c4 < L_len; ++c4) {
-		for (c5 = c4+1; c5 < L_len; ++c5) {
-			for (c6 = c5+1; c6 < L_len; ++c6) {
+	for (c4 = L_len/2 + 2; c4 < L_len; ++c4) {
+		for (c5 = L_len/2 + 1; c5 < c4; ++c5) {
+			for (c6 = L_len/2; c6 < c5; ++c6) {
 				res = synd ^ L[c4] ^ L[c5] ^ L[c6];
 				for(current = htable_get(res >> shift); current != NONE; current = htable_next(res >> shift, current)) {
+				incr_nb_collision_counter();
 					weight = isd_weight(xors_table[current] ^ res);
 					if (weight <= threshold) {
+						incr_final_test_counter();
+						final_test_probe_start();
 						unpack3_counter(&c1, &c2, &c3, current);
-						
 						final_weight = final_test(0, weight, p, c1, c2, c3, c4, c5, c6);
+						final_test_probe_stop();
 						if (final_weight != -1) {
 							*h = sw_list_add(*h, 0, final_weight, p, c1, c2, c3, c4, c5, c6);
 						}
