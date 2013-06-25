@@ -1,8 +1,10 @@
-CC = /usr/lib/gcc-snapshot/bin/gcc
-CFLAGS = -Wall -Wextra -std=gnu99 -I$(M4RI)
-LDFLAGS =
-LDLIBS = -lpng -lm
-M4RI = $(HOME)/Travaux/dev/m4ri
+include Makefile.local
+CC ?= gcc
+CFLAGS += -Wall -Wextra -std=gnu99 -I$(M4RI)
+LDFLAGS +=
+LDLIBS += -lpng -lm
+M4RI ?= $(HOME)/Travaux/dev/m4ri
+M4RIG ?= $(HOME)/Travaux/dev/m4ri_dbg
 
 TARGET = dumer4 dumer6 mmt4 mmt8
 
@@ -10,17 +12,15 @@ default:
 
 all: $(TARGET)
 
-default: CFLAGS += -O3 -march=native -flto -g -mpopcnt
-default: M4RI = $(HOME)/Travaux/dev/m4ri
+default: CFLAGS += -O3 -march=native -g -mpopcnt
 default: all
  
 debug: CFLAGS += -DDEBUG -g -O0 -mno-popcnt
-debug: M4RI = $(HOME)/Travaux/dev/m4ri_dbg
+debug: M4RI = $(M4RIG)
 debug: all
 
-profile: CFLAGS += -flto -g -mno-popcnt
+profile: CFLAGS += -g -mno-popcnt
 profile: LDLIBS += -lprofiler
-profile: M4RI = $(HOME)/Travaux/dev/m4ri
 profile: all
 
 COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a

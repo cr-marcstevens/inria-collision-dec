@@ -271,16 +271,19 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, uns
 		// This should happen with probability 2^-l
 		
 		
-		if((unsigned int) _mzd_partial_echelonize_m4ri(A_I, 1, 0, 0,0, r-l) != r-l) {
+		/*
+		if((unsigned int) _mzd_partial_echelonize_m4ri(A_I, 1, 0, 0,0, r-l) != r-l) 
+		{
 			pivot_probe_stop();
 			continue;
 		}
+		*/
 	
-	/*	
+		
 		if(mzd_partial_echelonize(A_I, l) == 1) {
 			pivot_probe_stop();
 			continue;
-		}*/
+		}
 
 		mzd_submatrix(U, A_I, 0, r-l, r, r+r-l);
 		mzd_submatrix(Uprimemod, U, r-eff_word_len, 0, r, r);
