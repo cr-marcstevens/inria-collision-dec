@@ -12,6 +12,10 @@ option "max_time" T "Number of second to spend before stopping" longlong optiona
 option "w" w "Maximum weight of the word to find (overrides input file value)" int optional
 option "l" l "Height of the window" int required
 option "l2" L "Height of the window" int optional
+option "l3" r "Height of the window" int optional
+option "p" p "Weight of the error in the window" int optional
+option "e1" e "Additional error accepted for fusion before filter 1 in BJMM alg" int optional
+option "e2" E "Additional error accepted for fusion before filter 2 in BJMM alg" int optional
 option "threshold" t "Threshold on the weight of the first word" int optional
 
 option "skip" k	"Number of iteration to skip before beginning" int optional default="0"

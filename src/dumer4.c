@@ -23,7 +23,7 @@ void unpack2_counter(unsigned int* c1, unsigned int* c2, unsigned int counter) {
 	(*c2) = counter - (*c1*(*c1-1))/2;
 }
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r, unsigned int local_l, unsigned int local_l2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
+void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
 	L = simple_HprimemodT;
 	N = local_N;
 	syndsprime = local_syndsprime;
@@ -31,6 +31,10 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	r = local_r;
 	l = local_l;
 	(void) local_l2;
+	(void) local_l3;
+	(void) local_e1;
+	(void) local_e2;
+	(void) local_p;
 	w = local_w;
 	h = local_h;
 
@@ -47,7 +51,7 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 
 void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
-	
+
 	unsigned int c1, c2, c3, c4;
 	unsigned int counter;
 	int current;
@@ -84,7 +88,7 @@ void sub_isd() {
 					if (final_weight != -1) {
 						*h = sw_list_add(*h, 0, final_weight, p, c1, c2, c3, c4);
 					}
-				}	
+				}
 			}
 		}
 	}
@@ -127,17 +131,17 @@ void sub_isd_report(unsigned long long cycles_periter) {
 
 	time = (time_t) time_needed;
 	tm_now = gmtime (&time);
-	
-	
+
+
 	printf("nb_col_needed : %12.4g\n", (double)nb_col_needed);
 	printf("avg_nb_col_periter : %12.4g\n", avg_nb_col_periter);
 	printf("nb_iter_needed : %12.4g\n", nb_iter_needed);
 	printf("cycles_periter : %lld\n", cycles_periter);
 	printf("cycles_needed (log2) : %12.4g\n", (double)log(cycles_needed)/log(2));
-	
+
 	printf("collisions needed %12.4g\n", nb_col_needed);
 
-	
+
 	printf("time needed (%.1fGHz) : %12.4gs : ", cpucycles_persecond()/1000000000.0, time_needed);
 	if (tm_now == NULL) {
 		printf("more than 2^%ld years\n", 8*sizeof(int));

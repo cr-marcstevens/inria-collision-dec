@@ -54,6 +54,10 @@ int main(int argc, char **argv)
 	}
 
 	unsigned int l2 = args_info.l2_given ? (unsigned int) args_info.l2_arg : l/2;
+	unsigned int l3 = args_info.l3_given ? (unsigned int) args_info.l3_arg : l/4;
+	unsigned int p = args_info.p_given ? (unsigned int) args_info.p_arg : 8;
+	unsigned int e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 4;
+	unsigned int e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
 	/*
 	if (args_info.l2_given) {
 		l2 = args_info.l2_arg
@@ -90,7 +94,7 @@ int main(int argc, char **argv)
 
 	printf("seed : 0x%016lx\n", seed);
 
-	isd(HzeroT, l, l2, w, N, synds, weight_threshold, args_info.max_iter_arg, args_info.max_sol_arg, args_info.max_time_arg, state, args_info.skip_arg);
+	isd(HzeroT, l, l2, l3, p, e1, e2, w, N, synds, weight_threshold, args_info.max_iter_arg, args_info.max_sol_arg, args_info.max_time_arg, state, args_info.skip_arg);
 
 	CSD_free(HzeroT, N, synds);
 	free(state);

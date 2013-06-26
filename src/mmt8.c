@@ -27,7 +27,7 @@ static iaht L3_indices = NULL;
 static iaht L4_indices = NULL;
 static nocolht L12 = NULL;
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r, unsigned int local_l, unsigned int local_l2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
+void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
 	L = simple_HprimemodT;
 	N = local_N;
 	syndsprime = local_syndsprime;
@@ -35,6 +35,10 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	r = local_r;
 	l = local_l;
 	l2 = local_l2;
+	(void) local_l3;
+	(void) local_e1;
+	(void) local_e2;
+	(void) local_p;
 	w = local_w;
 	h = local_h;
 

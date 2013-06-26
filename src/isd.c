@@ -144,7 +144,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 }
 
 
-sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
+sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
 	unsigned int i, j;
 	unsigned int n = HzeroT->nrows;
 	unsigned int r = HzeroT->ncols;
@@ -184,7 +184,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, uns
 
 	sw_list* h = NULL;
 
-	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, w, weight_threshold, &h);
+	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold, &h);
 	final_test_init(r, w, BT, Usecondmod, synds);
 
 	printf("n : %d\n", n);
@@ -193,6 +193,10 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, uns
 	printf("N : %d\n", N);
 	printf("l : %d\n", l);
 	printf("l2 : %d\n", l2);
+	printf("l3 : %d\n", l3);
+	printf("p : %d\n", p);
+	printf("e1 : %d\n", e1);
+	printf("e2 : %d\n", e2);
 	printf("max_iter : %lld\n", max_iter);
 	printf("max_time : %lld\n", max_time);
 	printf("max_sol : %lld\n", max_sol);
@@ -270,7 +274,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int w, uns
 		// iteration and continue. 
 		// This should happen with probability 2^-l
 		
-		
+	/*	
 		/*
 		if((unsigned int) _mzd_partial_echelonize_m4ri(A_I, 1, 0, 0,0, r-l) != r-l) 
 		{
