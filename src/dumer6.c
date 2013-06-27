@@ -103,6 +103,9 @@ void sub_isd() {
 
 void sub_isd_report(unsigned long long cycles_periter) {
 
+	unsigned long long iter_persecond = cpucycles_persecond() / cycles_periter;
+	printf("Iterations/secondes : %lld\n", iter_persecond);
+
  /* p_miss is the proportion of candidates that are eliminated by the
  weight threshold condition whereas they where the solution. That's why
  we have to multiply the number of collision needed by this proportion
@@ -110,32 +113,43 @@ void sub_isd_report(unsigned long long cycles_periter) {
 	double p_miss = 0;
 	unsigned int i;
 	unsigned int eff_word_len = min(r, word_len);
+
+	double nb_col_needed;
+	double avg_nb_col_periter;
+	double nb_iter_needed;
+	double cycles_needed;
+	double time_needed;
+	time_t time;
+	struct tm* tm_now;
+	char s_now[80];
+
 	for (i = 0; i < threshold; ++i) {
 		p_miss += nCr(eff_word_len - l, i)*nCr(r - eff_word_len, w-p-i);
 	}
 	p_miss /= nCr(r-l, w-p);
 	p_miss = 1 - p_miss;
-	printf("Proba to miss the solution : %8.3g %%\n", 100*p_miss);
 
-	double nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
+	nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
 	nb_col_needed += p_miss * nb_col_needed;
-	double avg_nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
-	
-	/*
+	avg_nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
+	nb_iter_needed = nb_col_needed / avg_nb_col_periter;
+	cycles_needed = nb_iter_needed*cycles_periter;
+	time_needed = (cycles_periter * nb_col_needed / avg_nb_col_periter) / cpucycles_persecond();
+
+	time = (time_t) time_needed;
+	tm_now = gmtime (&time);
+
+
 	printf("nb_col_needed : %12.4g\n", (double)nb_col_needed);
 	printf("avg_nb_col_periter : %12.4g\n", avg_nb_col_periter);
-	double nb_iter_needed = nb_col_needed / avg_nb_col_periter;
 	printf("nb_iter_needed : %12.4g\n", nb_iter_needed);
 	printf("cycles_periter : %lld\n", cycles_periter);
-	double cycles_needed = nb_iter_needed*cycles_periter;
 	printf("cycles_needed (log2) : %12.4g\n", (double)log(cycles_needed)/log(2));
-	printf("cpucycles_persecond() : %lld\n", cpucycles_persecond());
-	*/
-	double time_needed = (cycles_periter * nb_col_needed / avg_nb_col_periter) / cpucycles_persecond();
-	
+
+	printf("collisions needed %12.4g\n", nb_col_needed);
+
+
 	printf("time needed (%.1fGHz) : %12.4gs : ", cpucycles_persecond()/1000000000.0, time_needed);
-	time_t time = (time_t) time_needed;
-	struct tm * tm_now = gmtime (&time);
 	if (tm_now == NULL) {
 		printf("more than 2^%ld years\n", 8*sizeof(int));
 	}
@@ -143,8 +157,6 @@ void sub_isd_report(unsigned long long cycles_periter) {
 		tm_now->tm_year -= 1970;
 		tm_now->tm_mon -= 1;
 		tm_now->tm_mday -= 1;
-		//	tm_now->tm_hour -= 1;
-		char s_now[80];
 		strftime (s_now, sizeof s_now, "%Yy %mM %dd %Hh %Mm %Ss", tm_now);
 		printf("%s\n", s_now);
 	}

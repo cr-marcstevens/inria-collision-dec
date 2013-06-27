@@ -37,6 +37,9 @@ profgen: all
 profuse: CFLAGS += -fprofile-use
 profuse: all
 
+test: $(TARGET)
+	for i in $(TARGET); do echo $$i; ./$$i -i small_challenge.txt -l 15 -I 1; done
+
 %_cmdline.c %_cmdline.h: %.ggo
 	gengetopt -i $^ -F $*_cmdline
 

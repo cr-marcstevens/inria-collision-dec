@@ -207,12 +207,12 @@ void sub_isd_report(unsigned long long cycles_per_iter) {
 
 void sub_isd_free() {
 	waht_free(L1, L1_size);
-	//waht_free(L2);
-	waht_free(L3, L3_size);
-	//waht_free(L4);
+	waht_free(L2, L2_size);
+	//waht_free(L3, L3_size);
+	//waht_free(L4, L4_size);
 	iaht_free(L1_indices, L1_indices_size);
-	//iaht_free(L2_indices, L2_indices_size)
-	iaht_free(L3_indices, L3_indices_size);
-	//iaht_free(L4_indices, L4_indices_size)
+	iaht_free(L2_indices, L2_indices_size);
+	//iaht_free(L3_indices, L3_indices_size);
+	//iaht_free(L4_indices, L4_indices_size);
 	nocolht_free(L12);
 }
