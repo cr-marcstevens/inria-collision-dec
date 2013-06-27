@@ -17,6 +17,7 @@ option "p" p "Weight of the error in the window" int optional
 option "e1" e "Additional error accepted for fusion before filter 1 in BJMM alg" int optional
 option "e2" E "Additional error accepted for fusion before filter 2 in BJMM alg" int optional
 option "threshold" t "Threshold on the weight of the first word" int optional
+option "csize" c "number of 64bit int used to represent a column during list merging. Choose l <= csize*64 <= r . min value for minimum spatial complexity, max value for minimum temporal complexity " int optional
 
 option "skip" k	"Number of iteration to skip before beginning" int optional default="0"
 

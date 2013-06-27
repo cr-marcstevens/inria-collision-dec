@@ -157,7 +157,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 #endif
 
 
-sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
+sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold,unsigned int csize, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
 	unsigned int i, j;
 	unsigned int n = HzeroT->nrows;
 	unsigned int r = HzeroT->ncols;
@@ -197,7 +197,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 	sw_list* h = NULL;
 
-	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold, &h);
+	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold,csize, &h);
 	final_test_init(r, w, BT, Usecondmod, synds);
 
 	printf("n : %d\n", n);

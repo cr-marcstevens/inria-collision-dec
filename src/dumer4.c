@@ -23,7 +23,7 @@ void unpack2_counter(unsigned int* c1, unsigned int* c2, unsigned int counter) {
 	(*c2) = counter - (*c1*(*c1-1))/2;
 }
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold, sw_list** local_h) {
+void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, sw_list** local_h) {
 	L = simple_HprimemodT;
 	N = local_N;
 	syndsprime = local_syndsprime;
@@ -35,6 +35,7 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	(void) local_e1;
 	(void) local_e2;
 	(void) local_p;
+	(void) local_csize;
 	w = local_w;
 	h = local_h;
 
