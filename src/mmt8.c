@@ -12,7 +12,6 @@ static word* L;
 static unsigned int N;
 static word* syndsprime;
 static unsigned int n, k, r, l, l2, w, L_len, threshold;
-static int shift;
 static sw_list** h;
 
 
@@ -47,7 +46,6 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	L_len = k+l;
 
 	threshold = local_threshold;
-	shift = min(r, word_len) - l;
 
 	L1_size = 1UL << l2;
 	L2_size = 1UL << l2;
@@ -132,7 +130,7 @@ void sub_isd() {
 					for (i = 1; i < E1[0]; ++i) {
 						for (j = 1; j < E2[0]; ++j) {
 							value = E1[i] ^ E2[j];
-							// the index is the l first bits of the sum (except the l2 first since we know them)
+							// the index is the l first bits of the sum minus the l2 first
 							index = (value & lmask) >> l2;
 
 							// we build the word value such that it has x on the l2 first bits, zero on the l-l2 next bits (wasted space that may be used) and the sum on the rest

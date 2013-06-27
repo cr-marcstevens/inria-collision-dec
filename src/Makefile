@@ -21,6 +21,7 @@ debug: all
 
 profile: CFLAGS += -g -mno-popcnt
 profile: LDLIBS += -lprofiler
+profile: M4RI = $(M4RIG)
 profile: all
 
 COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a

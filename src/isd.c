@@ -71,6 +71,18 @@ void mzd_concat_id(mzd_t* A_I, mzd_t* A) {
 	}
 }
 
+
+#ifdef CUSTOM_M4RI
+int mzd_partial_echelonize(mzd_t* A, int l) {
+	if(_mzd_partial_echelonize_m4ri(A, 1, 0, 0,0, A->nrows-l) != A->nrows-l) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+#else
+
 /* This computes an echelonization on the first l columns of A */
 int mzd_partial_echelonize(mzd_t* A, int l) {
 	int n = A->ncols;
@@ -142,6 +154,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 	mzd_free_window(R);
 	return 0;
 }
+#endif
 
 
 sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
@@ -273,16 +286,6 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		// columns and adjusted the permutation but we prefer to abandon this
 		// iteration and continue. 
 		// This should happen with probability 2^-l
-		
-	/*	
-		/*
-		if((unsigned int) _mzd_partial_echelonize_m4ri(A_I, 1, 0, 0,0, r-l) != r-l) 
-		{
-			pivot_probe_stop();
-			continue;
-		}
-		*/
-	
 		
 		if(mzd_partial_echelonize(A_I, l) == 1) {
 			pivot_probe_stop();
