@@ -20,3 +20,6 @@ void nocolht_reset(nocolht L, unsigned long long L_size) {
 	}
 }
 
+void nocolht_free(nocolht L) {
+	free(L);
+}

@@ -8,4 +8,5 @@ nocolht nocolht_init(unsigned long long size);
 void nocolht_store(nocolht L, word index, nocolht_elt value);
 nocolht_elt nocolht_get(nocolht L, word index);
 void nocolht_reset(nocolht L, unsigned long long L_size);
+void nocolht_free(nocolht L);
 #endif

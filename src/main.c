@@ -58,14 +58,7 @@ int main(int argc, char **argv)
 	unsigned int p = args_info.p_given ? (unsigned int) args_info.p_arg : 8;
 	unsigned int e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 4;
 	unsigned int e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
-	/*
-	if (args_info.l2_given) {
-		l2 = args_info.l2_arg
-	}
-	else {
-		l2 = l/2;
-	}
-*/
+
 	if (args_info.w_given) {
 		w = args_info.w_arg;
 	}

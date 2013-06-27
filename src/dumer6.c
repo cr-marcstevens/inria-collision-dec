@@ -151,4 +151,5 @@ void sub_isd_report(unsigned long long cycles_periter) {
 
 void sub_isd_free() {
 	htable_free();
+	free(xors_table);
 }
