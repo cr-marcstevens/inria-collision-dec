@@ -58,17 +58,32 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 void sub_isd() {
 
 	/*
-	 * construction des listes  a partir de E1, E2, E3, E4
+	 * Lists construction from E1, E2, E3, E4
 	 */
-
+	int i;
+	int j;
 	short* indice = malloc((p2/2)*sizeof(short));
-	word** sums = malloc((p2/2)*csize*sizeof(word));
+	word* sums = malloc((p2/2)*csize*sizeof(word));
+	S* table = malloc((2**l2)**csize); // 64 = size of uint64 (word) in bits.
+
+	for (i=0; i<4;i++){
+		// initialization of indice
+		for (j=0;j<(p2/2);j++){
+			indice[j]=0;
+		}
+		while(next(indice,L_len,(p2/2),i)){
+			for (j=0; j< csize;j++){
+				//table[sums[((p2/2)-1)*j]]
+			}
+		}
+	}
 
 
 	//TODO
 
 	free(indice);
 	free(sums);
+	free(table);
 }
 
 void sub_isd_report(unsigned long long cycles_per_iter) {
