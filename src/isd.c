@@ -193,7 +193,13 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		N = 1;
 	}
 	
-	syndsprime = (word*) malloc(N*sizeof(word));
+	/*
+	 *  Syndsprime construction:
+	 *  let X, Y, Z be different syndroms (N=3)
+	 *  =>  Syndsprime = [X1 Y1 Z1 X2 Y2 Z2 ... Xcsize Ycsize Zcsize]
+	 *  with X = [X1 X2 X3 ... Xcsize] each Xi of size 64 (or less if csize*64 > r)
+	 */
+	syndsprime = (word*) malloc(N*sizeof(word)*csize);
 
 	sw_list* h = NULL;
 
@@ -308,21 +314,25 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 		// Apply the transformation to the syndromes
 		unsigned int s;
-		for (s = 0; s < N; ++s) {
+		unsigned int t;
+		for (t=0; t< csize; t++){
+			for (s = 0; s < N; ++s) {
 
-			syndsprime[s] = 0;
-			word chunk;
+				syndsprime[s+t*N] = 0;
+				word chunk;
 
-			for (i = 0; i < eff_word_len; ++i) {
-				chunk = 0;
-				for (j = 0; j < bit_in_words(r); ++j) {
-					chunk ^= synds[s][j] & Uprimemod->rows[i][j];
-				}
-				if(isd_parity(chunk)){
-					syndsprime[s] ^= (1UL << i);
+				for (i = 0; i < eff_word_len; ++i) {
+					chunk = 0;
+					for (j = 0; j < bit_in_words(r); ++j) {
+						chunk ^= synds[s][j] & Uprimemod->rows[i][j];
+					}
+					if(isd_parity(chunk)){
+						syndsprime[s+t*N] ^= (1UL << (i%64));
+					}
 				}
 			}
 		}
+
 		pivot_probe_stop();
 		bday_probe_start();
 		sub_isd();
