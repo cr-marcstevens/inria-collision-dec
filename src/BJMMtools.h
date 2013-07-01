@@ -7,5 +7,7 @@
 
 typedef struct draw {
 	int* indice;
-	draw* next;
+	struct draw* next;
 } S ;
+
+int next(short* indice,unsigned int L_len, unsigned int w,int method);

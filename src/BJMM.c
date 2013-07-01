@@ -7,6 +7,7 @@
 
 //TODO
 
+#include <math.h>
 #include <stdlib.h>
 #include <time.h>
 #include "sub_isd.h"
@@ -17,6 +18,7 @@
 #include "measure.h"
 #include "cpucycles/cpucycles.h"
 #include "BJMMtools.h"
+
 
 static word* L;
 static unsigned int N;
@@ -60,11 +62,11 @@ void sub_isd() {
 	/*
 	 * Lists construction from E1, E2, E3, E4
 	 */
-	int i;
-	int j;
+	unsigned int i;
+	unsigned int j;
 	short* indice = malloc((p2/2)*sizeof(short));
 	word* sums = malloc((p2/2)*csize*sizeof(word));
-	S* table = malloc((2**l2)**csize); // 64 = size of uint64 (word) in bits.
+	S* table = malloc(pow(pow(2,l2),csize)); // 64 = size of uint64 (word) in bits.
 
 	for (i=0; i<4;i++){
 		// initialization of indice
