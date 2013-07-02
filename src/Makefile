@@ -29,6 +29,10 @@ COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_lis
 BJMM: $(COMMON) BJMM.c BJMMtools.c
 dumer4: $(COMMON) dumer4.c htable.c
 dumer6: $(COMMON) dumer6.c htable.c
+
+mmt%.c: gen_mmt.py
+	python gen_mmt.py $* > $@
+
 mmt4: $(COMMON) mmt4.c iaht.c waht.c nocolht.c
 mmt8: $(COMMON) mmt8.c iaht.c waht.c nocolht.c
 
