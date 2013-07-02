@@ -61,31 +61,62 @@ void sub_isd() {
 
 	/*
 	 * Lists construction from E1, E2, E3, E4
+	 *
+	 * warning: in the whole function, we assume l2+l3 <= 64)
 	 */
 	unsigned int i;
 	unsigned int j;
-	short* indice = malloc((p2/2)*sizeof(short));
+	unsigned short* indice = malloc((p2/2)*sizeof(unsigned short));
 	word* sums = malloc((p2/2)*csize*sizeof(word));
-	S* table = malloc(pow(pow(2,l2),csize)); // 64 = size of uint64 (word) in bits.
+	S* lists[4];
 
 	for (i=0; i<4;i++){
-		// initialization of indice
-		for (j=0;j<(p2/2);j++){
-			indice[j]=0;
+		printf("building list %i",i);
+		lists[i] = calloc((1UL << l2),sizeof(S));
+		/* initialization of indice
+		 *  We assume p2/2 << k+l.
+		 *  Then the p2/2 first colums will always be in the first block in all distributions
+		 *  (except the second which is odd/even).
+		 *  Please choose (k+l) divisible by 4 to avoid possible bugs
+		 *  due to blocks of non equal size in distribution 3 and 4.
+		 */
+		switch (i){
+			case 0:
+				for (j=0;j<(p2/2);j++){
+					indice[j]=j;
+				} break;
+			case 1:
+				for (j=0;j<(p2/2);j++){
+					indice[j]=2*j;
+				} break;
+
+			case 2:
+				for (j=0;j<(p2/2);j++){
+					indice[j]=j;
+				} break;
+			case 3:
+				for (j=0;j<(p2/2);j++){
+					indice[j]=j;
+				} break;
 		}
-		while(next(indice,L_len,(p2/2),i)){
-			for (j=0; j< csize;j++){
-				//table[sums[((p2/2)-1)*j]]
-			}
+		h1store(lists[i],indice,sums,(p2/2),csize);
+		while(next(L,indice,sums,csize,L_len,(p2/2),i)){
+				h1store(lists[i],indice,sums,(p2/2),csize);
 		}
 	}
 
-
-	//TODO
+	//TODO list 1->4 created. Now end step 1 with list 5 -> 8 fusion
 
 	free(indice);
 	free(sums);
-	free(table);
+	for (i=0; i<4;i++){
+		for (j=0;j<(1UL << l2);j++){
+				if (lists[i][j].indice != NULL){
+					freelist(lists[i][j]);
+				}
+		free(lists[i]);
+		}
+	}
 }
 
 void sub_isd_report(unsigned long long cycles_per_iter) {
