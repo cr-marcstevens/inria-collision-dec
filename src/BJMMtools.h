@@ -7,7 +7,7 @@
 
 typedef struct draw {
 	word* sum;
-	short* indice;
+	unsigned short* indice;
 	struct draw* next;
 } S ;
 
@@ -23,6 +23,12 @@ typedef struct draw {
 
 int next(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned int L_len, unsigned int w,int method);
 
-void h1store(S* table,unsigned short* indice,word* sums,unsigned int w,unsigned int csize);
+int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned int L_len, unsigned int w,int method);
+
+void h1store(S* table,int shift,unsigned short* indice,word* sums,unsigned int w,unsigned int csize);
+
+void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,unsigned short* indice,word* sums,unsigned int w,unsigned int csize);
+
+void tri(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2);
 
 void freelist(S draw);

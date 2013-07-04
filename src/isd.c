@@ -226,7 +226,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		generate_permutation(perm, perm_inv, n, state);
 	}
 
-	/* Maybe unnecessary but not harmful; apply a revertible linear
+	/* Maybe unnecessary but not harmful; apply a reversible linear
 	transformation to the columns of HzeroT to try to prevent eventual
 	degenerate cases. */
 	scramble(HzeroT, N, synds);
@@ -240,7 +240,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 	//    max_iter iterations are done 
 	// or max_sol solutions have been found 
 	// or max_time seconds elapsed.
-	// Setting one of the three variable to 0 disable the coresponding stop condition.
+	// Setting one of the three variable to 0 disable the corresponding stop condition.
 	while (stop == 0) {
 		if (print_status) {
 			printf("nb_iter : %lld\n", nb_iter);
@@ -288,7 +288,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 		mzd_concat_id(A_I, A);
 
-		// Abort this iteration if echelonization failed. We could have swaped
+		// Abort this iteration if echelonization failed. We could have swapped
 		// columns and adjusted the permutation but we prefer to abandon this
 		// iteration and continue. 
 		// This should happen with probability 2^-l
