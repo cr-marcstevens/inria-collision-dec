@@ -67,6 +67,8 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 
 	k = n-r;
 
+	assert(r > word_len);
+
 	L_len = k+l;
 
 	threshold = local_threshold;
@@ -112,8 +114,9 @@ output += """
 	unsigned int weight_on_one_word;
 	int final_weight;
 	word a, aprime, x, old_x;
-	word lmask = (1UL << l) - 1;
-	word l2mask = (1UL << l2) - 1;
+	word lmask = (1UL << (word_len - l)) - 1;
+	int l2shift = word_len - l2;
+	int ll2shift = word_len - (l-l2); 
 	word index;
 	word value;
 
@@ -134,7 +137,7 @@ for i in range(2,1+ncols/4):
 output += "		value = " + repeat("L[c%d]", ncols/4, " ^ ") + ';'
 
 output += """
-		index = value & l2mask;
+		index = value >> l2shift;
 		waht_store(L1, index, value);
 """
 output += "		iaht_store(L1_indices, index, p/4, "+ repeat("c%d", ncols/4, ", ") +");\n	"
@@ -149,7 +152,7 @@ for i in range(2,1+ncols/4):
 	output += "	for (c%d = (L_len+1)/2 + %d; c%d < c%d; ++c%d) {\n" % (i, ncols/4-i, i, i-1, i)
 output += "		value = " + repeat("L[c%d]", ncols/4, " ^ ") + ';'
 output += """
-		index = value & l2mask;
+		index = value >> l2shift;
 		waht_store(L2, index, value);
 """
 output += "		iaht_store(L2_indices, index, p/4, "+ repeat("c%d", ncols/4, ', ') +");\n	"
@@ -159,7 +162,7 @@ output += "\n\n"
 
 output += """
 	for (a = 0; a < (1UL << l2); ++a) {
-		aprime = (a ^ synd) & l2mask;
+		aprime = a ^ (synd >> l2shift);
 		nocolht_reset(L12, L12_size);
 
 		for (x = 0; x < (1UL << l2); ++x) {
@@ -171,16 +174,17 @@ output += """
 					for (i = 1; i < E1[0]; ++i) {
 						for (j = 1; j < E2[0]; ++j) {
 							value = E1[i] ^ E2[j];
-							// the index is the l first bits of the sum minus the l2 first
-							index = (value & lmask) >> l2;
+							// the index is the l-l2 bits following the l2 most significant ones
+							index = (value << l2) >> ll2shift;
 
-							// we build the word value such that it has x on the l2 first bits, zero on the l-l2 next bits (wasted space that may be used) and the sum on the rest
+							// we build the word value such that it has x on the l2 most significants bits, zero on the l-l2 next bits (wasted space that may be used) and the sum on the rest
 							// |   x    | 0 | u+v |
 							//  <--l2-->
 							//  <----l----->
+							//  <----word_len---->
 
-							value &= ~lmask;
-							value ^= x;
+							value &= lmask; // clear the l MSB
+							value ^= (x << l2shift);  // inject x
 							nocolht_store(L12, index, value);
 						}
 					}
@@ -197,18 +201,21 @@ output += """
 					for (i = 1; i < 1+E3[0]; ++i) {
 						for (j = 1; j < 1+E4[0]; ++j) {
 							value = E3[i] ^ E4[j] ^ synd;
-							index = (value & lmask) >> l2;
+							index = (value << l2) >> ll2shift;
 							nocolht_elt L12_elt = nocolht_get(L12, index); // we stored only one element per index in L12
 							if (L12_elt != 0) {
 								incr_nb_collision_counter();
 
 								value ^= L12_elt;
-								value >>= l; // the l2 first bits of L12_elt are unknown (but the l first bits of the sum is 0 at this point of the algorithm)
+								value = (value << l) >> l; // clear the l MSB; the L12 contained the coresponding x in this place (see building of L12)
 
-								if(isd_weight(value) <= threshold) {
-									old_x = L12_elt & l2mask;
+								weight_on_one_word = isd_weight(value);
+								if(weight_on_one_word <= threshold) {
+									incr_final_test_counter();
+									final_test_probe_start();
+									old_x = L12_elt >> l2shift;
 
-									/* Ok we found a collision, now we look into the L*_indices to find the corresponding columns numbers */
+									/* We found a collision, now we look into the L*_indices to find the corresponding columns numbers */
 									for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += p/4) {
 										for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += p/4) {
 											for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += p/4) {
@@ -216,11 +223,7 @@ output += """
 """
 for i in range(1, 1+ncols):
 	output += "													c%d = p%d[%d];\n" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
-output += "													weight_on_one_word = isd_weight(synd ^ " + repeat("L[c%d]", ncols, "  ^ ") + ");"
 output+= """
-													if(weight_on_one_word <= threshold) {
-														incr_final_test_counter();
-														final_test_probe_start();
 """
 output += "														final_weight = final_test(0, weight_on_one_word, p, " + repeat("c%d", ncols, ', ') +");"
 output += """
@@ -230,7 +233,6 @@ output += """
 															"""
 output += "															*h = sw_list_add(*h, 0, final_weight, p, " + repeat("c%d", ncols, ', ') +");"
 output += """
-														}
 													}
 												}
 											}

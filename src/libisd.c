@@ -22,6 +22,13 @@ double nCr(int n, int r) {
 	return x;
 }
 
+void print_bin(word x) {
+	unsigned int i;
+	for (i = 0; i < word_len; ++i) {
+		printf("%lu", (x >> (word_len-i-1)) & 1UL);
+	}
+}
+
 /* Used for debugging */
 void generate_id_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state) {
 	(void) state; // remove warning, useful only to keep same prototype as generate_permutation

@@ -17,6 +17,7 @@
 #define vec_get_bit(vec, j) (((vec)[(j)/word_len] >> ((j)%word_len)) &1)
 
 double nCr(int n, int r);
+void print_bin(word x);
 void generate_id_permutation(unsigned int* perm,unsigned int* perm_inv, unsigned int n, ranctx* state);
 void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state);
 void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int n);
