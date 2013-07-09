@@ -305,7 +305,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 }
 
-void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
+void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
 	unsigned int i;
 	word sumr1;
 	word index = ((sums[w-1]>>shift1)^target);
@@ -317,7 +317,7 @@ void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,uns
 			for (i=0; i<csize; i++){
 				*(EStep1[sumr1].sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
 			}
-			tri((*EStep1).indice,table[index].indice,indice,w/2,w/2);
+			Sort(EStep1[sumr1].indice,table[index].indice,indice,w/2,w/2);
 		}
 		else{			//there are already one or more solutions at sumr1
 			S* current1 = &EStep1[sumr1];
@@ -326,7 +326,7 @@ void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,uns
 			}
 			(*current1).next= calloc(1,sizeof(S));
 			(*((*current1).next)).indice = malloc(w*sizeof(short));
-			tri((*((*current1).next)).indice,table[index].indice,indice,w/2,w/2);
+			Sort((*((*current1).next)).indice,table[index].indice,indice,w/2,w/2);
 			(*((*current1).next)).sum = malloc(csize*sizeof(word));
 			for (i=0; i<csize; i++){
 				*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
@@ -343,7 +343,7 @@ void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,uns
 				for (i=0; i<csize; i++){
 					*(EStep1[sumr1].sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
 				}
-				tri((*EStep1).indice,(*current2).indice,indice,w/2,w/2);
+				Sort(EStep1[sumr1].indice,(*current2).indice,indice,w/2,w/2);
 			}
 			else{			//there are already one or more solutions at sumr1
 				S* current1 = &EStep1[sumr1];
@@ -352,7 +352,7 @@ void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,uns
 				}
 				(*current1).next= calloc(1,sizeof(S));
 				(*((*current1).next)).indice = malloc(w*sizeof(short));
-				tri((*((*current1).next)).indice,(*current2).indice,indice,w/2,w/2);
+				Sort((*((*current1).next)).indice,(*current2).indice,indice,w/2,w/2);
 				(*((*current1).next)).sum = malloc(csize*sizeof(word));
 				for (i=0; i<csize; i++){
 					*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
@@ -362,11 +362,196 @@ void fusion1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,uns
 	}
 }
 
-void tri(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2){
+void fusiongive1(S* answer,word target,S* table,int shift1,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
+	unsigned int i;
+	word index = ((sums[w-1]>>shift1)^target);
+	if (table[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		(*answer).sum = malloc(csize*sizeof(word));
+		(*answer).indice = malloc(w*sizeof(short));
+		for (i=0; i<csize; i++){
+			*((*answer).sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
+		}
+		Sort((*answer).indice,table[index].indice,indice,w/2,w/2);
+		S* current1 = answer;
+		S* current2 = &table[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			(*current1).next=calloc(1,sizeof(S));
+			current1 = (*current1).next;
+			(*current1).sum = malloc(csize*sizeof(word));
+			(*current1).indice = malloc(w*sizeof(short));
+			for (i=0; i<csize; i++){
+				*((*current1).sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
+			}
+			Sort((*current1).indice,(*current2).indice,indice,w/2,w/2);
+		}
+	}
+}
+
+void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,int eff_word_len,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
+	unsigned int i;
+	word sumr;
+	word index = (((((*OnTheFlyE).sum[0])^target)<<shift1)>>shift2); // OnTheFlyE first draw
+	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		sumr = ((((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
+
+		if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
+			AnswerList[sumr].indice = malloc(w2*sizeof(short));
+			if(SortFilter(AnswerList[sumr].indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+				AnswerList[sumr].sum = malloc(csize*sizeof(word));
+				for (i=0; i<csize; i++){
+					*(AnswerList[sumr].sum+i)=((*OnTheFlyE).sum[i]^(StockedE[index].sum[i]));
+				}
+			}
+			else{	//filtered solution
+				free(AnswerList[sumr].indice);
+				AnswerList[sumr].indice = NULL;
+			}
+		}
+		else{			//there are already one or more solutions at sumr1
+			S* current1 = &AnswerList[sumr];
+			while((*current1).next!=NULL){
+				current1 = (*current1).next;
+			}
+			(*current1).next= calloc(1,sizeof(S));
+			(*((*current1).next)).indice = malloc(w2*sizeof(short));
+			if(SortFilter((*((*current1).next)).indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+				(*((*current1).next)).sum = malloc(csize*sizeof(word));
+				for (i=0; i<csize; i++){
+					*((*((*current1).next)).sum+i)=((*OnTheFlyE).sum[i]^(StockedE[index].sum[i]));
+				}
+			}
+			else{	//filtered solution
+				free((*((*current1).next)).indice);
+				free((*current1).next);
+			}
+		}
+
+
+		S* current2 = &StockedE[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			sumr = ((((*OnTheFlyE).sum[0]^((*current2).sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
+
+			if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
+				AnswerList[sumr].indice = malloc(w2*sizeof(short));
+				if(SortFilter(AnswerList[sumr].indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+					AnswerList[sumr].sum = malloc(csize*sizeof(word));
+					for (i=0; i<csize; i++){
+						*(AnswerList[sumr].sum+i)=((*OnTheFlyE).sum[i]^((*current2).sum[i]));
+					}
+				}
+				else{	//filtered solution
+					free(AnswerList[sumr].indice);
+					AnswerList[sumr].indice = NULL;
+				}
+			}
+			else{			//there are already one or more solutions at sumr1
+				S* current1 = &AnswerList[sumr];
+				while((*current1).next!=NULL){
+					current1 = (*current1).next;
+				}
+				(*current1).next= calloc(1,sizeof(S));
+				(*((*current1).next)).indice = malloc(w2*sizeof(short));
+				if(SortFilter((*((*current1).next)).indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+					(*((*current1).next)).sum = malloc(csize*sizeof(word));
+					for (i=0; i<csize; i++){
+						*((*((*current1).next)).sum+i)=((*OnTheFlyE).sum[i]^((*current2).sum[i]));
+					}
+				}
+				else{	//filtered solution
+					free((*((*current1).next)).indice);
+					free((*current1).next);
+				}
+			}
+		}
+	}
+	S* current3 = OnTheFlyE;
+	while((*current3).next != NULL){ // OnTheFlyE next draws
+		current3 = (*current3).next;
+		word index = (((((*current3).sum[0])^target)<<shift1)>>shift2);
+		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+			sumr = ((((*current3).sum[0]^(StockedE[index].sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
+
+			if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
+				AnswerList[sumr].indice = malloc(w2*sizeof(short));
+				if(SortFilter(AnswerList[sumr].indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+					AnswerList[sumr].sum = malloc(csize*sizeof(word));
+					for (i=0; i<csize; i++){
+						*(AnswerList[sumr].sum+i)=((*current3).sum[i]^(StockedE[index].sum[i]));
+					}
+				}
+				else{	//filtered solution
+					free(AnswerList[sumr].indice);
+					AnswerList[sumr].indice = NULL;
+				}
+			}
+			else{			//there are already one or more solutions at sumr1
+				S* current1 = &AnswerList[sumr];
+				while((*current1).next!=NULL){
+					current1 = (*current1).next;
+				}
+				(*current1).next= calloc(1,sizeof(S));
+				(*((*current1).next)).indice = malloc(w2*sizeof(short));
+				if(SortFilter((*((*current1).next)).indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+					(*((*current1).next)).sum = malloc(csize*sizeof(word));
+					for (i=0; i<csize; i++){
+						*((*((*current1).next)).sum+i)=((*current3).sum[i]^(StockedE[index].sum[i]));
+					}
+				}
+				else{	//filtered solution
+					free((*((*current1).next)).indice);
+					free((*current1).next);
+				}
+			}
+
+
+			S* current2 = &StockedE[index];
+			while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+				current2 = (*current2).next;
+				sumr = ((((*current3).sum[0]^((*current2).sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
+
+				if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
+					AnswerList[sumr].indice = malloc(w2*sizeof(short));
+					if(SortFilter(AnswerList[sumr].indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+						AnswerList[sumr].sum = malloc(csize*sizeof(word));
+						for (i=0; i<csize; i++){
+							*(AnswerList[sumr].sum+i)=((*current3).sum[i]^((*current2).sum[i]));
+						}
+					}
+					else{	//filtered solution
+						free(AnswerList[sumr].indice);
+						AnswerList[sumr].indice = NULL;
+					}
+				}
+				else{			//there are already one or more solutions at sumr1
+					S* current1 = &AnswerList[sumr];
+					while((*current1).next!=NULL){
+						current1 = (*current1).next;
+					}
+					(*current1).next= calloc(1,sizeof(S));
+					(*((*current1).next)).indice = malloc(w2*sizeof(short));
+					if(SortFilter((*((*current1).next)).indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+						(*((*current1).next)).sum = malloc(csize*sizeof(word));
+						for (i=0; i<csize; i++){
+							*((*((*current1).next)).sum+i)=((*current3).sum[i]^((*current2).sum[i]));
+						}
+					}
+					else{	//filtered solution
+						free((*((*current1).next)).indice);
+						free((*current1).next);
+					}
+				}
+			}
+		}
+	}
+}
+
+void Sort(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2){
 	unsigned short p1 =0;
 	unsigned short p2 =0;
-	while (p1 < size1 && p2 < size2){
-		if (*(s1+p1) < *(s2+p2)){
+	while (p1 < size1 && p2 < size2){ //sorting
+		if (*(s1+p1) < *(s2+p2) ){
 			*(dest+p1+p2)= *(s1+p1);
 			p1++;
 		}
@@ -375,6 +560,85 @@ void tri(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned sho
 			p2++;
 		}
 	}
+	while(p1<size1){ // filling the end of dest. Only one of the two while loop will do something
+		*(dest+p1+p2)= *(s1+p1);
+		p1++;
+	}
+	while(p2<size2){ // filling the end of dest. Only one of the two while loop will do something
+		*(dest+p1+p2)= *(s2+p2);
+		p2++;
+	}
+}
+
+int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2,unsigned short targetsize){
+	unsigned short p1 =0;
+	unsigned short p2 =0;
+	unsigned short currentsize = 1;
+
+	if (*(s1+p1) < *(s2+p2)){ // first step
+		*dest= *(s1+p1);
+		p1++;
+	}
+	else{
+		*dest= *(s2+p2);
+		p2++;
+	}
+
+	while (p1 < size1 && p2 < size2){ //sorting
+		if (*(s1+p1) < *(s2+p2) ){
+			if (*(dest+currentsize-1) == *(s1+p1)){
+				p1++;
+			}
+			else {
+				*(dest+currentsize)= *(s1+p1);
+				p1++;
+				currentsize++;
+				if(currentsize > targetsize){
+					return 0; //filtered solution
+				}
+			}
+		}
+		else{
+			if (*(dest+currentsize-1) == *(s2+p2)){
+				p2++;
+			}
+			else {
+				*(dest+currentsize)= *(s2+p2);
+				p2++;
+				currentsize++;
+				if(currentsize > targetsize){
+					return 0; //filtered solution
+				}
+			}
+		}
+	}
+	while(p1<size1){ // filling the end of dest. Only one of the two while loop will do something
+		if (*(dest+currentsize-1) == *(s1+p1)){
+			p1++;
+		}
+		else {
+			*(dest+currentsize)= *(s1+p1);
+			p1++;
+			currentsize++;
+			if(currentsize > targetsize){
+				return 0; //filtered solution
+			}
+		}
+	}
+	while(p2<size2){ // filling the end of dest. Only one of the two while loop will do something
+		if (*(dest+currentsize-1) == *(s2+p2)){
+			p2++;
+		}
+		else {
+			*(dest+currentsize)= *(s2+p2);
+			p2++;
+			currentsize++;
+			if(currentsize > targetsize){
+				return 0; //filtered solution
+			}
+		}
+	}
+	return 1;
 }
 
 void freelist(S draw){
