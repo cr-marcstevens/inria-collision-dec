@@ -547,6 +547,85 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 	}
 }
 
+void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,unsigned int w,unsigned int w2,unsigned int csize){
+	unsigned int i;
+	S* current1 = AnswerList;
+	word index = (((((*OnTheFlyE).sum[0])^target)<<shift1)>>shift2); // OnTheFlyE first draw
+	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		(*current1).indice = malloc(w2*sizeof(short));
+		if(SortFilter((*current1).indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+			(*current1).sum = malloc(csize*sizeof(word));
+			for (i=0; i<csize; i++){
+				*((*current1).sum+i)=((*OnTheFlyE).sum[i]^(StockedE[index].sum[i]));
+			}
+			(*current1).next = calloc(1,sizeof(S));
+			current1 = (*current1).next;
+		}
+		else{	//filtered solution
+			free((*current1).indice);
+			(*current1).indice = NULL;
+		}
+		S* current2 = &StockedE[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			(*current1).indice = malloc(w2*sizeof(short));
+			if(SortFilter((*current1).indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+				(*current1).sum = malloc(csize*sizeof(word));
+				for (i=0; i<csize; i++){
+					*((*current1).sum+i) = ((*OnTheFlyE).sum[i]^((*current2).sum[i]));
+				}
+				(*current1).next = calloc(1,sizeof(S));
+				current1 = (*current1).next;
+			}
+			else{	//filtered solution
+				free((*current1).indice);
+				(*current1).indice = NULL;
+			}
+		}
+	}
+	S* current3 = OnTheFlyE;
+	while((*current3).next != NULL){ // OnTheFlyE next draws
+		current3 = (*current3).next;
+		word index = (((((*current3).sum[0])^target)<<shift1)>>shift2);
+		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+			(*current1).indice = malloc(w2*sizeof(short));
+			if(SortFilter((*current1).indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+				(*current1).sum = malloc(csize*sizeof(word));
+				for (i=0; i<csize; i++){
+					*((*current1).sum+i)=((*current3).sum[i]^(StockedE[index].sum[i]));
+				}
+				(*current1).next = calloc(1,sizeof(S));
+				current1 = (*current1).next;
+			}
+			else{	//filtered solution
+				free((*current1).indice);
+				(*current1).indice = NULL;
+			}
+			S* current2 = &StockedE[index];
+			while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+				current2 = (*current2).next;
+				(*current1).indice = malloc(w2*sizeof(short));
+				if(SortFilter((*current1).indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+					(*current1).sum = malloc(csize*sizeof(word));
+					for (i=0; i<csize; i++){
+						*((*current1).sum+i)=((*current3).sum[i]^((*current2).sum[i]));
+					}
+					(*current1).next = calloc(1,sizeof(S));
+					current1 = (*current1).next;
+				}
+				else{	//filtered solution
+					free((*current1).indice);
+					(*current1).indice = NULL;
+				}
+			}
+		}
+	}
+}
+
+void FinalFusionFilter64(){
+
+}
+
 void Sort(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2){
 	unsigned short p1 =0;
 	unsigned short p2 =0;
