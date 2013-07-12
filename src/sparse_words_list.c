@@ -30,6 +30,17 @@ sw_list* sw_list_add(sw_list* h, unsigned int synd_idx, unsigned int synd_weight
 	return new;
 }
 
+sw_list* sw_list_add_array(sw_list* h, unsigned int synd_idx, unsigned int synd_weight, unsigned int p,unsigned short* columns) {
+	unsigned int i;
+	sw_list* new = sw_list_new(h, p);
+	for (i = 0; i < p; ++i) {
+		new->pos[i] = *(columns+i);
+	}
+	new->synd_idx = synd_idx;
+	new->synd_weight = synd_weight;
+	return new;
+}
+
 void sw_list_sort(sw_list* h) {
 	int cmp(const void* a, const void* b) {
 		return (*(int*) a > *(int*) b);

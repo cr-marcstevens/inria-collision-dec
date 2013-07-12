@@ -7,6 +7,7 @@
 
 #include "m4ri/m4ri.h"
 #include "BJMMtools.h"
+#include "sparse_words_list.h"
 #include <limits.h>
 
 // see BJMMtools.h for method description
@@ -391,7 +392,7 @@ void fusiongive1(S* answer,word target,S* table,int shift1,unsigned short* indic
 void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,int eff_word_len,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
 	unsigned int i;
 	word sumr;
-	word index = (((((*OnTheFlyE).sum[0])^target)<<shift1)>>shift2); // OnTheFlyE first draw
+	word index = (((((*OnTheFlyE).sum[0])<<shift1)>>shift2)^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		sumr = ((((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
 
@@ -469,7 +470,7 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 	S* current3 = OnTheFlyE;
 	while((*current3).next != NULL){ // OnTheFlyE next draws
 		current3 = (*current3).next;
-		word index = (((((*current3).sum[0])^target)<<shift1)>>shift2);
+		word index = (((((*current3).sum[0])<<shift1)>>shift2)^target);
 		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 			sumr = ((((*current3).sum[0]^(StockedE[index].sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
 
@@ -550,7 +551,7 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,unsigned int w,unsigned int w2,unsigned int csize){
 	unsigned int i;
 	S* current1 = AnswerList;
-	word index = (((((*OnTheFlyE).sum[0])^target)<<shift1)>>shift2); // OnTheFlyE first draw
+	word index = (((((*OnTheFlyE).sum[0])<<shift1)>>shift2)^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		(*current1).indice = malloc(w2*sizeof(short));
 		if(SortFilter((*current1).indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
@@ -586,7 +587,7 @@ void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int 
 	S* current3 = OnTheFlyE;
 	while((*current3).next != NULL){ // OnTheFlyE next draws
 		current3 = (*current3).next;
-		word index = (((((*current3).sum[0])^target)<<shift1)>>shift2);
+		word index = (((((*current3).sum[0])<<shift1)>>shift2)^target);
 		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 			(*current1).indice = malloc(w2*sizeof(short));
 			if(SortFilter((*current1).indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
@@ -622,8 +623,106 @@ void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int 
 	}
 }
 
-void FinalFusionFilter64(){
+void FinalFusionFilter64(sw_list* AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
+	unsigned int i;
+	int ncolumn;
+	int valid;
+	S builder;
+	word target = ((Synd[0]<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
+	builder.indice = malloc(w2*sizeof(short));
+	builder.sum = malloc(csize*sizeof(word));
+	word index = ((((((*OnTheFlyE).sum[0])<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3))))^target); // OnTheFlyE first draw
+	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		if(SortFilter(builder.indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+			valid =1;
+			for (i=0; i<csize; i++){
+				if(((*OnTheFlyE).sum[i]^(StockedE[index].sum[i])) != Synd[i]){
+					valid=0;
+					break;
+				}
+			}
+			if (valid == 1){
+				ncolumn = w2;
+				for (i=0;i < w2; i++){
+					if (builder.indice[i] == USHRT_MAX){
+						ncolumn--;
+					}
+				}
+				sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+			}
+		}
 
+		S* current2 = &StockedE[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			if(SortFilter(builder.indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+				valid =1;
+				for (i=0; i<csize; i++){
+					if(((*OnTheFlyE).sum[i]^((*current2).sum[i])) != Synd[i]){
+						valid=0;
+						break;
+					}
+				}
+				if (valid == 1){
+					ncolumn = w2;
+					for (i=0;i < w2; i++){
+						if (builder.indice[i] == USHRT_MAX){
+							ncolumn--;
+						}
+					}
+					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+				}
+			}
+		}
+	}
+	S* current3 = OnTheFlyE;
+	while((*current3).next != NULL){ // OnTheFlyE next draws
+		word index = ((((((*current3).sum[0])<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3))))^target); // OnTheFlyE first draw
+		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+			if(SortFilter(builder.indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
+				valid =1;
+				for (i=0; i<csize; i++){
+					if(((*current3).sum[i]^(StockedE[index].sum[i])) != Synd[i]){
+						valid=0;
+						break;
+					}
+				}
+				if (valid == 1){
+					ncolumn = w2;
+					for (i=0;i < w2; i++){
+						if (builder.indice[i] == USHRT_MAX){
+							ncolumn--;
+						}
+					}
+					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+				}
+			}
+		}
+		S* current2 = &StockedE[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			if(SortFilter(builder.indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+				valid =1;
+				for (i=0; i<csize; i++){
+					if(((*current3).sum[i]^((*current2).sum[i])) != Synd[i]){
+						valid=0;
+						break;
+					}
+				}
+				if (valid == 1){
+					ncolumn = w2;
+					for (i=0;i < w2; i++){
+						if (builder.indice[i] == USHRT_MAX){
+							ncolumn--;
+						}
+					}
+					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+				}
+			}
+		}
+	}
+	free(builder.sum);
+	free(builder.indice);
 }
 
 void Sort(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2){
@@ -653,6 +752,7 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 	unsigned short p1 =0;
 	unsigned short p2 =0;
 	unsigned short currentsize = 1;
+	int i;
 
 	if (*(s1+p1) < *(s2+p2)){ // first step
 		*dest= *(s1+p1);
@@ -678,7 +778,7 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 			}
 		}
 		else{
-			if (*(dest+currentsize-1) == *(s2+p2)){
+			if ((*(dest+currentsize-1) == *(s2+p2)) || (*(s2+p2) == USHRT_MAX)){
 				p2++;
 			}
 			else {
@@ -692,7 +792,7 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 		}
 	}
 	while(p1<size1){ // filling the end of dest. Only one of the two while loop will do something
-		if (*(dest+currentsize-1) == *(s1+p1)){
+		if ((*(dest+currentsize-1) == *(s1+p1)) || (*(s1+p1) == USHRT_MAX)){
 			p1++;
 		}
 		else {
@@ -705,7 +805,7 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 		}
 	}
 	while(p2<size2){ // filling the end of dest. Only one of the two while loop will do something
-		if (*(dest+currentsize-1) == *(s2+p2)){
+		if ((*(dest+currentsize-1) == *(s2+p2)) || (*(s2+p2) == USHRT_MAX)){
 			p2++;
 		}
 		else {
@@ -716,6 +816,9 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 				return 0; //filtered solution
 			}
 		}
+	}
+	for (i=currentsize; i<targetsize ; i++){ //potential garbage erasing
+		*(dest+i) = USHRT_MAX;
 	}
 	return 1;
 }

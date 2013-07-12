@@ -5,8 +5,6 @@
  *      Author: Mathieu ARIA
  */
 
-//TODO
-
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
@@ -26,7 +24,7 @@ static word* syndsprime;
 static unsigned int n, k, r, l, l2, l3, p, e1, e2, w, L_len, threshold, csize;
 static unsigned int p2;
 static unsigned int p1;
-static word s1, s2, s3, s4, a;
+static word s1, s2, s3, s4, a, sma;
 static int eff_word_len,shift1,shift2,shift1p;
 static sw_list** h;
 
@@ -71,6 +69,7 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 void sub_isd() {
 
 	s4 = (s1^s2^s3)^(syndsprime[0] >> shift1);
+	sma = (((syndsprime[0])<<shift1p)>>shift2)^a;
 	/*
 	 * Lists construction from E1, E2, E3, E4
 	 *
@@ -149,11 +148,11 @@ void sub_isd() {
 	}
 	//used list deletion
 	for (j=0;j<(1UL << l2);j++){
-		if (lists[1][j].indice != NULL){
-			freelist(lists[1][j]);
+		if (lists[0][j].indice != NULL){
+			freelist(lists[0][j]);
 		}
 	}
-	free(lists[1]);
+	free(lists[0]);
 	//---------------------
 	if ((l)<=64) {
 		printf("fusion ->E2 and E1 + E2 -> E'1");
@@ -179,18 +178,18 @@ void sub_isd() {
 
 		//used list deletion
 		for (j=0;j<(1UL << l2);j++){
-			if (lists[2][j].indice != NULL){
-				freelist(lists[2][j]);
+			if (lists[1][j].indice != NULL){
+				freelist(lists[1][j]);
 			}
 		}
-		free(lists[2]);
+		free(lists[1]);
 		//used list deletion
 		for (j=0;j<(1UL << l3);j++){
-			if (EStep1[1][j].indice != NULL){
-				freelist(EStep1[1][j]);
+			if (EStep1[0][j].indice != NULL){
+				freelist(EStep1[0][j]);
 			}
 		}
-		free(EStep1[1]);
+		free(EStep1[0]);
 		//---------------------
 		printf("fusion -> E3");
 		EStep1[2]= calloc((1UL << l3),sizeof(S));
@@ -209,11 +208,11 @@ void sub_isd() {
 		}
 		//used list deletion
 		for (j=0;j<(1UL << l2);j++){
-			if (lists[3][j].indice != NULL){
-				freelist(lists[3][j]);
+			if (lists[2][j].indice != NULL){
+				freelist(lists[2][j]);
 			}
 		}
-		free(lists[3]);
+		free(lists[2]);
 		//---------------------
 		printf("fusion ->E4 and E3 + E4 -> E'2 and E'1 + E'2 -> E ");
 		for (j=0;j<(p2/2);j++){
@@ -226,25 +225,25 @@ void sub_isd() {
 			}
 		}
 		fusiongive1(temp,s2,lists[2],shift1,indice,sums,p2,csize);
-		FusionFilterGive64(temp2,EStep1[2],temp,a,shift1p,shift2,p2,p1,csize);
-		FinalFusionFilter64();
+		FusionFilterGive64(temp2,EStep1[2],temp,sma,shift1p,shift2,p2,p1,csize);
+		FinalFusionFilter64(h[0],EStep2,temp2,syndsprime,eff_word_len,l,l2,l3,p1,p,csize);
 		freelist(*temp);
 		freelist(*temp2);
 		while(next2(L,indice,sums,csize,L_len,(p2/2),2)){
 			fusiongive1(temp,s2,lists[2],shift1,indice,sums,p2,csize);
-			FusionFilterGive64(temp2,EStep1[2],temp,a,shift1p,shift2,p2,p1,csize);
-			FinalFusionFilter64();
+			FusionFilterGive64(temp2,EStep1[2],temp,sma,shift1p,shift2,p2,p1,csize);
+			FinalFusionFilter64(h[0],EStep2,temp2,syndsprime,eff_word_len,l,l2,l3,p,p,csize);
 			freelist(*temp);
 			freelist(*temp2);
 		}
 
 		//used list deletion
 		for (j=0;j<(1UL << l2);j++){
-			if (lists[2][j].indice != NULL){
-				freelist(lists[2][j]);
+			if (lists[3][j].indice != NULL){
+				freelist(lists[3][j]);
 			}
 		}
-		free(lists[2]);
+		free(lists[3]);
 		//used list deletion
 		for (j=0;j<(1UL << l3);j++){
 			if (EStep1[1][j].indice != NULL){
@@ -252,10 +251,13 @@ void sub_isd() {
 			}
 		}
 		free(EStep1[1]);
-		//---------------------
-
-
-		//TODO
+		//used list deletion
+				for (j=0;j<(1UL << l3);j++){
+					if (EStep2[j].indice != NULL){
+						freelist(EStep2[j]);
+					}
+				}
+				free(EStep2);
 	}
 	else {
 		//TODO l > 64 not implemented!
@@ -265,62 +267,6 @@ void sub_isd() {
 	free(temp2);
 	free(indice);
 	free(sums);
-
-	/*
-	for (i=0; i<4;i++){
-		printf("fusion %i",i);
-		EStep1[i] = calloc((1UL << l3),sizeof(S));
-		switch (i){
-			case 0:
-				for (j=0;j<(p2/2);j++){
-					indice[j]=(L_len/2)+j;
-				}
-				target = s1;
-				break;
-			case 1:
-				for (j=0;j<(p2/2);j++){
-				indice[j]=(2*j)+1;
-				}
-				target = s2;
-				break;
-
-			case 2:
-				for (j=0;j<(p2/2);j++){
-					indice[j]=(L_len/4)+j;
-				}
-				target = s3;
-				break;
-			case 3:
-				for (j=0;j<(p2/2);j++){
-					indice[j]=(L_len/4)+j;
-				}
-				target = s4;
-				break;
-		}
-		// initialization of sums
-		for (ii=0;ii<csize;ii++){
-			sums[ii*w]=L[indice[0]+ii*L_len];
-			for (j=1;j<w;j++){
-				sums[j+ii*w]=sums[(j-1)+ii*w]^L[indice[j]+ii*L_len];
-			}
-		}
-		fusionstore1(EStep1[i],target,lists[i],shift1,l2,shift2,indice,sums,p2,csize);
-		while(next2(L,indice,sums,csize,L_len,(p2/2),i)){
-			fusionstore1(EStep1[i],target,lists[i],shift1,l2,shift2,indice,sums,p2,csize);
-		}
-		//used list deletion
-		for (j=0;j<(1UL << l2);j++){
-			if (lists[i][j].indice != NULL){
-				freelist(lists[i][j]);
-			}
-		}
-		free(lists[i]);
-
-	}
-	free(indice);
-	free(sums);
-
-	*/
 }
 
 void sub_isd_report(unsigned long long cycles_per_iter) {

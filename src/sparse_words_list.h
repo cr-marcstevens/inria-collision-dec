@@ -12,6 +12,7 @@ typedef struct sw {
 
 sw_list* sw_list_new(sw_list* h, unsigned int p);
 sw_list* sw_list_add(sw_list* h, unsigned int synd_idx, unsigned int synd_weight, unsigned int p, ...);
+sw_list* sw_list_add_array(sw_list* h, unsigned int synd_idx, unsigned int synd_weight, unsigned int p,unsigned short* columns);
 void sw_list_sort(sw_list* h);
 void sw_list_print(sw_list* h);
 void sw_list_free(sw_list* h);
