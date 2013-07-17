@@ -5,10 +5,11 @@
  *      Author: Mathieu ARIA
  */
 
-#include "m4ri/m4ri.h"
-#include "BJMMtools.h"
-#include "sparse_words_list.h"
 #include <limits.h>
+#include "m4ri/m4ri.h"
+#include "sparse_words_list.h"
+#include "BJMMtools.h"
+
 
 // see BJMMtools.h for method description
 
@@ -45,7 +46,7 @@ int next(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned i
 				}
 			return 1;
 	case 1:
-			while(indice[pointer] == (L_len+(-w+pointer)*2)){
+			while(indice[pointer] == (L_len+(pointer-w)*2)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
 					return 0; // List fully build
@@ -109,6 +110,7 @@ int next(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned i
 						}
 					}
 				}
+			return 1;
 	case 3:
 			while(indice[pointer] == (L_len-w+pointer)){
 				pointer--;
@@ -146,7 +148,8 @@ int next(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned i
 						}
 					}
 				}
-	default: printf("unknown building method");
+			return 1;
+	default: printf("unknown building method \n");
 			return 0;
 	}
 }
@@ -185,7 +188,9 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == ((L_len)-w+pointer)){
 				pointer--;
 				if (pointer ==  USHRT_MAX) {
+					printf("\n"); // barre de suivi.
 					return 0; // List fully build
+
 				}
 			}
 			indice[pointer]+=1;
@@ -194,6 +199,8 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
+					printf("."); // barre de suivi.
+					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
 						for (ii=1;ii<w;ii++){
@@ -213,6 +220,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == (L_len+(-w+pointer)*2+1)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
+					printf("\n"); // barre de suivi.
 					return 0; // List fully build
 				}
 			}
@@ -222,6 +230,8 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
+					printf("."); // barre de suivi.
+					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
 						for (ii=1;ii<w;ii++){
@@ -241,6 +251,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == (L_len-w+pointer)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
+					printf("\n"); // barre de suivi.
 					return 0; // List fully build
 				}
 			}
@@ -260,6 +271,8 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
+					printf("."); // barre de suivi.
+					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
 						for (ii=1;ii<w;ii++){
@@ -274,11 +287,14 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 						}
 					}
 				}
+			return 1;
+
 	case 3:
 			while(indice[pointer] == (((L_len*3)/4)-w+pointer)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
-						return 0; // List fully build
+					printf("\n"); // barre de suivi.
+					return 0; // List fully build
 				}
 			}
 			indice[pointer]+=1;
@@ -287,6 +303,8 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
+					printf("."); // barre de suivi.
+					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
 						for (ii=1;ii<w;ii++){
@@ -301,7 +319,8 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 						}
 					}
 				}
-	default: printf("unknown building method");
+			return 1;
+	default: printf("warning: unknown building method \n");
 			return 0;
 			}
 }
@@ -309,9 +328,9 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
 	unsigned int i;
 	word sumr1;
-	word index = ((sums[w-1]>>shift1)^target);
+	word index = ((sums[w/2-1]>>shift1)^target);
 	if (table[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
-		sumr1 = (((sums[w-1]^(table[index].sum[0]))<<shift2)>>shift3);
+		sumr1 = (((sums[w/2-1]^(table[index].sum[0]))<<shift2)>>shift3);
 		if(EStep1[sumr1].indice==NULL){			//there is not yet a solution at sumr1
 			EStep1[sumr1].sum = malloc(csize*sizeof(word));
 			EStep1[sumr1].indice = malloc(w*sizeof(short));
@@ -333,10 +352,11 @@ void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift
 				*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
 			}
 		}
+
 		S* current2 = &table[index];
 		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
 			current2 = (*current2).next;
-			sumr1 = (((sums[w-1]^((*current2).sum[0]))<<shift2)>>shift3);
+			sumr1 = (((sums[w/2-1]^((*current2).sum[0]))<<shift2)>>shift3);
 
 			if(EStep1[sumr1].indice==NULL){			//there is not yet a solution at sumr1
 				EStep1[sumr1].sum = malloc(csize*sizeof(word));
@@ -359,13 +379,15 @@ void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift
 					*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
 				}
 			}
+
 		}
 	}
 }
 
+
 void fusiongive1(S* answer,word target,S* table,int shift1,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
 	unsigned int i;
-	word index = ((sums[w-1]>>shift1)^target);
+	word index = ((sums[w/2-1]>>shift1)^target);
 	if (table[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		(*answer).sum = malloc(csize*sizeof(word));
 		(*answer).indice = malloc(w*sizeof(short));
@@ -395,7 +417,6 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 	word index = (((((*OnTheFlyE).sum[0])<<shift1)>>shift2)^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		sumr = ((((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
-
 		if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
 			AnswerList[sumr].indice = malloc(w2*sizeof(short));
 			if(SortFilter(AnswerList[sumr].indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
@@ -428,21 +449,26 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 			}
 		}
 
-
-		S* current2 = &StockedE[index];
+		S* current2 = &(StockedE[index]);
 		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
 			current2 = (*current2).next;
 			sumr = ((((*OnTheFlyE).sum[0]^((*current2).sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
 
 			if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
+				//printf("test 7");
+				//fflush(stdout);
 				AnswerList[sumr].indice = malloc(w2*sizeof(short));
 				if(SortFilter(AnswerList[sumr].indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+					//printf("test 11");
+					//fflush(stdout);
 					AnswerList[sumr].sum = malloc(csize*sizeof(word));
 					for (i=0; i<csize; i++){
 						*(AnswerList[sumr].sum+i)=((*OnTheFlyE).sum[i]^((*current2).sum[i]));
 					}
 				}
 				else{	//filtered solution
+					//printf("test 12");
+					//fflush(stdout);
 					free(AnswerList[sumr].indice);
 					AnswerList[sumr].indice = NULL;
 				}
@@ -831,4 +857,126 @@ void freelist(S draw){
 	free(draw.sum);
 	free(draw.indice);
 }
+
+
+
+/*
+ * debug version
+ *
+ * Use to see EStep1 elements
+ *
+void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift3,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
+	unsigned int i;
+	word sumr1;
+	word index = ((sums[w/2-1]>>shift1)^target);
+	printf("new store \n");
+	fflush(stdout);
+	if (table[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		sumr1 = (((sums[w/2-1]^(table[index].sum[0]))<<shift2)>>shift3);
+		if(EStep1[sumr1].indice==NULL){			//there is not yet a solution at sumr1
+			printf("first sol");
+			fflush(stdout);
+			EStep1[sumr1].sum = malloc(csize*sizeof(word));
+			EStep1[sumr1].indice = malloc(w*sizeof(short));
+			for (i=0; i<csize; i++){
+				*(EStep1[sumr1].sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
+			}
+			Sort(EStep1[sumr1].indice,table[index].indice,indice,w/2,w/2);
+			printf(" mempos: %u  \n",(&EStep1[sumr1]));
+			fflush(stdout);
+			printf(" next: %u  \n",EStep1[sumr1].next);
+			fflush(stdout);
+			printf("indice: %d \n",(EStep1[sumr1].indice[0]));
+			fflush(stdout);
+			printf("indice: %d \n",(EStep1[sumr1].indice[1]));
+			fflush(stdout);
+			printf("sum: %u \n",(unsigned int) ((EStep1[sumr1].sum[0])>>32));
+			fflush(stdout);
+			gets(stdin);
+		}
+		else{			//there are already one or more solutions at sumr1
+			S* current1 = &EStep1[sumr1];
+			printf("other sol");
+			fflush(stdout);
+			while((*current1).next!=NULL){
+				current1 = (*current1).next;
+			}
+			(*current1).next= calloc(1,sizeof(S));
+			(*((*current1).next)).indice = malloc(w*sizeof(short));
+			Sort((*((*current1).next)).indice,table[index].indice,indice,w/2,w/2);
+			(*((*current1).next)).sum = malloc(csize*sizeof(word));
+			for (i=0; i<csize; i++){
+				*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
+			}
+		printf(" mempos: %u  \n",((*current1).next));
+		fflush(stdout);
+		printf(" next: %u  \n",(*((*current1).next)).next);
+		fflush(stdout);
+		printf("indice: %d \n",((*((*current1).next)).indice[0]));
+		fflush(stdout);
+		printf("indice: %d \n",((*((*current1).next)).indice[1]));
+		fflush(stdout);
+		printf("sum: %u \n",(unsigned int)(((*((*current1).next)).sum[0])>>32));
+		fflush(stdout);
+		gets(stdin);
+		}
+
+		S* current2 = &table[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			sumr1 = (((sums[w/2-1]^((*current2).sum[0]))<<shift2)>>shift3);
+
+			if(EStep1[sumr1].indice==NULL){			//there is not yet a solution at sumr1
+				printf("first sol");
+				fflush(stdout);
+				EStep1[sumr1].sum = malloc(csize*sizeof(word));
+				EStep1[sumr1].indice = malloc(w*sizeof(short));
+				for (i=0; i<csize; i++){
+					*(EStep1[sumr1].sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
+				}
+				Sort(EStep1[sumr1].indice,(*current2).indice,indice,w/2,w/2);
+				printf(" mempos: %u  \n",(&EStep1[sumr1]));
+				fflush(stdout);
+				printf(" next: %u  \n",EStep1[sumr1].next);
+				fflush(stdout);
+				printf("indice: %d \n",(EStep1[sumr1].indice[0]));
+				fflush(stdout);
+				printf("indice: %d \n",(EStep1[sumr1].indice[1]));
+				fflush(stdout);
+				printf("sum: %u \n",(unsigned int) ((EStep1[sumr1].sum[0])>>32));
+				fflush(stdout);
+				gets(stdin);
+			}
+			else{			//there are already one or more solutions at sumr1
+				printf("other sol");
+				fflush(stdout);
+				S* current1 = &EStep1[sumr1];
+				while((*current1).next!=NULL){
+					current1 = (*current1).next;
+				}
+				(*current1).next= calloc(1,sizeof(S));
+				(*((*current1).next)).indice = malloc(w*sizeof(short));
+				Sort((*((*current1).next)).indice,(*current2).indice,indice,w/2,w/2);
+				(*((*current1).next)).sum = malloc(csize*sizeof(word));
+				for (i=0; i<csize; i++){
+					*((*((*current1).next)).sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
+				}
+			printf(" mempos: %u  \n",((*current1).next));
+			fflush(stdout);
+			printf(" next: %u  \n",(*((*current1).next)).next);
+			fflush(stdout);
+			printf("indice: %d \n",((*((*current1).next)).indice[0]));
+			fflush(stdout);
+			printf("indice: %d \n",((*((*current1).next)).indice[1]));
+			fflush(stdout);
+			printf("sum: %u \n",(unsigned int) (((*((*current1).next)).sum[0])>>32));
+			fflush(stdout);
+			gets(stdin);
+			}
+
+		}
+	}
+}
+
+*/
 

@@ -221,6 +221,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 	printf("max_sol : %lld\n", max_sol);
 	printf("eff_word_len : %d\n", eff_word_len);
 	printf("threshold : %d\n", weight_threshold);
+	printf(" csize : %d\n", csize);
 
 	for (i = 0; i < skip; ++i) {
 		generate_permutation(perm, perm_inv, n, state);
