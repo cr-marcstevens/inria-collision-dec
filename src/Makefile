@@ -6,7 +6,7 @@ LDLIBS += -lpng -lm
 M4RI ?= $(HOME)/Travaux/dev/m4ri
 M4RIG ?= $(HOME)/Travaux/dev/m4ri_dbg
 
-TARGET = dumer4 dumer6 mmt4 mmt8 BJMM
+TARGET = dumer4 dumer6 mmt4 mmt8 BJMM #newdumer6
 
 default:
 
@@ -24,17 +24,23 @@ profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RIG)
 profile: all
 
-COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a
+COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a custom_brilliantrussian.c
 
-BJMM: $(COMMON) BJMM.c BJMMtools.c
+#dumer%.c: gen_dumer.py
+#	python gen_dumer.py $* > $@
+
 dumer4: $(COMMON) dumer4.c htable.c
 dumer6: $(COMMON) dumer6.c htable.c
+#newdumer6: $(COMMON) newdumer6.c iaht.c
+#dumer8: $(COMMON) dumer8.c htable.c
 
 mmt%.c: gen_mmt.py
 	python gen_mmt.py $* > $@
 
 mmt4: $(COMMON) mmt4.c iaht.c waht.c nocolht.c
 mmt8: $(COMMON) mmt8.c iaht.c waht.c nocolht.c
+
+BJMM: $(COMMON) BJMM.c BJMMtools.c
 
 profgen: CFLAGS += -fprofile-generate
 profgen: all

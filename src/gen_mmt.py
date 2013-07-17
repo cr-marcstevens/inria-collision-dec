@@ -222,22 +222,22 @@ output += """
 												for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += p/4) {
 """
 for i in range(1, 1+ncols):
-	output += "													c%d = p%d[%d];\n" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
-output+= """
-"""
-output += "														final_weight = final_test(0, weight_on_one_word, p, " + repeat("c%d", ncols, ', ') +");"
+	output += """
+													c%d = p%d[%d];\n""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
 output += """
-														final_test_probe_stop();
+													final_weight = final_test(0, weight_on_one_word, p, """ + repeat("c%d", ncols, ', ') +");"
+output += """
 
-														if (final_weight != -1) {
-															"""
-output += "															*h = sw_list_add(*h, 0, final_weight, p, " + repeat("c%d", ncols, ', ') +");"
+													if (final_weight != -1) {"""
+output += """
+														*h = sw_list_add(*h, 0, final_weight, p, """ + repeat("c%d", ncols, ', ') +");"
 output += """
 													}
 												}
 											}
 										}
 									}
+									final_test_probe_stop();
 								}
 							}
 						}

@@ -5,6 +5,7 @@
 #include <time.h>
 #include "isd.h"
 #include "m4ri/m4ri.h"
+#include "custom_brilliantrussian.h"
 #include "sub_isd.h"
 #include "libisd.h"
 #include "final_test.h"
@@ -72,7 +73,6 @@ void mzd_concat_id(mzd_t* A_I, mzd_t* A) {
 }
 
 
-#ifdef CUSTOM_M4RI
 int mzd_partial_echelonize(mzd_t* A, int l) {
 	if(_mzd_partial_echelonize_m4ri(A, 1, 0, 0,0, A->nrows-l) != A->nrows-l) {
 		return 1;
@@ -81,9 +81,9 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 		return 0;
 	}
 }
-#else
 
 /* This computes an echelonization on the first l columns of A */
+/*
 int mzd_partial_echelonize(mzd_t* A, int l) {
 	int n = A->ncols;
 	int r = A->nrows;
@@ -125,7 +125,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 
 	mzd_apply_p_right_trans_tri(A00, Q);
 
-	/* update non-pivot columns */
+	// update non-pivot columns
 
 	mzd_trsm_upper_left(A00, A01, 0);
 
@@ -135,11 +135,11 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 
 	mzd_free_window(A00);
 
-	/* expand E again */
+	// expand E again
 	A00 = mzd_init_window(A0, 0, 0, r-l, A0->ncols);
 	mzd_apply_p_right(A00, Q);
 
-	/* clear transformation matrix in non-pivot rows */
+	// clear transformation matrix in non-pivot rows
 	mzd_t *R = mzd_init_window(A0, r-l, 0, A0->nrows, A0->ncols);
 	mzd_set_ui(R, 0);
 
@@ -154,7 +154,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 	mzd_free_window(R);
 	return 0;
 }
-#endif
+*/
 
 
 sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold,unsigned int csize, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
