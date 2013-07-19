@@ -78,12 +78,16 @@ void sub_isd() {
 			}
 		}
 	}
+	/*
+	htable_stats();
+	exit(0);
+	*/
 	for (c4 = L_len/2 + 2; c4 < L_len; ++c4) {
 		for (c5 = L_len/2 + 1; c5 < c4; ++c5) {
 			for (c6 = L_len/2; c6 < c5; ++c6) {
 				res = synd ^ L[c4] ^ L[c5] ^ L[c6];
 				for(current = htable_get(res >> shift); current != NONE; current = htable_next(res >> shift, current)) {
-				incr_nb_collision_counter();
+					incr_nb_collision_counter();
 					weight = isd_weight(xors_table[current] ^ res);
 					if (weight <= threshold) {
 						incr_final_test_counter();
@@ -101,7 +105,9 @@ void sub_isd() {
 	}
 }
 
-void sub_isd_report(unsigned long long cycles_periter) {
+void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
+
+	printf("couts pour k=%d r=%d w=%d p=%d l=%d : %lld %lld %lld\n", k, r, w, p, l, pivot_cost, bday_cost, final_test_cost); // this line can be parsed by compute_threshold
 
 	unsigned long long iter_persecond = cpucycles_persecond() / cycles_periter;
 	printf("Iterations/secondes : %lld\n", iter_persecond);

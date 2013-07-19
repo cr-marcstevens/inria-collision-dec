@@ -360,7 +360,9 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 	}
 	
 	printf("Time spent : %llus\n", time(NULL) - start_date);
-	sub_isd_report((cpucycles() - start_cycles)/nb_iter);
+	long long pivot, bday, final;
+	get_costs(nb_iter, &pivot, &bday, &final);
+	sub_isd_report((cpucycles() - start_cycles)/nb_iter, pivot, bday, final);
 	display(nb_iter);
 	process_solutions_at_end(&h, w, l, BT, synds, U, perm_inv);
 

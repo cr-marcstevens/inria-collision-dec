@@ -305,8 +305,11 @@ void sub_isd() {
 	free(sums);
 }
 
-void sub_isd_report(unsigned long long cycles_per_iter) {
+void sub_isd_report(unsigned long long cycles_per_iter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
 	(void) cycles_per_iter;
+	(void) pivot_cost;
+	(void) bday_cost;
+	(void) final_test_cost;
 }
 
 void sub_isd_free() {

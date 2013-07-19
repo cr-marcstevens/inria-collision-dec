@@ -95,7 +95,9 @@ void sub_isd() {
 	}
 }
 
-void sub_isd_report(unsigned long long cycles_periter) {
+void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
+
+	printf("couts pour k=%d r=%d w=%d p=%d l=%d : %lld %lld %lld\n", k, r, w, p, l, pivot_cost, bday_cost, final_test_cost); // this line can be parsed by compute_threshold
 
 	unsigned long long iter_persecond = cpucycles_persecond() / cycles_periter;
 	printf("Iterations/secondes : %lld\n", iter_persecond);
