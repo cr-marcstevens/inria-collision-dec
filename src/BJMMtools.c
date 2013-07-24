@@ -5,10 +5,16 @@
  *      Author: Mathieu ARIA
  */
 
+#include <stdlib.h>
+#include <time.h>
 #include <limits.h>
 #include "m4ri/m4ri.h"
 #include "sparse_words_list.h"
+#include "final_test.h"
 #include "BJMMtools.h"
+#include "libisd.h"
+#include "measure.h"
+#include "cpucycles/cpucycles.h"
 
 
 // see BJMMtools.h for method description
@@ -188,7 +194,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == ((L_len)-w+pointer)){
 				pointer--;
 				if (pointer ==  USHRT_MAX) {
-					printf("\n"); // barre de suivi.
+					//printf("\n"); // barre de suivi.
 					return 0; // List fully build
 
 				}
@@ -199,7 +205,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
-					printf("."); // barre de suivi.
+					//printf("."); // barre de suivi.
 					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
@@ -220,7 +226,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == (L_len+(-w+pointer)*2+1)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
-					printf("\n"); // barre de suivi.
+					//printf("\n"); // barre de suivi.
 					return 0; // List fully build
 				}
 			}
@@ -230,7 +236,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
-					printf("."); // barre de suivi.
+					//printf("."); // barre de suivi.
 					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
@@ -251,7 +257,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == (L_len-w+pointer)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
-					printf("\n"); // barre de suivi.
+					//printf("\n"); // barre de suivi.
 					return 0; // List fully build
 				}
 			}
@@ -271,7 +277,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
-					printf("."); // barre de suivi.
+					//printf("."); // barre de suivi.
 					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
@@ -293,7 +299,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			while(indice[pointer] == (((L_len*3)/4)-w+pointer)){
 				pointer--;
 				if (pointer == USHRT_MAX) {
-					printf("\n"); // barre de suivi.
+					//printf("\n"); // barre de suivi.
 					return 0; // List fully build
 				}
 			}
@@ -303,7 +309,7 @@ int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned 
 			}
 			// recomputing of partial sums
 				if (pointer == 0) {
-					printf("."); // barre de suivi.
+					//printf("."); // barre de suivi.
 					fflush(stdout);
 					for (i=0;i<csize;i++){
 						sums[i*w]=L[indice[0]+i*L_len];
@@ -384,7 +390,6 @@ void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift
 	}
 }
 
-
 void fusiongive1(S* answer,word target,S* table,int shift1,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
 	unsigned int i;
 	word index = ((sums[w/2-1]>>shift1)^target);
@@ -455,20 +460,14 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 			sumr = ((((*OnTheFlyE).sum[0]^((*current2).sum[0]))<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
 
 			if(AnswerList[sumr].indice==NULL){			//there is not yet a solution at sumr1
-				//printf("test 7");
-				//fflush(stdout);
 				AnswerList[sumr].indice = malloc(w2*sizeof(short));
 				if(SortFilter(AnswerList[sumr].indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
-					//printf("test 11");
-					//fflush(stdout);
 					AnswerList[sumr].sum = malloc(csize*sizeof(word));
 					for (i=0; i<csize; i++){
 						*(AnswerList[sumr].sum+i)=((*OnTheFlyE).sum[i]^((*current2).sum[i]));
 					}
 				}
 				else{	//filtered solution
-					//printf("test 12");
-					//fflush(stdout);
 					free(AnswerList[sumr].indice);
 					AnswerList[sumr].indice = NULL;
 				}
@@ -574,39 +573,42 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 	}
 }
 
-void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,unsigned int w,unsigned int w2,unsigned int csize){
+void FusionFilterGive64(S** AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,unsigned int w,unsigned int w2,unsigned int csize){
 	unsigned int i;
-	S* current1 = AnswerList;
+	S* current1;
+	S* previous =NULL;
 	word index = (((((*OnTheFlyE).sum[0])<<shift1)>>shift2)^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		current1 = calloc(1,sizeof(S));
 		(*current1).indice = malloc(w2*sizeof(short));
 		if(SortFilter((*current1).indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
 			(*current1).sum = malloc(csize*sizeof(word));
 			for (i=0; i<csize; i++){
 				*((*current1).sum+i)=((*OnTheFlyE).sum[i]^(StockedE[index].sum[i]));
 			}
-			(*current1).next = calloc(1,sizeof(S));
-			current1 = (*current1).next;
+			(*current1).next = previous;
+			previous = current1;
 		}
 		else{	//filtered solution
 			free((*current1).indice);
-			(*current1).indice = NULL;
+			free (current1);
 		}
 		S* current2 = &StockedE[index];
 		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
 			current2 = (*current2).next;
+			current1 = calloc(1,sizeof(S));
 			(*current1).indice = malloc(w2*sizeof(short));
 			if(SortFilter((*current1).indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
 				(*current1).sum = malloc(csize*sizeof(word));
 				for (i=0; i<csize; i++){
 					*((*current1).sum+i) = ((*OnTheFlyE).sum[i]^((*current2).sum[i]));
 				}
-				(*current1).next = calloc(1,sizeof(S));
-				current1 = (*current1).next;
+				(*current1).next = previous;
+				previous = current1;
 			}
 			else{	//filtered solution
 				free((*current1).indice);
-				(*current1).indice = NULL;
+				free (current1);
 			}
 		}
 	}
@@ -615,44 +617,55 @@ void FusionFilterGive64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int 
 		current3 = (*current3).next;
 		word index = (((((*current3).sum[0])<<shift1)>>shift2)^target);
 		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+			current1 = calloc(1,sizeof(S));
 			(*current1).indice = malloc(w2*sizeof(short));
 			if(SortFilter((*current1).indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
 				(*current1).sum = malloc(csize*sizeof(word));
 				for (i=0; i<csize; i++){
 					*((*current1).sum+i)=((*current3).sum[i]^(StockedE[index].sum[i]));
 				}
-				(*current1).next = calloc(1,sizeof(S));
-				current1 = (*current1).next;
+				(*current1).next = previous;
+				previous = current1;
 			}
 			else{	//filtered solution
 				free((*current1).indice);
-				(*current1).indice = NULL;
+				free (current1);
 			}
 			S* current2 = &StockedE[index];
 			while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
 				current2 = (*current2).next;
+				current1 = calloc(1,sizeof(S));
 				(*current1).indice = malloc(w2*sizeof(short));
 				if(SortFilter((*current1).indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
 					(*current1).sum = malloc(csize*sizeof(word));
 					for (i=0; i<csize; i++){
 						*((*current1).sum+i)=((*current3).sum[i]^((*current2).sum[i]));
 					}
-					(*current1).next = calloc(1,sizeof(S));
-					current1 = (*current1).next;
+					(*current1).next = previous;
+					previous = current1;
 				}
 				else{	//filtered solution
 					free((*current1).indice);
-					(*current1).indice = NULL;
+					free (current1);
 				}
 			}
 		}
 	}
+	if (previous != NULL){// the solution is linked to AnswerList
+		(*AnswerList)= previous;
+		/*
+		(*AnswerList).indice = (*previous).indice;
+		(*AnswerList).sum = (*previous).sum;
+		(*AnswerList).next = (*previous).next;
+		*/
+	}
 }
 
-void FinalFusionFilter64(sw_list* AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
+void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
 	unsigned int i;
 	int ncolumn;
-	int valid;
+	int finalweight;
+	unsigned int weight;
 	S builder;
 	word target = ((Synd[0]<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
 	builder.indice = malloc(w2*sizeof(short));
@@ -660,89 +673,142 @@ void FinalFusionFilter64(sw_list* AnswerList, S* StockedE,S* OnTheFlyE,word* Syn
 	word index = ((((((*OnTheFlyE).sum[0])<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3))))^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		if(SortFilter(builder.indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
-			valid =1;
-			for (i=0; i<csize; i++){
-				if(((*OnTheFlyE).sum[i]^(StockedE[index].sum[i])) != Synd[i]){
-					valid=0;
-					break;
-				}
+			/*
+			printf("-");
+			for (i=0;i<w2;i++){
+				printf("ind %d: %d ",i,builder.indice[i]);
 			}
-			if (valid == 1){
+			printf(" sum: %llx \n",((*OnTheFlyE).sum[0]^(StockedE[index].sum[0])));
+			printf(" cible: %llx \n",Synd[0]);
+			*/
+			incr_nb_collision_counter();
+			weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
+			if (weight <= threshold) {
 				ncolumn = w2;
 				for (i=0;i < w2; i++){
 					if (builder.indice[i] == USHRT_MAX){
 						ncolumn--;
 					}
 				}
-				sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+				incr_final_test_counter();
+				final_test_probe_start();
+				finalweight = final_test_array(0, weight, ncolumn, builder.indice);
+				final_test_probe_stop();
+				/*
+				printf(" weight %d \n",weight);
+				printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^(StockedE[index].sum[0])^Synd[0]));
+				*/
+				if (finalweight != -1) {
+					*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+				}
 			}
 		}
-
 		S* current2 = &StockedE[index];
 		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
 			current2 = (*current2).next;
 			if(SortFilter(builder.indice,(*OnTheFlyE).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
-				valid =1;
-				for (i=0; i<csize; i++){
-					if(((*OnTheFlyE).sum[i]^((*current2).sum[i])) != Synd[i]){
-						valid=0;
-						break;
-					}
+				/*
+				printf("-");
+				for (i=0;i<w2;i++){
+					printf("ind %d: %d ",i,builder.indice[i]);
 				}
-				if (valid == 1){
+				printf(" sum: %llx \n",((*OnTheFlyE).sum[0]^((*current2).sum[0])));
+				printf(" cible: %llx \n",Synd[0]);
+				*/
+				incr_nb_collision_counter();
+				weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
+				if (weight <= threshold) {
 					ncolumn = w2;
 					for (i=0;i < w2; i++){
 						if (builder.indice[i] == USHRT_MAX){
 							ncolumn--;
 						}
 					}
-					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+					incr_final_test_counter();
+					final_test_probe_start();
+					finalweight = final_test_array(0, weight, ncolumn, builder.indice);
+					final_test_probe_stop();
+					/*
+					printf(" weight %d \n",weight);
+					printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^((*current2).sum[0])^Synd[0]));
+					*/
+					if (finalweight != -1) {
+						*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+					}
 				}
 			}
 		}
 	}
 	S* current3 = OnTheFlyE;
 	while((*current3).next != NULL){ // OnTheFlyE next draws
+		current3 = (*current3).next;
 		word index = ((((((*current3).sum[0])<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3))))^target); // OnTheFlyE first draw
 		if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 			if(SortFilter(builder.indice,(*current3).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
-				valid =1;
-				for (i=0; i<csize; i++){
-					if(((*current3).sum[i]^(StockedE[index].sum[i])) != Synd[i]){
-						valid=0;
-						break;
-					}
+				/*
+				printf("-");
+				for (i=0;i<w2;i++){
+					printf("ind %d: %d ",i,builder.indice[i]);
 				}
-				if (valid == 1){
+				printf(" sum: %llx \n",((*current3).sum[0]^(StockedE[index].sum[0])));
+				printf(" cible: %llx \n",Synd[0]);
+				*/
+				incr_nb_collision_counter();
+				weight = isd_weight(((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
+				if (weight <= threshold) {
 					ncolumn = w2;
 					for (i=0;i < w2; i++){
 						if (builder.indice[i] == USHRT_MAX){
 							ncolumn--;
 						}
 					}
-					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
+					incr_final_test_counter();
+					final_test_probe_start();
+					finalweight = final_test_array(0, weight, ncolumn, builder.indice);
+					final_test_probe_stop();
+					/*
+					printf(" weight %d \n",weight);
+					printf(" diff: %llx \n",((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
+					*/
+					if (finalweight != -1) {
+						*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+					}
 				}
 			}
-		}
-		S* current2 = &StockedE[index];
-		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
-			current2 = (*current2).next;
-			if(SortFilter(builder.indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
-				valid =1;
-				for (i=0; i<csize; i++){
-					if(((*current3).sum[i]^((*current2).sum[i])) != Synd[i]){
-						valid=0;
-						break;
+
+			S* current2 = &StockedE[index];
+			while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+				current2 = (*current2).next;
+				if(SortFilter(builder.indice,(*current3).indice,(*current2).indice,w,w,w2)){ //The solution pass the filter
+					/*
+					printf("-");
+					for (i=0;i<w2;i++){
+						printf("ind %d: %d ",i,builder.indice[i]);
 					}
-				}
-				if (valid == 1){
-					ncolumn = w2;
-					for (i=0;i < w2; i++){
-						if (builder.indice[i] == USHRT_MAX){
-							ncolumn--;
+					printf(" sum: %llx \n",((*current3).sum[0]^((*current2).sum[0])));
+					printf(" cible: %llx \n",Synd[0]);
+					*/
+					incr_nb_collision_counter();
+					weight = isd_weight(((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
+					if (weight <= threshold) {
+						ncolumn = w2;
+						for (i=0;i < w2; i++){
+							if (builder.indice[i] == USHRT_MAX){
+								ncolumn--;
+							}
+						}
+						incr_final_test_counter();
+						final_test_probe_start();
+						finalweight = final_test_array(0, weight, ncolumn, builder.indice);
+						final_test_probe_stop();
+						/*
+						printf(" weight %d \n",weight);
+						printf(" diff: %llx \n",((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
+						*/
+						if (finalweight != -1) {
+							*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
 						}
 					}
-					sw_list_add_array(AnswerList,1,w2,ncolumn,builder.indice);
 				}
 			}
 		}
@@ -779,7 +845,6 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 	unsigned short p2 =0;
 	unsigned short currentsize = 1;
 	int i;
-
 	if (*(s1+p1) < *(s2+p2)){ // first step
 		*dest= *(s1+p1);
 		p1++;
@@ -788,7 +853,6 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 		*dest= *(s2+p2);
 		p2++;
 	}
-
 	while (p1 < size1 && p2 < size2){ //sorting
 		if (*(s1+p1) < *(s2+p2) ){
 			if (*(dest+currentsize-1) == *(s1+p1)){
@@ -849,13 +913,16 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 	return 1;
 }
 
-void freelist(S draw){
-	if(draw.next != NULL){
-		freelist(*(draw.next));
-		free(draw.next);
+void freelist(S* draw){
+	if((*draw).next != NULL){
+		freelist((*draw).next);
+		free((*draw).next);
+		(*draw).next= NULL;
 	}
-	free(draw.sum);
-	free(draw.indice);
+	free((*draw).sum);
+	(*draw).sum= NULL;
+	free((*draw).indice);
+	(*draw).indice= NULL;
 }
 
 
@@ -977,6 +1044,69 @@ void fusionstore1(S* EStep1,word target,S* table,int shift1,int shift2,int shift
 		}
 	}
 }
-
 */
 
+/*
+ * debug version
+ *
+ * Use to see given elements
+ *
+void fusiongive1(S* answer,word target,S* table,int shift1,unsigned short* indice,word* sums,unsigned int w,unsigned int csize){
+	unsigned int i;
+	printf(" new give \n");
+	fflush(stdout);
+	word index = ((sums[w/2-1]>>shift1)^target);
+	if (table[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
+		(*answer).sum = malloc(csize*sizeof(word));
+		(*answer).indice = malloc(w*sizeof(short));
+		for (i=0; i<csize; i++){
+			*((*answer).sum+i)=(sums[(w/2)*(1+i)-1]^(table[index].sum[i]));
+		}
+		Sort((*answer).indice,table[index].indice,indice,w/2,w/2);
+		printf(" mempos: %u  \n",answer);
+		fflush(stdout);
+		printf(" next: %u  \n",((*answer).next));
+		fflush(stdout);
+		printf("indice: %d \n",((*answer).indice[0]));
+		fflush(stdout);
+		printf("indice: %d \n",((*answer).indice[1]));
+		fflush(stdout);
+		//printf("indice: %d \n",((*answer).indice[2]));
+		//fflush(stdout);
+		//printf("indice: %d \n",((*answer).indice[3]));
+		//fflush(stdout);
+		printf("sum: %u \n",(unsigned int)(((*answer).sum[0])>>32));
+		fflush(stdout);
+		gets(stdin);
+		S* current1 = answer;
+		S* current2 = &table[index];
+		while((*current2).next != NULL){		// there are other corresponding solutions to build the targeted syndrome
+			current2 = (*current2).next;
+			(*current1).next=calloc(1,sizeof(S));
+			current1 = (*current1).next;
+			(*current1).sum = malloc(csize*sizeof(word));
+			(*current1).indice = malloc(w*sizeof(short));
+			for (i=0; i<csize; i++){
+				*((*current1).sum+i)=(sums[(w/2)*(1+i)-1]^((*current2).sum[i]));
+			}
+			Sort((*current1).indice,(*current2).indice,indice,w/2,w/2);
+			printf(" mempos: %u  \n",current1);
+			fflush(stdout);
+			printf(" next: %u  \n",((*current1).next));
+			fflush(stdout);
+			printf("indice: %d \n",((*current1).indice[0]));
+			fflush(stdout);
+			printf("indice: %d \n",((*current1).indice[1]));
+			fflush(stdout);
+			//printf("indice: %d \n",((*current1).indice[2]));
+			//fflush(stdout);
+			//printf("indice: %d \n",((*current1).indice[3]));
+			//fflush(stdout);
+			printf("sum: %u \n",(unsigned int)(((*current1).sum[0])>>32));
+			fflush(stdout);
+			gets(stdin);
+		}
+	}
+}
+*
+*/

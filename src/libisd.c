@@ -40,6 +40,7 @@ void generate_id_permutation(unsigned int* perm, unsigned int* perm_inv, unsigne
 	}
 }
 
+
 void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state) {
 	unsigned int i, j, tmp;
 	for (i = 0; i < n; ++i) {

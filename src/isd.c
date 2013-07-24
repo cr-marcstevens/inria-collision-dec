@@ -250,7 +250,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 		pivot_probe_start();
 		generate_permutation(perm, perm_inv, n, state);
-		
+
 		/*
 		void xor_lines(word* res, int width, word* line1, word* line2){
 			unsigned int i;
@@ -263,6 +263,8 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		for (i = 0; i < bit_in_words(r); ++i) {
 			synds[0][i] = 0;
 		}
+
+		// dumer 4 debug
 		for (i = 0; i < w-4; ++i) {
 			xor_lines(synds[0], r, synds[0], HzeroT->rows[i]);
 		}
@@ -276,10 +278,42 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		}
 		printf("synd : %lx\n", synds[0][0]);
 
+		// BJMM 8 debug
+
+		for (i = 0; i < w-8; ++i) {
+			xor_lines(synds[0], r, synds[0], HzeroT->rows[i]);
+		}
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+(k+l)/2][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+(k+l)/2]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+4][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+4]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+5][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+5]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+1][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+1]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+(k+l)/4][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+(k+l)/4]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+2][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+2]);
+
+		printf("%d : %lx\n", (r-l), HzeroT->rows[(r-l)+(k+l)/4+1][0]);
+		xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+(k+l)/4+1]);
+
+		printf("synd : %lx\n", synds[0][0]);
+
 		generate_id_permutation(perm, perm_inv, n, state);
+
 		*/
-		
-		
+
 
 		apply_permutation(HT, HzeroT, perm, n);
 
