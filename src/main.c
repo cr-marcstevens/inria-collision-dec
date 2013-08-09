@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	unsigned int l2 = args_info.l2_given ? (unsigned int) args_info.l2_arg : l/2;
 	unsigned int l3 = args_info.l3_given ? (unsigned int) args_info.l3_arg : l/4;
 	unsigned int p = args_info.p_given ? (unsigned int) args_info.p_arg : 8;
-	unsigned int e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 4;
+	unsigned int e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 0;
 	unsigned int e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
 	unsigned int csize = args_info.csize_given ? (unsigned int) args_info.csize_arg : 1;
 

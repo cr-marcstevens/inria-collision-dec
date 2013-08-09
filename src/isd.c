@@ -203,7 +203,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 	sw_list* h = NULL;
 
-	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold,csize, &h);
+	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold,csize,state, &h);
 	final_test_init(r, w, BT, Usecondmod, synds);
 
 	printf("n : %d\n", n);
@@ -277,9 +277,9 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 			xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+(k+l)/2+i]);
 		}
 		printf("synd : %lx\n", synds[0][0]);
-
-		// BJMM 8 debug
-
+		*/
+		// BJMM 8 debug 1
+		/*
 		for (i = 0; i < w-8; ++i) {
 			xor_lines(synds[0], r, synds[0], HzeroT->rows[i]);
 		}
@@ -310,11 +310,21 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 		printf("synd : %lx\n", synds[0][0]);
 
+		//BJMM debug 2
+		for (i = 0; i < w-8; ++i) {
+			xor_lines(synds[0], r, synds[0], HzeroT->rows[i]);
+		}
+
+
+		for (i = 0; i < 8; ++i) {
+			int j;
+			j = random_range(state, n-r+l);
+			xor_lines(synds[0], r, synds[0], HzeroT->rows[(r-l)+j]);
+		}
+
+
 		generate_id_permutation(perm, perm_inv, n, state);
-
 		*/
-
-
 		apply_permutation(HT, HzeroT, perm, n);
 
 		mzd_submatrix(BT, HT, r-l, 0, n, r);

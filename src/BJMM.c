@@ -20,8 +20,9 @@
 #include "BJMMtools.h"
 #include "measure.h"
 #include "cpucycles/cpucycles.h"
+#include "prng.h"
 
-
+static ranctx* state;
 static word* L;
 static unsigned int N;
 static word* syndsprime;
@@ -32,7 +33,7 @@ static word s1, s2, s3, s4, a, sma;
 static int eff_word_len,shift1,shift2,shift1p;
 static sw_list** h;
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, sw_list** local_h) {
+void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, ranctx* local_state, sw_list** local_h) {
 	//printf("initiate BJMM \n");
 	//fflush(stdout);
 
@@ -49,6 +50,7 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	p = local_p;
 	w = local_w;
 	h = local_h;
+	state=local_state;
 	csize= local_csize;
 
 	k = n-r;
@@ -70,10 +72,10 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	}
 
 	// hard-coded parameters. Imply l2 >= 2
-	s1 = 0;
-	s2 = 1;
-	s3 = 2;
-	a = 1;
+	//s1 = 0;
+	//s2 = 1;
+	//s3 = 2;
+	//a = 1;
 
 	//printf("BJMM initiated \n");
 	//fflush(stdout);
@@ -82,6 +84,9 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 
 void sub_isd() {
 
+	s1 = random_range(state, 1UL<<l2);
+	s2 = random_range(state, 1UL<<l2);
+	s3 = random_range(state, 1UL<<l2);
 	s4 = (s1^s2^s3)^(syndsprime[0] >> shift1);
 
 	//printf("synd: %u \n",(unsigned int)((syndsprime[0])>>shift1));
