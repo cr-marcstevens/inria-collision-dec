@@ -36,7 +36,7 @@ void incr_nb_collision_counter() {
 void get_costs(unsigned long long nb_iter, long long* pivot_cost, long long* bday_cost, long long* final_test_cost) {
 	*pivot_cost = pivot_cycles/nb_iter;
 	*bday_cost = bday_cycles/nb_iter;
-	*final_test_cost = final_test_cycles/nb_final_test;
+	*final_test_cost = (nb_final_test == 0) ? 0 : final_test_cycles/nb_final_test;
 }
 
 void display(unsigned long long nb_iter) {

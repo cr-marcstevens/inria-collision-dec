@@ -4,7 +4,6 @@
 #include "m4ri/m4ri.h"
 #include "libisd.h"
 #include "final_test.h"
-#include "htable.h"
 #include "sparse_words_list.h"
 #include "measure.h"
 #include "cpucycles/cpucycles.h"
@@ -15,7 +14,12 @@ static unsigned int N;
 static word* syndsprime;
 static unsigned int n, k, r, l, w, L_len, threshold;
 static int shift;
+
+#define NONE -1
+static unsigned int L0_size;
+static int* L0;
 static word* xors_table;
+
 static sw_list** h;
 
 void unpack2_counter(unsigned int* c1, unsigned int* c2, unsigned int counter) {
@@ -46,7 +50,10 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 
 	threshold = local_threshold;
 	shift = min(r, word_len) - l;
-	htable_init(1ULL << l, nCr(L_len, p/2));
+
+	L0_size = 1ULL << l;
+	L0 = (int*) malloc(L0_size*sizeof(int));
+
 	xors_table = (word*) malloc(nCr(L_len, p/2) * sizeof(word));
 }
 
@@ -58,15 +65,16 @@ void sub_isd() {
 	unsigned int counter;
 	int current;
 	word res;
+	word sumS3; /* intermediate sums */
 	unsigned int weight;
 	int final_weight;
 
-	htable_reset();
+	memset(L0, NONE, L0_size*sizeof(*L0));
 	counter = 0;
 	for(c1 = 1; c1 < L_len/2; ++c1) {
 		for(c2 = 0; c2 < c1; ++c2) {
 			res = L[c1] ^ L[c2];
-			htable_store(res >> shift, counter);
+			L0[res >> shift] = counter;
 			xors_table[counter] = res;
 			++counter;
 		}
@@ -76,9 +84,11 @@ void sub_isd() {
 	exit(1);
 	*/
 	for (c3 = L_len/2 + 1; c3 < L_len; ++c3) {
+		sumS3 = synd ^ L[c3];
 		for (c4 = L_len/2; c4 < c3; ++c4) {
-			res = synd ^ L[c3] ^ L[c4];
-			for(current = htable_get(res >> shift); current != NONE; current = htable_next(res >> shift, current)) {
+			res = sumS3 ^ L[c4];
+			current = L0[res >> shift];
+			if (current != NONE) {
 				incr_nb_collision_counter();
 				weight = isd_weight(xors_table[current] ^ res);
 				if (weight <= threshold) {
@@ -136,7 +146,6 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 	time = (time_t) time_needed;
 	tm_now = gmtime (&time);
 
-
 	printf("nb_col_needed : %12.4g\n", (double)nb_col_needed);
 	printf("avg_nb_col_periter : %12.4g\n", avg_nb_col_periter);
 	printf("nb_iter_needed : %12.4g\n", nb_iter_needed);
@@ -160,6 +169,6 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 }
 
 void sub_isd_free() {
-	htable_free();
+	free(L0);
 	free(xors_table);
 }

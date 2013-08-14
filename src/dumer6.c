@@ -1,11 +1,10 @@
 #include <stdlib.h>
+#include <time.h>
 #include "sub_isd.h"
 #include "m4ri/m4ri.h"
 #include "libisd.h"
 #include "final_test.h"
-#include "htable.h"
 #include "sparse_words_list.h"
-#include "time.h"
 #include "measure.h"
 #include "cpucycles/cpucycles.h"
 
@@ -15,7 +14,12 @@ static unsigned int N;
 static word* syndsprime;
 static unsigned int n, k, r, l, w, L_len, threshold;
 static int shift;
+
+#define NONE -1
+static unsigned int L0_size;
+static int* L0;
 static word* xors_table;
+
 static sw_list** h;
 
 void unpack3_counter(unsigned int* c1, unsigned int* c2, unsigned int* c3, unsigned int counter) {
@@ -53,7 +57,9 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	threshold = local_threshold;
 	shift = min(r, word_len) - l;
 
-	htable_init(1ULL << l, nCr(L_len, p/2));
+	L0_size = 1ULL << l;
+	L0 = (int*) malloc(L0_size*sizeof(int));
+
 	xors_table = (word*) malloc(nCr(L_len, p/2) * sizeof(word));
 }
 
@@ -64,41 +70,45 @@ void sub_isd() {
 	unsigned int counter;
 	int current;
 	word res;
+	word sum12, sumS4, sumS45; /* intermediate sums */
 	unsigned int weight;
 	int final_weight;
 
-	htable_reset();
+	memset(L0, NONE, L0_size*sizeof(*L0));
 	counter = 0;
 	for(c1 = 2; c1 < L_len/2; ++c1) {
 		for(c2 = 1; c2 < c1; ++c2) {
+			sum12 = L[c1] ^ L[c2];
 			for(c3 = 0; c3 < c2; ++c3) {
-				res = L[c1] ^ L[c2] ^ L[c3];
-				htable_store(res >> shift, counter);
+				res = sum12 ^ L[c3];
+				L0[res >> shift] = counter;
 				xors_table[counter] = res;
 				++counter;
 			}
 		}
 	}
-	/*
-	htable_stats();
-	exit(0);
-	*/
+
 	for (c4 = L_len/2 + 2; c4 < L_len; ++c4) {
+		sumS4 = synd ^ L[c4];
 		for (c5 = L_len/2 + 1; c5 < c4; ++c5) {
+			sumS45 = sumS4 ^ L[c5];
 			for (c6 = L_len/2; c6 < c5; ++c6) {
-				res = synd ^ L[c4] ^ L[c5] ^ L[c6];
-				for(current = htable_get(res >> shift); current != NONE; current = htable_next(res >> shift, current)) {
+				res = sumS45 ^ L[c6];
+				current = L0[res >> shift];
+				if (current != NONE) {
 					incr_nb_collision_counter();
 					weight = isd_weight(xors_table[current] ^ res);
 					if (weight <= threshold) {
+						bday_probe_stop();
 						incr_final_test_counter();
 						final_test_probe_start();
 						unpack3_counter(&c1, &c2, &c3, current);
 						final_weight = final_test(0, weight, p, c1, c2, c3, c4, c5, c6);
-						final_test_probe_stop();
 						if (final_weight != -1) {
 							*h = sw_list_add(*h, 0, final_weight, p, c1, c2, c3, c4, c5, c6);
 						}
+						final_test_probe_stop();
+						bday_probe_start();
 					}	
 				}
 			}
@@ -170,6 +180,6 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 }
 
 void sub_isd_free() {
-	htable_free();
+	free(L0);
 	free(xors_table);
 }

@@ -6,7 +6,7 @@ LDLIBS += -lpng -lm
 M4RI ?= $(HOME)/Travaux/dev/m4ri
 M4RIG ?= $(HOME)/Travaux/dev/m4ri_dbg
 
-TARGET = dumer4 dumer6 mmt4 mmt8 BJMM newdumer4 newdumer6 newnewdumer6 compute_threshold
+TARGET = dumer4 dumer6 mmt4 mmt8 BJMM compute_threshold
 
 default:
 
@@ -29,12 +29,9 @@ COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_lis
 #dumer%.c: gen_dumer.py
 #	python gen_dumer.py $* > $@
 
-dumer4: $(COMMON) dumer4.c htable.c
-dumer6: $(COMMON) dumer6.c htable.c
+dumer4: $(COMMON) dumer4.c
+dumer6: $(COMMON) dumer6.c
 
-newdumer4: $(COMMON) newdumer4.c
-newdumer6: $(COMMON) newdumer6.c
-newnewdumer6: $(COMMON) newnewdumer6.c
 #dumer8: $(COMMON) dumer8.c htable.c
 
 mmt%.c: gen_mmt.py

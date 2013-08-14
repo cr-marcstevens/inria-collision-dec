@@ -220,11 +220,10 @@ output += """
 									for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += p/4) {
 										for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += p/4) {
 											for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += p/4) {
-												for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += p/4) {
-"""
+												for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += p/4) {"""
 for i in range(1, 1+ncols):
 	output += """
-													c%d = p%d[%d];\n""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
+													c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
 output += """
 													final_weight = final_test(0, weight_on_one_word, p, """ + repeat("c%d", ncols, ', ') +");"
 output += """
