@@ -1,15 +1,15 @@
 ________________________________________________________
 | Date: 24/07/2013                                     | 
 |                                                      | 
-| Autor: Mathieu Aria                                  |
+| Author: Mathieu Aria                                 |
 |                                                      |
-| DOCUMENTATION OF BJMM PACKAGE FOR THE ISD PROGRAMM   |
+| DOCUMENTATION OF BJMM PACKAGE FOR THE ISD PROGRAM    |
 |______________________________________________________|
 
 I. How to use this package
 
-This Package consistes of 3 files  (BJMM.c , BJMMtools.h et BJMMtools.c) which implements the BJMM algorithm
-as birthday decoding algorithm in the ISD programm.
+This Package consists of 3 files  (BJMM.c , BJMMtools.h et BJMMtools.c) which implements the BJMM algorithm
+as birthday decoding algorithm in the ISD program.
 Insert the files in the folder of the ISD.c source code and add the two following lines to the makefile:
 
 	TARGET = BJMM
@@ -24,14 +24,14 @@ The options more specifically linked to the BJMM algorithm are the following:
 -l int required, "l" parameter, is the total height of the L window.
 -L int optional, "l2" parameter, default is l/2, is the height of the first part of the sub-matrix extracted of L
 -r int optional, "l3" parameter, default is l/4, is the height of the second part of the sub-matrix extracted of L.
--p int optional, "p" parameter, default is 8, is the weight of the syndrom in the window L.
+-p int optional, "p" parameter, default is 8, is the weight of the syndrome in the window L.
 -e int optional, "e1" parameter, default is 0, is the additional error accepted for merging before filter 1 in BJMM Algorithm (p1=p/2+e1).
 -E int optional, "e2" parameter, default is 0, is the additional error accepted for merging before filter 2 in BJMM Algorithm (p2=p1/2+e2).
 -c int optional, "csize" parameter, default is 1, is the of 64bit int used to represent a column during list merging. Choose l <= csize*64 <= r . min value for minimum spatial complexity.
 ________________________________________________________________________________________________________________________________________________________________________________________________________
 !  WARNING! There are currently several restriction on the inputs available:															       !
 !  - you MUST choose p, e1 and e2 so that p, p1 and p2 will be even. Odd p, p2, or p1 will probably rise errors.										       !
-!  (exemple: {p=8,e1=0,e2=0} or {p=2,e1=1,e2=1} are corrects. {p=6,e1=0,e2=1} is not).														       !
+!  (example: {p=8,e1=0,e2=0} or {p=2,e1=1,e2=1} are corrects. {p=6,e1=0,e2=1} is not).														       !
 !  - you MUST choose l carefully, so that L_len (l+r) will be at least even. To be sure to avoid potential bugs in the algorithms (such as non-disjoints patterns), it is recommended to choose l    ! 
 !  such as l+r can be divided by 4.																				       !	
 !  - l>64 is currently not handled.																				       !	
@@ -40,14 +40,14 @@ ________________________________________________________________________________
 !  - csize > 1 is currently useless without l>64. It only decrease performances due to a lot of unused computations and memories allocations.							       !
 !______________________________________________________________________________________________________________________________________________________________________________________________________!
 
-Note: In the paper of N.Sendier on the algorithm, l2 and l3 are called respectively r2 and r1 and the L submatric is called H. Other notations and parameters names are identical.
+Note: In the paper of N.Sendrier on the algorithm, l2 and l3 are called respectively r2 and r1 and the L sub-matrix is called H. Other notations and parameters names are identical.
 
 
-III. Structure of the programm
+III. Structure of the program
 
 The main function, sub_ISD(), is organized in 5 parts and try to do a maximum of operations "on the fly" to minimize the spatial complexity.
 
-The final list of potential solution is build by successive merging following this pyramidal diagramm (OtF means that the corresponding list is not stored and build On the Fly instead):
+The final list of potential solution is build by successive merging following this pyramidal diagram (OtF means that the corresponding list is not stored and build On the Fly instead):
 
 [E1]  [OtF]  [E2]  [OtF]  [E3]  [OtF]  [E4]  [OtF]   <- Step 0: { h1store() }
   \     /      \     /      \     /      \     /
@@ -66,33 +66,33 @@ The final list of potential solution is build by successive merging following th
 
 
 Part 1: 	Create the lists E1, E2, E3 and E4.
-	The next() function build each element (ie. the indice lists corresponding to one draw) of the lists using one of the four build-in method.
+	The next() function build each element (i.e. the indexes list corresponding to one draw) of the lists using one of the four build-in method.
 	The h1store() function store the element created by next() in the Ei hash table of size 2^l3. 
 
 	note: there is in fact no need to create all the four lists Ei before using them. A (slightly) better implementation in spatial complexity
 	could simply build the Ei list with the same functions in the beginning of part i (the part where Ei is used).
 
 Part 2: 	Create EStep1[0]. The function next2() is called with the complementary method to the one used by next() to create E1.
-	Then, the On the Fly elements are emerged with the element of the hashtable E1 by the function fusionstore1() and stored in a new hashtable of size 2^l2.
+	Then, the On the Fly elements are emerged with the element of the hash table E1 by the function fusionstore1() and stored in a new hash table of size 2^l2.
 	At the end of this part, E1 is freed.
 
 Part 3: 	Create EStep2. The function next2() is called with the complementary method to the one used by next() to create E2.
-	Then, the On the Fly elements are emerged with the element of the hashtable E2 by the function fusiongive1() and send directly on the fly to the function
-	fusionfilterstore64() which merge them with the elements of the table EStep1[0], filter them and store them in Estep2, an hashtable of size 2^(l-l3-l2).
+	Then, the On the Fly elements are emerged with the element of the hash table E2 by the function fusiongive1() and send directly on the fly to the function
+	fusionfilterstore64() which merge them with the elements of the table EStep1[0], filter them and store them in Estep2, an hash table of size 2^(l-l3-l2).
 	At the end of this part, E1 and Estep1[0] are freed.
 
 Part 4: 	Create EStep1[1]. The function next2() is called with the complementary method to the one used by next() to create E3.
-	Then, the On the Fly elements are emerged with the element of the hashtable E1 by the function fusionstore1() and stored in a new hashtable of size 2^l2.
+	Then, the On the Fly elements are emerged with the element of the hash table E1 by the function fusionstore1() and stored in a new hash table of size 2^l2.
 	At the end of this part, E3 is freed.
 
 Part 5: 	Create H. The function next2() is called with the complementary method to the one used by next() to create E4.
-	Then, the On the Fly elements are emerged with the element of the hashtable E2 by the function fusiongive1() and send directly on the fly to the function
+	Then, the On the Fly elements are emerged with the element of the hash table E2 by the function fusiongive1() and send directly on the fly to the function
 	fusionfiltergive64() which merge them with the elements of the table EStep1[1], filter them and send them on the fly to the function finalfusionfilter64() 
 	which merge them with elements of Estep2, filter them and finally test them as candidate to final test.
-	At the end of this part, E4 and Estep1[1] and EStep2 are freed. All builded lists have been freed.
+	At the end of this part, E4 and Estep1[1] and EStep2 are freed. All built lists have been freed.
 
 All the four last parts are build on the same Scheme: 
--First, the indice and sums table are initialized with the value corresponding to the building method i.
+-First, the index and sums table are initialized with the value corresponding to the building method i.
 -Then, a while loop controlled by the next2() function ,with the building method i, contains all the subsequent functions.
 Each time the result of the merging is non-null, the following On-the-Fly function is called until the part reach its only store function.
 -Last, the lists used are freed.
@@ -104,8 +104,8 @@ The functions used in the sub_ISD() function and describe above are all located 
 	
 	note: all the functions whose name end with "64" are versions designed to work with l<64 or l=64. These functions are simplified and should run quicker than non-64 versions, but can't handle l>64.
 
-- next() and next2(): these two complementary functions are designed to build efficently the lists E1, E2, E3, E4 and their On-the-Fly complements.
-They both uses the same two work spaces, "indices" which store the p2/2 indice calculated by next() or next2() and "sums" which stores the corresponding p2/2 partial sums,
+- next() and next2(): these two complementary functions are designed to build efficiently the lists E1, E2, E3, E4 and their On-the-Fly complements.
+They both uses the same two work spaces, "indices" which store the p2/2 indexes calculated by next() or next2() and "sums" which stores the corresponding p2/2 partial sums,
 allowing quick recomputation by next() or next2().
 next() and next2() can be called with 4 different building methods to browse these 4 distinct patterns (x for next, 0 for next2()):
 
@@ -114,33 +114,33 @@ next() and next2() can be called with 4 different building methods to browse the
  method 2 : [x-x||0-0||x-x||0-0] first and third quarter
  method 3 : [x-x||0------0||x-x] first and final quarter
 
-next() and next2() will modify the values of indices and sums to those of the next element based on the current values and the building method. 
+next() and next2() will modify the values of indexes and sums to those of the next element based on the current values and the building method. 
 They return 1 until they reach the last element, when they return 0. "sums" and "indices" need to be initialized correctly to the value 
 corresponding to the first element of each pattern to browse it correctly.
 
-- h1store() : this function store the informations of "indices" and "sums" into the corresponding hashtable Ei (of size 2^l3). 
+- h1store() : this function store the informations of "indices" and "sums" into the corresponding hash table Ei (of size 2^l3). 
 First, the function compute the index (or hashkey) which is simply the l3 MSB (Most Significant Bits) of sums[p2/2]. If there is note yet an element stored at this place, 
 the function write it in Ei[index]. Else, the function browse the whole chain of element at this place and write the element at the end of the chain.
 
 	note: this is, obviously, a non-optimal implementation if a significant number of elements are chained, implying a lot of "browsing-to-the-end" operations. 
-	A better implementation can be made by allocating the new element at the beginning of the chain. The hashtable would no more contain the first elements, only pointer on them.
+	A better implementation can be made by allocating the new element at the beginning of the chain. The hash table would no more contain the first elements, only pointer on them.
 	This note apply of course for most of the following function which use a similar pattern.
 
 - fusionstore1() : the function do the same computation as h1store() for the "On-the-Fly" element produced by next2() in "sums" and "indices". Then, there is 2 intricated pattern:
-The first pattern test if there is a corresponding element to the On-the-Fly one in the hashtable. If yes, it will apply the second pattern to this element and all the following element in its chain.
-This behaviour is done this the while loop.
+The first pattern test if there is a corresponding element to the On-the-Fly one in the hash table. If yes, it will apply the second pattern to this element and all the following element in its chain.
+This behavior is done this the while loop.
 The second pattern merge the two elements into one and write the result in the good place using the hashkey constituted of the l2 bits (from l3+1 to l3+l2 MSB), similarly to h1store(). So, if there is not yet an element,
-the function write the element in this place of teh hashtable. Else, at the end of the chain of this element. 
+the function write the element in this place of the hash table. Else, at the end of the chain of this element. 
 
-- fusiongive1() : This function is similar to fusionstore1() and share the same first pattern. However the second pattern, instead of storing the solution in an hashtable, simply add it to a temporary chain
+- fusiongive1() : This function is similar to fusionstore1() and share the same first pattern. However the second pattern, instead of storing the solution in an hash table, simply add it to a temporary chain
 of On-the-Fly elements.
 
 - fusionfilterstore64() : This function works similarly to fusionstore1(), but has 3 intricated patterns. The first one is used to browse the On-the-Fly element given to the function.
 The two following patterns are applied on the first element of the On-the-Fly pointer, then a while loop apply it to the following chained elements.
-The two other patterns are strictly similar to fusionstore1() (browsing hashtable and then result table).
+The two other patterns are strictly similar to fusionstore1() (browsing hash table and then result table).
 The function directly implement the filter part of the algorithm, and so call the function sortfilter() instead of sort() like in fusionstore1().
 
-	note: "current1" correspond to the current target in the destination hashtable (bot loop), "current2" is the current target in the source hashtable (middle loop)
+	note: "current1" correspond to the current target in the destination hash table (bot loop), "current2" is the current target in the source hash table (middle loop)
 	and "current3" correspond to the current source in the On-the-fly element (top loop). These three names are usually the same for the other functions.
 
 - fusionfiltergive64() : This function is the On-the-fly equivalent of fusionfilterstore64(), with only the two first patterns. There is no storage loop, every elements are added to the On-the-Fly result.
@@ -153,11 +153,11 @@ If its weight is inferior to the threshold, it's a candidate for final_test_arra
 The function works basically with 2 pointers p1 and p2 to sort all the elements of the 2 vectors, which are alread themselves sorted.
 When one of the source vector is fully used, the dest vector is completed with the element of the remaining source.
 
--SortFilter: similar to sort, but apply also the filter function. If two elements have a common indice, one of them is discarded and currentsize pointer is not increased.
-Everytime the dest vector reach a size superior to the limit targetsize, the element is filtered (i.e the function return 0).
+-SortFilter: similar to sort, but apply also the filter function. If two elements have a common index, one of them is discarded and currentsize pointer is not increased.
+Every time the dest vector reach a size superior to the limit targetsize, the element is filtered (i.e. the function return 0).
 Else, the element pass the filter and the function return 1.
 	
-	Note: The end of the vector is completed with USHRT_MAX. each USHRT_MAX at the end of the indice vector is simply skiped (ignored) by further functions and means that the element is shorter (less indices)
+	Note: The end of the vector is completed with USHRT_MAX. each USHRT_MAX at the end of the index vector is simply skipped (ignored) by further functions and means that the element is shorter (less indexes)
 
 -Freelist: This function is used to browse and free all the allocated memory spaces in the lists used by the other function. It is recursive.
 
