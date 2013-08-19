@@ -13,6 +13,7 @@ static word* L;
 static unsigned int N;
 static word* syndsprime;
 static unsigned int n, k, r, l, w, L_len, threshold;
+static unsigned int lprime;
 static int shift;
 
 #define NONE -1
@@ -49,12 +50,17 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	L_len = k+l;
 
 	threshold = local_threshold;
-	shift = min(r, word_len) - l;
 
-	L0_size = 1ULL << l;
+	unsigned long long nb_of_sums = nCr(L_len/2, p/2);
+	lprime = (l+ log(nb_of_sums)/log(2))/2;
+	printf("lprime : %d\n", lprime);
+
+	shift = min(r, word_len) - lprime;
+
+	L0_size = 1ULL << lprime;
 	L0 = (int*) malloc(L0_size*sizeof(int));
 
-	xors_table = (word*) malloc(nCr(L_len, p/2) * sizeof(word));
+	xors_table = (word*) malloc(nb_of_sums * sizeof(word));
 }
 
 
@@ -68,6 +74,7 @@ void sub_isd() {
 	word sumS3; /* intermediate sums */
 	unsigned int weight;
 	int final_weight;
+	word max_word_zero_l_bits = 1UL << (word_len - l); /* A word with its l MSB zeroed is lower than this value */
 
 	memset(L0, NONE, L0_size*sizeof(*L0));
 	counter = 0;
@@ -80,25 +87,28 @@ void sub_isd() {
 		}
 	}
 	/*
-	htable_stats();
-	exit(1);
-	*/
+		 htable_stats();
+		 exit(1);
+		 */
 	for (c3 = L_len/2 + 1; c3 < L_len; ++c3) {
 		sumS3 = synd ^ L[c3];
 		for (c4 = L_len/2; c4 < c3; ++c4) {
 			res = sumS3 ^ L[c4];
 			current = L0[res >> shift];
 			if (current != NONE) {
-				incr_nb_collision_counter();
-				weight = isd_weight(xors_table[current] ^ res);
-				if (weight <= threshold) {
-					incr_final_test_counter();
-					final_test_probe_start();
-					unpack2_counter(&c1, &c2, current);
-					final_weight = final_test(0, weight, p, c1, c2, c3, c4);
-					final_test_probe_stop();
-					if (final_weight != -1) {
-						*h = sw_list_add(*h, 0, final_weight, p, c1, c2, c3, c4);
+				res ^= xors_table[current];
+				if (res < max_word_zero_l_bits) {
+					incr_nb_collision_counter();
+					weight = isd_weight(res);
+					if (weight <= threshold) {
+						incr_final_test_counter();
+						final_test_probe_start();
+						unpack2_counter(&c1, &c2, current);
+						final_weight = final_test(0, weight, p, c1, c2, c3, c4);
+						final_test_probe_stop();
+						if (final_weight != -1) {
+							*h = sw_list_add(*h, 0, final_weight, p, c1, c2, c3, c4);
+						}
 					}
 				}
 			}
@@ -122,7 +132,7 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 	unsigned int eff_word_len = min(r, word_len);
 
 	double nb_col_needed;
-	double avg_nb_col_periter;
+	double nb_col_periter;
 	double nb_iter_needed;
 	double cycles_needed;
 	double time_needed;
@@ -138,16 +148,16 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 
 	nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
 	nb_col_needed += p_miss * nb_col_needed;
-	avg_nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
-	nb_iter_needed = nb_col_needed / avg_nb_col_periter;
+	nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
+	nb_iter_needed = nb_col_needed / nb_col_periter;
 	cycles_needed = nb_iter_needed*cycles_periter;
-	time_needed = (cycles_periter * nb_col_needed / avg_nb_col_periter) / cpucycles_persecond();
+	time_needed = (cycles_periter * nb_col_needed / nb_col_periter) / cpucycles_persecond();
 
 	time = (time_t) time_needed;
 	tm_now = gmtime (&time);
 
 	printf("nb_col_needed : %12.4g\n", (double)nb_col_needed);
-	printf("avg_nb_col_periter : %12.4g\n", avg_nb_col_periter);
+	printf("nb_col_periter : %12.4g\n", nb_col_periter);
 	printf("nb_iter_needed : %12.4g\n", nb_iter_needed);
 	printf("cycles_periter : %lld\n", cycles_periter);
 	printf("cycles_needed (log2) : %12.4g\n", (double)log(cycles_needed)/log(2));
