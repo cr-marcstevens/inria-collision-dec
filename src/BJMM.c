@@ -47,7 +47,7 @@ void print_parameters(isd_params* params) {
 	printf("threshold : %d\n", params->weight_threshold);
 }
 
-void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
+void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* local_state) {
 	//printf("initiate BJMM \n");
 	//fflush(stdout);
 	print_parameters(params);
@@ -65,7 +65,7 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	p = params->p;
 	w = params->w;
 	h = local_h;
-	state = state;
+	state = local_state;
 	csize = params->csize;
 
 	k = n-r;
