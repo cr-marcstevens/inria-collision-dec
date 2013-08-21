@@ -28,28 +28,34 @@ void unpack2_counter(unsigned int* c1, unsigned int* c2, unsigned int counter) {
 	(*c2) = counter - (*c1*(*c1-1))/2;
 }
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, ranctx* state, sw_list** local_h) {
-	L = simple_HprimemodT;
-	N = local_N;
-	syndsprime = local_syndsprime;
-	n = local_n;
-	r = local_r;
-	l = local_l;
-	(void) local_l2;
-	(void) local_l3;
-	(void) local_e1;
-	(void) local_e2;
-	(void) local_p;
-	(void) local_csize;
+void print_parameters(isd_params* params) {
+	printf("n : %d\n", params->n);
+	printf("r : %d\n", params->r);
+	printf("w : %d\n", params->w);
+	printf("l : %d\n", params->l);
+	printf("p : %d\n", p);
+	printf("eff_word_len : %ld\n", min(params->r, word_len));
+	printf("threshold : %d\n", params->weight_threshold);
+}
+
+void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
 	(void) state;
-	w = local_w;
+	print_parameters(params);
+	L = local_L;
+	N = local_N;
+	syndsprime = local_synds;
 	h = local_h;
+
+	n = params->n;
+	r = params->r;
+	l = params->l;
+	w = params->w;
 
 	k = n-r;
 
 	L_len = k+l;
 
-	threshold = local_threshold;
+	threshold = params->weight_threshold;
 
 	unsigned long long nb_of_sums = nCr(L_len/2, p/2);
 	lprime = (l+ log(nb_of_sums)/log(2))/2;
@@ -127,7 +133,6 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
  weight threshold condition whereas they where the solution. That's why
  we have to multiply the number of collision needed by this proportion
  */
-	double p_miss = 0;
 	unsigned int i;
 	unsigned int eff_word_len = min(r, word_len);
 
@@ -140,6 +145,7 @@ void sub_isd_report(unsigned long long cycles_periter, long long pivot_cost, lon
 	struct tm* tm_now;
 	char s_now[80];
 
+	double p_miss = 0;
 	for (i = 0; i < threshold; ++i) {
 		p_miss += nCr(eff_word_len - l, i)*nCr(r - eff_word_len, w-p-i);
 	}

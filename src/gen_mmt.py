@@ -18,6 +18,7 @@ if(ncols%4 != 0):
 output = ""
 
 output += """#include <stdlib.h>
+#include "libisd.h"
 #include "sub_isd.h"
 #include "final_test.h"
 #include "measure.h"
@@ -49,30 +50,36 @@ static nocolht L12 = NULL;
 """
 
 output += """
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold, unsigned int local_csize, ranctx* state, sw_list** local_h) {
-	L = simple_HprimemodT;
-	N = local_N;
-	syndsprime = local_syndsprime;
-	n = local_n;
-	r = local_r;
-	l = local_l;
-	l2 = local_l2;
-	(void) local_l3;
-	(void) local_e1;
-	(void) local_e2;
-	(void) local_p;
-	(void) local_csize;
+void print_parameters(isd_params* params) {
+	printf("n : %d\\n", params->n);
+	printf("r : %d\\n", params->r);
+	printf("w : %d\\n", params->w);
+	printf("l : %d\\n", params->l);
+	printf("l2 : %d\\n", params->l2);
+	printf("p : %d\\n", p);
+	printf("eff_word_len : %ld\\n", min(params->r, word_len));
+	printf("threshold : %d\\n", params->weight_threshold);
+}
+
+void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
 	(void) state;
-	w = local_w;
+	print_parameters(params);
+	L = local_L;
+	N = local_N;
+	syndsprime = local_synds;
 	h = local_h;
+
+	n = params->n;
+	r = params->r;
+	l = params->l;
+	l2 = params->l2;
+	w = params->w;
 
 	k = n-r;
 
-	assert(r > word_len);
-
 	L_len = k+l;
 
-	threshold = local_threshold;
+	threshold = params->weight_threshold;
 
 	L1_size = 1UL << l2;
 	L2_size = 1UL << l2;

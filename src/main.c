@@ -40,28 +40,37 @@ int main(int argc, char **argv)
     exit(EXIT_FAILURE);
   }
 	
+	isd_params params;
 	mzd_t* HzeroT;
-	unsigned int w, N;
+	unsigned int N;
 	word** synds;
-	CSD_from_file(&HzeroT, &w, &N, &synds, fd);
+	CSD_from_file(&HzeroT, &params.w, &N, &synds, fd);
 	fclose(fd);
 
+	params.n = HzeroT->nrows;
+	params.r = HzeroT->ncols;
+
 	// TODO : call workfactor if l not given
-	unsigned int l = args_info.l_arg;
-	if (l <= 0 || l >= (unsigned int) HzeroT->ncols){
+	params.l = args_info.l_arg;
+	if (params.l <= 0 || params.l >= (unsigned int) HzeroT->ncols){
 		fprintf(stderr, "l must be >0 and <r\n");
 		exit(EXIT_FAILURE);
 	}
 
-	unsigned int l2 = args_info.l2_given ? (unsigned int) args_info.l2_arg : l/2;
-	unsigned int l3 = args_info.l3_given ? (unsigned int) args_info.l3_arg : l/4;
-	unsigned int p = args_info.p_given ? (unsigned int) args_info.p_arg : 8;
-	unsigned int e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 0;
-	unsigned int e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
-	unsigned int csize = args_info.csize_given ? (unsigned int) args_info.csize_arg : 1;
+	params.l2 = args_info.l2_given ? (unsigned int) args_info.l2_arg : params.l/2;
+	params.l3 = args_info.l3_given ? (unsigned int) args_info.l3_arg : params.l/4;
+	params.p = args_info.p_given ? (unsigned int) args_info.p_arg : 8;
+	params.e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 0;
+	params.e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
+	params.csize = args_info.csize_given ? (unsigned int) args_info.csize_arg : 1;
 
+	params.max_iter = args_info.max_iter_arg;
+	params.max_sol = args_info.max_sol_arg;
+	params.max_time = args_info.max_time_arg;
+
+	// w given on command line overrides w given in input file
 	if (args_info.w_given) {
-		w = args_info.w_arg;
+		params.w = args_info.w_arg;
 	}
 
 
@@ -74,12 +83,11 @@ int main(int argc, char **argv)
 	// The program compute_threshold tries to compute the optimal value
 	// balancing p_miss and the probability of false alarm considering the costs of the different steps.
 	// The heuristic threshold = (eff_word_len - l)/4 seems good.
-	unsigned int weight_threshold;
 	if (args_info.threshold_given) {
-		weight_threshold = args_info.threshold_arg;
+		params.weight_threshold = args_info.threshold_arg;
 	}
 	else {
-		weight_threshold = (eff_word_len - l)/4; // heuristic
+		params.weight_threshold = (eff_word_len - params.l)/4; // heuristic
 	}
 
 	signal(SIGUSR1, status_handler);
@@ -88,7 +96,7 @@ int main(int argc, char **argv)
 
 	printf("seed : 0x%016lx\n", seed);
 
-	isd(HzeroT, l, l2, l3, p, e1, e2, w, N, synds, weight_threshold,csize, args_info.max_iter_arg, args_info.max_sol_arg, args_info.max_time_arg, state, args_info.skip_arg);
+	isd(HzeroT, N, synds, &params, state, args_info.skip_arg);
 
 	CSD_free(HzeroT, N, synds);
 	free(state);

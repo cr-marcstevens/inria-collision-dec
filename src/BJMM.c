@@ -33,31 +33,46 @@ static word s1, s2, s3, s4, a, sma;
 static int eff_word_len,shift1,shift2,shift1p;
 static sw_list** h;
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, ranctx* local_state, sw_list** local_h) {
+void print_parameters(isd_params* params) {
+	printf("n : %d\n", params->n);
+	printf("r : %d\n", params->r);
+	printf("w : %d\n", params->w);
+	printf("l : %d\n", params->l);
+	printf("l2 : %d\n", params->l2);
+	printf("l3 : %d\n", params->l3);
+	printf("e1 : %d\n", params->e1);
+	printf("e2 : %d\n", params->e2);
+	printf("p : %d\n", p);
+	printf("eff_word_len : %ld\n", min(params->r, word_len));
+	printf("threshold : %d\n", params->weight_threshold);
+}
+
+void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
 	//printf("initiate BJMM \n");
 	//fflush(stdout);
+	print_parameters(params);
 
-	L = simple_HprimemodT;
+	L = local_L;
 	N = local_N;
-	syndsprime = local_syndsprime;
-	n = local_n;
-	r = local_r;
-	l = local_l;
-	l2 = local_l2; //  named r2 in the paper
-	l3 = local_l3; //  named r1 in the paper
-	e1 = local_e1; //  filter 1 parameter
-	e2 = local_e2; //  filter 2 parameter
-	p = local_p;
-	w = local_w;
+	syndsprime = local_synds;
+	n = params->n;
+	r = params->r;
+	l = params->l;
+	l2 = params->l2; //  named r2 in the paper
+	l3 = params->l3; //  named r1 in the paper
+	e1 = params->e1; //  filter 1 parameter
+	e2 = params->e2; //  filter 2 parameter
+	p = params->p;
+	w = params->w;
 	h = local_h;
-	state=local_state;
-	csize= local_csize;
+	state = state;
+	csize = params->csize;
 
 	k = n-r;
 
 	L_len = k+l;
 
-	threshold = local_threshold;
+	threshold = params->weight_threshold;
 	eff_word_len = min(r, word_len);
 	shift1 = eff_word_len - l2;
 	shift1p = l2 + (64 - eff_word_len);

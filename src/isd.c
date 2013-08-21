@@ -157,13 +157,14 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 */
 
 
-sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, unsigned int p, unsigned int e1, unsigned int e2, unsigned int w, unsigned int N, word** synds, unsigned int weight_threshold,unsigned int csize, unsigned long long max_iter, unsigned long long max_sol, unsigned long long max_time, ranctx* state, unsigned int skip) {
+sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ranctx* state, unsigned int skip) {
 	unsigned int i, j ,ii;
-	unsigned int n = HzeroT->nrows;
-	unsigned int r = HzeroT->ncols;
+	unsigned int n = params->n;
+	unsigned int r = params->r;
+	unsigned int l = params->l;
 	unsigned int k = n-r;
 
-	unsigned int eff_word_len = min((unsigned int) HzeroT->ncols, (word_len*csize)); // number of bits to consider if we handle one word of data.
+	unsigned int eff_word_len = min((unsigned int) HzeroT->ncols, (word_len*params->csize)); // number of bits to consider if we handle one word of data.
 
 	mzd_t* HT  = mzd_init(   n,     r);
 	mzd_t* BT  = mzd_init( k+l,     r);
@@ -178,7 +179,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 
 	mzd_t* HprimemodT = mzd_init(k+l, eff_word_len);
 
-	word* simple_HprimemodT = (word*) malloc((k+l)*sizeof(word)*csize); // copy of the internal data of HprimemodT; removes one layer of pointers and realigns datas
+	word* simple_HprimemodT = (word*) malloc((k+l)*sizeof(word)*params->csize); // copy of the internal data of HprimemodT; removes one layer of pointers and realigns datas
 
 	unsigned int* perm = (unsigned int*) malloc(n*sizeof(unsigned int));
 	unsigned int* perm_inv = (unsigned int*) malloc(n*sizeof(unsigned int));
@@ -199,29 +200,13 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 	 *  =>  Syndsprime = [X1 Y1 Z1 X2 Y2 Z2 ... Xcsize Ycsize Zcsize]
 	 *  with X = [X1 X2 X3 ... Xcsize] each Xi of size 64 (or less if csize*64 > r)
 	 */
-	syndsprime = (word*) malloc(N*sizeof(word)*csize);
+	syndsprime = (word*) malloc(N*sizeof(word)*params->csize);
 
 	sw_list* h = NULL;
 
-	sub_isd_init(simple_HprimemodT, N, syndsprime, n, r, l, l2, l3, p, e1, e2, w, weight_threshold,csize,state, &h);
-	final_test_init(r, w, BT, Usecondmod, synds);
+	sub_isd_init(params, simple_HprimemodT, syndsprime, N, &h, state);
+	final_test_init(r, params->w, BT, Usecondmod, synds);
 
-	printf("n : %d\n", n);
-	printf("r : %d\n", r);
-	printf("w : %d\n", w);
-	printf("N : %d\n", N);
-	printf("l : %d\n", l);
-	printf("l2 : %d\n", l2);
-	printf("l3 : %d\n", l3);
-	printf("p : %d\n", p);
-	printf("e1 : %d\n", e1);
-	printf("e2 : %d\n", e2);
-	printf("max_iter : %lld\n", max_iter);
-	printf("max_time : %lld\n", max_time);
-	printf("max_sol : %lld\n", max_sol);
-	printf("eff_word_len : %d\n", eff_word_len);
-	printf("threshold : %d\n", weight_threshold);
-	printf(" csize : %d\n", csize);
 
 	for (i = 0; i < skip; ++i) {
 		generate_permutation(perm, perm_inv, n, state);
@@ -350,7 +335,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		mzd_mul_m4rm(HprimemodT, BT, UprimemodT, 0);
 
 		//mzd_to_png(HprimemodT, "out.png", 0, NULL, 0);
-		for (ii=0; ii<csize; ii++){
+		for (ii=0; ii<params->csize; ii++){
 			for (i = 0; i < k+l; ++i) {
 				simple_HprimemodT[i+ii*(k+l)] = HprimemodT->rows[i][ii];
 			}
@@ -360,7 +345,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 		// Apply the transformation to the syndromes
 		unsigned int s;
 		unsigned int t;
-		for (t=0; t< csize; t++){
+		for (t=0; t< params->csize; t++){
 			for (s = 0; s < N; ++s) {
 
 				syndsprime[s+t*N] = 0;
@@ -388,17 +373,17 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 				++nb_sol;
 				ptr = ptr->next;
 			}
-			process_solutions_on_the_fly(&h, w, l, BT, synds, U, perm_inv, nb_iter);
+			process_solutions_on_the_fly(&h, params->w, l, BT, synds, U, perm_inv, nb_iter);
 		}
 		++nb_iter;
 
-		if (max_iter != 0 && nb_iter >= max_iter) {
+		if (params->max_iter != 0 && nb_iter >= params->max_iter) {
 			stop = 1;
 		}
-		if (max_time != 0 && time(NULL) - start_date >= max_time) {
+		if (params->max_time != 0 && time(NULL) - start_date >= params->max_time) {
 			stop = 1;
 		}
-		if (max_sol != 0 && nb_sol >= max_sol) {
+		if (params->max_sol != 0 && nb_sol >= params->max_sol) {
 			stop = 1;
 		}
 	}
@@ -408,7 +393,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int l, unsigned int l2, unsigned int l3, un
 	get_costs(nb_iter, &pivot, &bday, &final);
 	sub_isd_report((cpucycles() - start_cycles)/nb_iter, pivot, bday, final);
 	display(nb_iter);
-	process_solutions_at_end(&h, w, l, BT, synds, U, perm_inv);
+	process_solutions_at_end(&h, params->w, l, BT, synds, U, perm_inv);
 
 	sub_isd_free();
 	final_test_free();

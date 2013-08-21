@@ -23,6 +23,14 @@ static word* xors_table;
 
 static sw_list** h;
 
+short** unpack;
+
+void unpack3_counter(unsigned int* c1, unsigned int* c2, unsigned int* c3, unsigned int counter) {
+	*c1 = unpack[counter][0];
+	*c2 = unpack[counter][1];
+	*c3 = unpack[counter][2];
+}
+/*
 void unpack3_counter(unsigned int* c1, unsigned int* c2, unsigned int* c3, unsigned int counter) {
 	unsigned int col_1 = exp(log(6*counter)/3);
 	do {
@@ -32,30 +40,36 @@ void unpack3_counter(unsigned int* c1, unsigned int* c2, unsigned int* c3, unsig
 	unsigned int col_2 = (int) (sqrt(2.0f*(counter-(col_1*(col_1-2)*(2*col_1-2)/12))+0.25f) + 0.5f);
 	unsigned int col_3 = counter - (col_1*(col_1-2)*(2*col_1-2)/12) - (col_2*(col_2-1))/2;
 	*c1 = col_1; *c2 = col_2; *c3 = col_3;
+}*/
+
+void print_parameters(isd_params* params) {
+	printf("n : %d\n", params->n);
+	printf("r : %d\n", params->r);
+	printf("w : %d\n", params->w);
+	printf("l : %d\n", params->l);
+	printf("p : %d\n", p);
+	printf("eff_word_len : %ld\n", min(params->r, word_len));
+	printf("threshold : %d\n", params->weight_threshold);
 }
 
-void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syndsprime, unsigned int local_n, unsigned int local_r,unsigned int local_l, unsigned int local_l2, unsigned int local_l3, unsigned int local_p, unsigned int local_e1, unsigned int local_e2, unsigned int local_w, unsigned int local_threshold,unsigned int local_csize, ranctx* state, sw_list** local_h) {
-	L = simple_HprimemodT;
-	N = local_N;
-	syndsprime = local_syndsprime;
-	n = local_n;
-	r = local_r;
-	l = local_l;
-	(void) local_l2;
-	(void) local_l3;
-	(void) local_e1;
-	(void) local_e2;
-	(void) local_p;
-	(void) local_csize;
+void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
 	(void) state;
-	w = local_w;
+	print_parameters(params);
+	L = local_L;
+	N = local_N;
+	syndsprime = local_synds;
 	h = local_h;
+
+	n = params->n;
+	r = params->r;
+	l = params->l;
+	w = params->w;
 
 	k = n-r;
 
 	L_len = k+l;
-	
-	threshold = local_threshold;
+
+	threshold = params->weight_threshold;
 
 	unsigned long long nb_of_sums = nCr(L_len/2, p/2);
 	lprime = (l+ log(nb_of_sums)/log(2))/2;
@@ -67,6 +81,24 @@ void sub_isd_init(word* simple_HprimemodT, unsigned int local_N, word* local_syn
 	L0 = (int*) malloc(L0_size*sizeof(int));
 
 	xors_table = (word*) malloc(nb_of_sums * sizeof(word));
+
+	unsigned int i;
+	unsigned int c1, c2, c3;
+	unsigned int counter = 0;
+	unpack = (short**) malloc(nb_of_sums * sizeof(short*));
+	for (i = 0; i < nb_of_sums; ++i) {
+		unpack[i] = (short*) malloc(p/2 * sizeof(short));
+	}
+	for(c1 = 2; c1 < L_len/2; ++c1) {
+		for(c2 = 1; c2 < c1; ++c2) {
+			for(c3 = 0; c3 < c2; ++c3) {
+				unpack[counter][0] = c1;
+				unpack[counter][1] = c2;
+				unpack[counter][2] = c3;
+				++counter;
+			}
+		}
+	}
 }
 
 void sub_isd() {
