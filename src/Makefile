@@ -26,13 +26,13 @@ profile: all
 
 COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a custom_brilliantrussian.c
 
-#dumer%.c: gen_dumer.py
-#	python gen_dumer.py $* > $@
+dumer%.c: gen_dumer.py
+	python gen_dumer.py $* > $@
 
 dumer4: $(COMMON) dumer4.c
 dumer6: $(COMMON) dumer6.c
+dumer8: $(COMMON) dumer8.c
 
-#dumer8: $(COMMON) dumer8.c htable.c
 
 mmt%.c: gen_mmt.py
 	python gen_mmt.py $* > $@
