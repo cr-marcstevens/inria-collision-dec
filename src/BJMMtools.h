@@ -35,10 +35,12 @@ void FusionFilterStore64(S* AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 
 void FusionFilterGive64(S** AnswerList, S* StockedE,S* OnTheFlyE,word target,int shift1,int shift2,unsigned int w,unsigned int w2,unsigned int csize);
 
-void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize);
+void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize, sw_list** observer);
 
 void Sort(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2);
 
 int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsigned short size1,unsigned short size2,unsigned short targetsize);
+
+void PrintDoubleStat(sw_list** AnswerList,unsigned short p);
 
 void freelist(S* draw);

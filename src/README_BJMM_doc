@@ -32,7 +32,7 @@ ________________________________________________________________________________
 !  WARNING! There are currently several restriction on the inputs available:															       !
 !  - you MUST choose p, e1 and e2 so that p, p1 and p2 will be even. Odd p, p2, or p1 will probably rise errors.										       !
 !  (example: {p=8,e1=0,e2=0} or {p=2,e1=1,e2=1} are corrects. {p=6,e1=0,e2=1} is not).														       !
-!  - you MUST choose l carefully, so that L_len (l+r) will be at least even. To be sure to avoid potential bugs in the algorithms (such as non-disjoints patterns), it is recommended to choose l    ! 
+!  - you MUST choose l carefully, so that L_len (l+r) will be at least even. To be sure to avoid potential bugs in the algorithms (such as non-disjoints patterns), it is recommended to choose l      ! 
 !  such as l+r can be divided by 4.																				       !	
 !  - l>64 is currently not handled.																				       !	
 !  - l2+l3 must be inferior to 64. the implementation of l2+l3>64 is not scheduled.														       !

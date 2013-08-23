@@ -661,15 +661,15 @@ void FusionFilterGive64(S** AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 	}
 }
 
-void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
+void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize,sw_list** observer){
 	unsigned int i;
 	int ncolumn;
 	int finalweight;
 	unsigned int weight;
 	S builder;
 	word target = ((Synd[0]<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3)));
-	builder.indice = malloc(w2*sizeof(short));
-	builder.sum = malloc(csize*sizeof(word));
+	builder.indice = calloc(w2,sizeof(short));
+	builder.sum = calloc(1,csize*sizeof(word));
 	word index = ((((((*OnTheFlyE).sum[0])<<((l2+l3)+(64-eff_word_len)))>>(64 - (l-l2-l3))))^target); // OnTheFlyE first draw
 	if (StockedE[index].indice != NULL){		// there is a corresponding solution to build the targeted syndrome
 		if(SortFilter(builder.indice,(*OnTheFlyE).indice,StockedE[index].indice,w,w,w2)){ //The solution pass the filter
@@ -682,6 +682,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 			printf(" cible: %llx \n",Synd[0]);
 			*/
 			incr_nb_collision_counter();
+			*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 			weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 			if (weight <= threshold) {
 				ncolumn = w2;
@@ -716,6 +717,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" cible: %llx \n",Synd[0]);
 				*/
 				incr_nb_collision_counter();
+				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 				weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
 					ncolumn = w2;
@@ -754,6 +756,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" cible: %llx \n",Synd[0]);
 				*/
 				incr_nb_collision_counter();
+				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 				weight = isd_weight(((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
 					ncolumn = w2;
@@ -789,6 +792,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					printf(" cible: %llx \n",Synd[0]);
 					*/
 					incr_nb_collision_counter();
+					*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 					weight = isd_weight(((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
 					if (weight <= threshold) {
 						ncolumn = w2;
@@ -859,12 +863,12 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 				p1++;
 			}
 			else {
-				*(dest+currentsize)= *(s1+p1);
-				p1++;
 				currentsize++;
 				if(currentsize > targetsize){
 					return 0; //filtered solution
 				}
+				*(dest+currentsize-1)= *(s1+p1);
+				p1++;
 			}
 		}
 		else{
@@ -872,12 +876,13 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 				p2++;
 			}
 			else {
-				*(dest+currentsize)= *(s2+p2);
-				p2++;
+
 				currentsize++;
 				if(currentsize > targetsize){
 					return 0; //filtered solution
 				}
+				*(dest+currentsize-1)= *(s2+p2);
+				p2++;
 			}
 		}
 	}
@@ -886,12 +891,12 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 			p1++;
 		}
 		else {
-			*(dest+currentsize)= *(s1+p1);
-			p1++;
 			currentsize++;
 			if(currentsize > targetsize){
 				return 0; //filtered solution
 			}
+			*(dest+currentsize-1)= *(s1+p1);
+			p1++;
 		}
 	}
 	while(p2<size2){ // filling the end of dest. Only one of the two while loop will do something
@@ -899,12 +904,12 @@ int SortFilter(unsigned short* dest,unsigned short* s1,unsigned short* s2,unsign
 			p2++;
 		}
 		else {
-			*(dest+currentsize)= *(s2+p2);
-			p2++;
 			currentsize++;
 			if(currentsize > targetsize){
 				return 0; //filtered solution
 			}
+			*(dest+currentsize-1)= *(s2+p2);
+			p2++;
 		}
 	}
 	for (i=currentsize; i<targetsize ; i++){ //potential garbage erasing
@@ -924,6 +929,91 @@ void freelist(S* draw){
 	free((*draw).indice);
 	(*draw).indice= NULL;
 }
+
+void PrintDoubleStat(sw_list** AnswerList,unsigned short p){
+
+	int sorter(const void* a, const void* b){
+		unsigned int i;
+		for (i=0;i<p;i++){
+			if ((*((sw_list*) a)).pos[i] < (*((sw_list*) b)).pos[i]){
+				return -1;
+			}
+			else if ((*((sw_list*) a)).pos[i] > (*((sw_list*) b)).pos[i]){
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	int stater(sw_list* list,unsigned int i,unsigned int j,unsigned int* stat,unsigned int p,unsigned int size){
+		unsigned int l;
+		if(list[i].pos[p-1]==list[i-1].pos[p-1]){
+			if (i<size-1){
+				l=stater(list,i+1,j+1,stat,p,size);
+				if (l==0){
+					if (j>19){
+						stat[19]++;
+					}
+					else{
+						stat[j]++;
+					}
+				}
+				return l+1;
+			}
+			else {
+				return 0;
+			}
+		}
+		else {
+			return 0;
+		}
+	}
+
+	unsigned int i;
+	unsigned int stat[20];
+	unsigned int size=0;
+	int inc;
+	double prop[20];
+	for (i=0;i<20;i++){
+		prop[i]=0.0;
+		stat[i]=0;
+	}
+	sw_list* current = *AnswerList;
+	sw_list* list;
+	while (current !=NULL){
+		size++;
+		current=(*current).next;
+	}
+	list=calloc(size,sizeof(sw_list));
+	current = *AnswerList;
+	for (i=0;i<size;i++){
+		//if ((*current).weight==p){
+		list[i]=*current;
+		//}
+		current=(*current).next;
+
+	}
+	qsort(list,size,sizeof(sw_list),sorter);
+
+	i=1;
+	while(i<size-2){
+		inc = stater(list,i,0,stat,p,size);
+		i+=inc+1;
+	}
+	printf("iteration a %d collisions) \n",size);
+	for (i=0;i<19;i++){
+	prop[i] = ((double) stat[i])*(i+1) / ((double) size) * 100.0;
+	printf("pourcentage de %d-uplet: %f %% \n",i+2,prop[i]);
+	}
+	prop[19] = ((double) stat[19])*(21) / ((double) size) * 100.0;
+	printf("pourcentage de N-uplet superieur a %d: %f %% environ (minorantt) \n",21,prop[19]);
+
+	free(list);
+}
+
+
+
+
 
 
 

@@ -32,6 +32,7 @@ static unsigned int p1;
 static word s1, s2, s3, s4, a, sma;
 static int eff_word_len,shift1,shift2,shift1p;
 static sw_list** h;
+static sw_list** observer;
 
 void print_parameters(isd_params* params) {
 	printf("n : %d\n", params->n);
@@ -42,7 +43,7 @@ void print_parameters(isd_params* params) {
 	printf("l3 : %d\n", params->l3);
 	printf("e1 : %d\n", params->e1);
 	printf("e2 : %d\n", params->e2);
-	printf("p : %d\n", p);
+	printf("p : %d\n", params->p);
 	printf("eff_word_len : %ld\n", min(params->r, word_len));
 	printf("threshold : %d\n", params->weight_threshold);
 }
@@ -99,6 +100,9 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 void sub_isd() {
 
+	observer=calloc(1,sizeof(sw_list*));
+	*observer=NULL;
+
 	s1 = random_range(state, 1UL<<l2);
 	s2 = random_range(state, 1UL<<l2);
 	s3 = random_range(state, 1UL<<l2);
@@ -127,7 +131,7 @@ void sub_isd() {
 	//temp2 = calloc(1,sizeof(S));
 	for (i=0; i<4;i++){
 		//printf("building list %i \n",i);
-		lists[i] = calloc((1UL << l2),sizeof(S));
+		lists[i] = calloc((1ULL << l2),sizeof(S));
 		/* initialization of indice
 		 *  We assume p2/2 << k+l.
 		 *  Then the p2/2 first colums will always be in the first block in all distributions
@@ -172,7 +176,7 @@ void sub_isd() {
 	//---------------------
 
 	//printf("fusion -> E1 \n");
-	EStep1[0] = calloc((1UL << l3),sizeof(S));
+	EStep1[0] = calloc((1ULL << l3),sizeof(S));
 	for (j=0;j<(p2/2);j++){
 		indice[j]=(L_len/2)+j;
 	}
@@ -205,7 +209,7 @@ void sub_isd() {
 				sums[j+ii*(p2/2)]=sums[(j-1)+ii*(p2/2)]^L[indice[j]+ii*L_len];
 			}
 		}
-		EStep2 = calloc((1UL << (l-l2-l3)),sizeof(S));
+		EStep2 = calloc((1ULL << (l-l2-l3)),sizeof(S));
 
 		fusiongive1(temp,s2,lists[1],shift1,indice,sums,p2,csize);
 		if ((*temp).indice != NULL){
@@ -281,7 +285,7 @@ void sub_isd() {
 		if ((*temp).indice != NULL){
 			FusionFilterGive64(temp2,EStep1[1],temp,sma,shift1p,shift2,p2,p1,csize);
 			if ( (*temp2) != NULL){
-				FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize);
+				FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize,observer);
 				freelist(*temp2);
 				//(*temp2).indice = NULL;
 				free(*temp2);
@@ -298,7 +302,7 @@ void sub_isd() {
 			if ((*temp).indice != NULL){
 				FusionFilterGive64(temp2,EStep1[1],temp,sma,shift1p,shift2,p2,p1,csize);
 				if ( (*temp2) != NULL){
-					FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize);
+					FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize,observer);
 					freelist(*temp2);
 					//(*temp2).indice = NULL;
 					free(*temp2);
@@ -342,6 +346,10 @@ void sub_isd() {
 	// BJMM done
 	//printf("-");
 	//printf("h: %llu", h[0]);
+
+	PrintDoubleStat(observer,p);
+	sw_list_free(*observer);
+	free(observer);
 }
 
 void sub_isd_report(unsigned long long cycles_per_iter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
