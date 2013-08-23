@@ -1,0 +1,77 @@
+[23 août 2013]
+
+[Mathieu ARIA]
+
+EXEMPLE DE COMMANDE POUR TESTER BJMM:
+
+(pensez à compiler avec "make stat" pour avoir les stats exhaustives à chaque itération ou juste "make" pour trouver les solutions rapidements)
+
+Le plus rapide: ./BJMM -l 26 -L 1 -r 6 -e 0 -E 0 -p 8 -t 8 -i smallchallenge.txt
+
+Pour tester pleinement l'algorithme (e1 != 0):  ./BJMM -l 26 -L 1 -r 8 -e 1 -E 0 -p 6 -t 10 -i smallchallenge.txt
+
+note: il est impératif de TOUJOURS vérifier que p2/2 est entier et n-r+k+l multiple de 4.
+
+
+ANALYSE: 
+
+TEMPORELLE
+
+	L'algorithme BJMM s'avère, sur de petits problèmes, bien moins efficace que celui de dumer, d'un facteur non négligeable.
+
+	A titre d'exemple, sur le problème 5-9-414-0-16 (small challenge), le nombre d'itération en pratique relevé entre chaque itération à succès est d'environ 500, 
+	ce qui avec 3s par itération représente en moyenne 1500s (25min) pour trouver le solution.
+	En comparaison, dumer avec p=4 demande environ 10 000 iteration mais realise plus de 3000 iter/s, ce qui represente au final 3 s pour trouver la solution.
+
+	La comparaison avec dumer et p=8, plus pertinente, montre des resultat comparable: dumer8 demande environ 3 min pour trouver une solution avec 1 iter/s, des ordres de grandeur comparable à BJMM (inférieur à un facteur 10). BJMM 		reste néanmoins plus mauvais temporellement.
+
+	Le passage à p=6 et e1=1, plus proche des valeurs supposés efficaces de l'algorithme, se montre paradoxalement désastreux, avec une inflation non négligeable du temps de calcul expérimental, d'un facteur estimé de l'ordre de 10.
+
+	Un résultat rassurant en revanche est que l'écart entre le temps de calcul nécessaire à BJMM et à dumer ne s'aggrave pas pour un problème plus gros (pas de dégradation), avec même une amélioration potentielle.
+	Ainsi, le problème 9-9-498-0-23, dont la complexité théorique est 2^4 (16) fois supérieure au small challenge, demande environ 5000 itération avec BJMM. Comparé aux 500 du small challenge, on retrouve un ordre de grandeur tout 		a fait cohérent.
+
+SPATIAL
+
+	L'algorithme s'avère en revanche particulièrement mauvais (comparé à dumer ou même MMT) en terme de complexité spatiale. 
+	Concrêtement,on rencontre deux problèmes distincts:
+	-Les valeurs idéales de l on tendance à rapidement s'envoler quand on augmente p, tandis que r1 et r2 reste relativement "faible". Toute tentative par conséquent de dépasser p2/2=1 se solde alors par une envolée de la valeur 		théorique idéale de l, qui atteint rapidement des valeurs avoisinant 50, tandis que r1+r2 restent de l'ordre de 10 à 15. Or, notre algorithme utilisant des tables de hachage dont la plus grande est en 2^(l-r1-r2) éléments, 		cette table devient une limite matérielle si (l-r1-r2) s'approche de 25 (chaqué élément faisant aisément entre 64 et 128 bit, on approche alors de la limite matérielle des 8Go de RAM présent sur la machine de test.
+	-Même si on réduit la valeur de l intentionnellement afin de contourner le problème n°1 (et sortant ainsi du cas "idéal" de l'algorithme), on risque alors de créer de très longue liste chaîné dont la taille, lorsque l'on 		dépasse plusieurs millions d'éléments (soit d'un ordre supérieur à 2^20) devient dangereusement critique et peut nous répprocher à nouveau de cette barière des 2^33 octets de mémoire disponible.
+
+	Bien que cette limite soit propre à la machine de test, elle nous donne un ordre de grandeur des paramètres manipulable: p>8 est impraticable pour des problèmes même de taille "pratique" (n entre 1000 et 2000) en cryptographie, 		et on est donc contraint de se limiter à deux choix: p=8 et e=0 ou p=6 et e=1.
+	On remarque même que ces paramètres, qui sont les paramètres minimaux (p2/2=1) amène à dépasser la RAm disponible sur des problèmes avec n entre 1500 et 2000. Les "gros problèmes" sont donc impratiquable actuellement par 		l'algorithme sur nos machines, car ils génèrent de trop grosse et trop longues itérations.
+
+	remarque: si il serait en théorie possible de limiter sensiblement la complexité spatiale de l'algorithme, en renoncant par exemple à ses grosses tables de hachages, etc... une telle implémentation se traduirait probablement 		par un accroissement sensible de la complexité temporelle, qui est le paramètre actuellement le plus optimisé.
+
+STATISTIQUE:
+	
+	Un phénomène "intriguant" est que l'algorithme, particuluièrement pour p=8, a tendance à donner souvent 2, 4, voir 8 fois la bonne réponse à une "itération gagnante". 
+	cela nous à amené à produire des statistiques sur le nombre d'éléments distincts et de N-uplet dans les collisions finales.
+	Le résultat est édifiant, bien qu'assez volatile à chaque itération:
+
+Pour p=8, le nombre d'élément distinct sur le small challenge se situe généralement entre 40 et 50%. Plus de la moitié de la puissance de calcul est donc "perdue", ce qui peut expliquer la grande inefficacité constaté de l'algorithme. 
+	On remarque ensuite les phénomènes suivants: 
+
+	-les N-uplets paire sont fortement prépondérant face aux N-uplet impairs qui sont rares (de l'ordre de 2% pour els 3-uplets et 5-uplet et moins pour les autres)
+	-Les puissances de 2 sont fortement prépondérante, signant un phénomène particulier. les 2-uplets et 4-uplets constituent généralement entre 15 et 25% du total chacun, avec, chose surprenante, une prépondérance légère des 		4-uplets face aux 2-uplets. La prépondérance des 8-uplets face aux 6-uplets est également très nette (de l'ordre respectivement de 5 et 3%), montrant bien un phénomène en 2^n (idem pour les 16-uplets, systématiquement 		prépondérant face aux 14-uplets). Néanmoins, aucun N-uplets n'est en proportion nulle 	et les N-uplets supérieurs à 20 forment un groupe non négligeable vu leur taille (souvent >1%)
+
+Pour p=6 et e=1, avec du filtrage donc, les résultats deviennent encore plus étonnant: 
+
+	La volatilité des résultats augmentent fortement, rendant une itération seule peu pertinente.
+	On retrouve néanmoins les phénomène cité plus haut (2^n et pairs prépondérants), mais à une échelle moindre, les 2-uplets et 4-uplets oscillant généralement entre 3 et 20% du total.
+	remarque:si il y a une grande volotilité entre les itérations (3 à 20%!) les % de 2-uplets et 4-uplets sont en général proches pour une même itération!
+
+	Un phénomène inquiétant en revanche et la proportion de N-uplets supérieur à 20: très volatile, elle oscille de 1... à 45%! Des valeurs frisant les 50% ne sont pas rares, et ils s'agit pourtant d'une minoration (une suite de 		plus de 20 éléments identiques, potentiellement très longue, est considéré comme de poid 20 pour le calcul du pourcentage. Ainsi, sur 1000 éléments, 5 chaines de 100 éléments identiques compteraient pour 10% du total alors 		qu'elles représentent en fait 50% de celui-ci). Il y a donc apparition d'un phénomène étrange favorisant un très très grand nombre de solutions identiques parmis les solutions filtrés. Comprendre ce phénomène (potentiellement 		dû au supports de découpage choisis?) permettrait peut-être une amélioration sensible de la puissance de l'algorithme.
+	Le nombre d'éléments distincts, fort heureusement, ne s'effondre pas pour autant et reste de l'ordre de 30 à 50% suivant les itérations. Cette prépondérance des très grands N-uplets se fait presque systématiquement au détriment 		des N-uplets plus petits avec n supérieur ou égal à 2.
+
+CONCLUSION:
+
+	Au final, BJMM s'avère moins performant temporellement que des algorithmes plus simple comme Dumer sur des problèmes de taille "faible", et est impossible à éxécuter sur des problèmes plus gros du fait de sa complexité spatial 		très importante (peu d'itérations, très longue avec énormément de collisions).
+	Le nombre important d'éléments non-distincts ("double" et autres N-uplets)  constatés est peut-être d'ailleurs l'une des raisons de son inefficacité.
+	
+	
+
+
+
+
+
+

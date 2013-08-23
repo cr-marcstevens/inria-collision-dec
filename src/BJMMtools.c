@@ -660,8 +660,11 @@ void FusionFilterGive64(S** AnswerList, S* StockedE,S* OnTheFlyE,word target,int
 		*/
 	}
 }
-
+#ifdef STAT
 void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize,sw_list** observer){
+#else
+void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Synd,int eff_word_len,unsigned int threshold,unsigned int l,unsigned int l2,unsigned int l3,unsigned int w,unsigned int w2,unsigned int csize){
+#endif
 	unsigned int i;
 	int ncolumn;
 	int finalweight;
@@ -682,7 +685,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 			printf(" cible: %llx \n",Synd[0]);
 			*/
 			incr_nb_collision_counter();
+#ifdef STAT
 			*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+#endif
 			weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 			if (weight <= threshold) {
 				ncolumn = w2;
@@ -717,7 +722,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" cible: %llx \n",Synd[0]);
 				*/
 				incr_nb_collision_counter();
+#ifdef STAT
 				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+#endif
 				weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
 					ncolumn = w2;
@@ -756,7 +763,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" cible: %llx \n",Synd[0]);
 				*/
 				incr_nb_collision_counter();
+#ifdef STAT
 				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+#endif
 				weight = isd_weight(((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
 					ncolumn = w2;
@@ -792,7 +801,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					printf(" cible: %llx \n",Synd[0]);
 					*/
 					incr_nb_collision_counter();
+#ifdef STAT
 					*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+#endif
 					weight = isd_weight(((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
 					if (weight <= threshold) {
 						ncolumn = w2;

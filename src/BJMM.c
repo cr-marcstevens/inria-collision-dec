@@ -32,7 +32,9 @@ static unsigned int p1;
 static word s1, s2, s3, s4, a, sma;
 static int eff_word_len,shift1,shift2,shift1p;
 static sw_list** h;
+#ifdef STAT
 static sw_list** observer;
+#endif
 
 void print_parameters(isd_params* params) {
 	printf("n : %d\n", params->n);
@@ -99,9 +101,10 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 
 void sub_isd() {
-
+#ifdef STAT
 	observer=calloc(1,sizeof(sw_list*));
 	*observer=NULL;
+#endif
 
 	s1 = random_range(state, 1UL<<l2);
 	s2 = random_range(state, 1UL<<l2);
@@ -285,7 +288,11 @@ void sub_isd() {
 		if ((*temp).indice != NULL){
 			FusionFilterGive64(temp2,EStep1[1],temp,sma,shift1p,shift2,p2,p1,csize);
 			if ( (*temp2) != NULL){
+#ifdef STAT
 				FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize,observer);
+#else
+				FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize);
+#endif
 				freelist(*temp2);
 				//(*temp2).indice = NULL;
 				free(*temp2);
@@ -302,7 +309,11 @@ void sub_isd() {
 			if ((*temp).indice != NULL){
 				FusionFilterGive64(temp2,EStep1[1],temp,sma,shift1p,shift2,p2,p1,csize);
 				if ( (*temp2) != NULL){
+#ifdef STAT
 					FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize,observer);
+#else
+					FinalFusionFilter64(h,EStep2,*temp2,syndsprime,eff_word_len,threshold,l,l2,l3,p1,p,csize);
+#endif
 					freelist(*temp2);
 					//(*temp2).indice = NULL;
 					free(*temp2);
@@ -347,9 +358,12 @@ void sub_isd() {
 	//printf("-");
 	//printf("h: %llu", h[0]);
 
+#ifdef STAT
 	PrintDoubleStat(observer,p);
 	sw_list_free(*observer);
 	free(observer);
+#endif
+
 }
 
 void sub_isd_report(unsigned long long cycles_per_iter, long long pivot_cost, long long bday_cost, long long final_test_cost) {

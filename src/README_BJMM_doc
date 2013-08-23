@@ -162,6 +162,20 @@ Else, the element pass the filter and the function return 1.
 -Freelist: This function is used to browse and free all the allocated memory spaces in the lists used by the other function. It is recursive.
 
 
+V. Compilation options
+
+You can compile a more talkative version of this programme with the make file which had a lot of statistical figures at each iterations.
+Just add: 
+
+stat: CFLAGS += -DSTAT
+stat: all
+
+in the makefile, and compile the sources with "make stat".
+
+this will add a measure of the amount of N-uplet in the collisions found by the algorithms, N between 2 and 20.
+This additionnal feature is less optimised than the main programm and will probably slow down the algorithm a lot.
+
+
 
 
 

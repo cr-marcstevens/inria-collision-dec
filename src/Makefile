@@ -19,6 +19,9 @@ debug: CFLAGS += -DDEBUG -g -O0 -mno-popcnt
 debug: M4RI = $(M4RIG)
 debug: all
 
+stat: CFLAGS += -DSTAT
+stat: all
+
 profile: CFLAGS += -g -mno-popcnt
 profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RIG)
