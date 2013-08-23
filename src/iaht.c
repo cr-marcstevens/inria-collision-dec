@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include "m4ri/m4ri.h"
 #include "iaht.h"
+#include "syscall_macros.h"
 
 /*
  * iaht (integer array has table) is an array hash table containing list of integer x-uplet
@@ -11,7 +12,7 @@
  */
 
 iaht iaht_init(unsigned long long size) {
-	return (iaht) calloc(size, sizeof(iaht_list));
+	return (iaht) CALLOC(size, sizeof(iaht_list));
 }
 
 

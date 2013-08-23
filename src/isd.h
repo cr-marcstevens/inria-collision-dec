@@ -7,6 +7,7 @@
 typedef struct {
 	unsigned int n;
 	unsigned int r;
+	unsigned int k;
 	unsigned int l;
 	unsigned int l2;
 	unsigned int l3;

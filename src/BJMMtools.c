@@ -684,7 +684,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 			printf(" sum: %llx \n",((*OnTheFlyE).sum[0]^(StockedE[index].sum[0])));
 			printf(" cible: %llx \n",Synd[0]);
 			*/
-			incr_nb_collision_counter();
+			incr_collision_counter();
 #ifdef STAT
 			*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 #endif
@@ -721,7 +721,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" sum: %llx \n",((*OnTheFlyE).sum[0]^((*current2).sum[0])));
 				printf(" cible: %llx \n",Synd[0]);
 				*/
-				incr_nb_collision_counter();
+				incr_collision_counter();
 #ifdef STAT
 				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 #endif
@@ -762,7 +762,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" sum: %llx \n",((*current3).sum[0]^(StockedE[index].sum[0])));
 				printf(" cible: %llx \n",Synd[0]);
 				*/
-				incr_nb_collision_counter();
+				incr_collision_counter();
 #ifdef STAT
 				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 #endif
@@ -800,7 +800,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					printf(" sum: %llx \n",((*current3).sum[0]^((*current2).sum[0])));
 					printf(" cible: %llx \n",Synd[0]);
 					*/
-					incr_nb_collision_counter();
+					incr_collision_counter();
 #ifdef STAT
 					*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
 #endif

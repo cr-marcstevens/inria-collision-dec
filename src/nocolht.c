@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include "nocolht.h"
+#include "syscall_macros.h"
 
 nocolht nocolht_init(unsigned long long size) {
-	return (nocolht) calloc(size, sizeof(nocolht_elt));
+	return (nocolht) CALLOC(size, sizeof(nocolht_elt));
 }
 
 void nocolht_store(nocolht L, word index, nocolht_elt value) {

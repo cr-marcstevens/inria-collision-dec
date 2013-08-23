@@ -6,7 +6,7 @@ EXEMPLE DE COMMANDE POUR TESTER BJMM:
 
 (pensez à compiler avec "make stat" pour avoir les stats exhaustives à chaque itération ou juste "make" pour trouver les solutions rapidements)
 
-Le plus rapide: ./BJMM -l 26 -L 1 -r 6 -e 0 -E 0 -p 8 -t 8 -i smallchallenge.txt
+Le plus rapide: ./BJMM -l 26 -L 1 -r 6 -e 0 -E 0 -p 8 -t 8 -i easy_challenge.txt
 
 Pour tester pleinement l'algorithme (e1 != 0):  ./BJMM -l 26 -L 1 -r 8 -e 1 -E 0 -p 6 -t 10 -i smallchallenge.txt
 

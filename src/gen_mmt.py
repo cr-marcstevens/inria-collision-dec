@@ -31,7 +31,7 @@ output += """#include <stdio.h>
 #include "nocolht.h"
 """
 
-output += "#define p %d" % (ncols)
+output += "#define P %d" % (ncols)
 
 output += """
 static word* L;
@@ -60,12 +60,13 @@ void print_parameters(isd_params* params) {
 	printf("w : %d\\n", params->w);
 	printf("l : %d\\n", params->l);
 	printf("l2 : %d\\n", params->l2);
-	printf("p : %d\\n", p);
+	printf("p : %d\\n", params->p);
 	printf("eff_word_len : %ld\\n", min(params->r, word_len));
 	printf("threshold : %d\\n", params->weight_threshold);
 }
 
 void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
+	params->p = P;
 	(void) state;
 	print_parameters(params);
 	L = local_L;
@@ -75,11 +76,10 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 	n = params->n;
 	r = params->r;
+	k = params->k;
 	l = params->l;
 	l2 = params->l2;
 	w = params->w;
-
-	k = n-r;
 
 	L_len = k+l;
 
@@ -152,7 +152,7 @@ output += """
 		index = value >> l2shift;
 		waht_store(L1, index, value);
 """
-output += "		iaht_store(L1_indices, index, p/4, "+ repeat("c%d", ncols/4, ", ") +");\n	"
+output += "		iaht_store(L1_indices, index, P/4, "+ repeat("c%d", ncols/4, ", ") +");\n	"
 
 for i in range(ncols/4):
 	output += "}"
@@ -167,7 +167,7 @@ output += """
 		index = value >> l2shift;
 		waht_store(L2, index, value);
 """
-output += "		iaht_store(L2_indices, index, p/4, "+ repeat("c%d", ncols/4, ', ') +");\n	"
+output += "		iaht_store(L2_indices, index, P/4, "+ repeat("c%d", ncols/4, ', ') +");\n	"
 for i in range(ncols/4):
 	output += "}"
 output += "\n\n"
@@ -216,7 +216,7 @@ output += """
 							index = (value << l2) >> ll2shift;
 							nocolht_elt L12_elt = nocolht_get(L12, index); // we stored only one element per index in L12
 							if (L12_elt != 0) {
-								incr_nb_collision_counter();
+								incr_collision_counter();
 
 								value ^= L12_elt;
 								value = (value << l) >> l; // clear the l MSB; the L12 contained the coresponding x in this place (see building of L12)
@@ -228,20 +228,20 @@ output += """
 									old_x = L12_elt >> l2shift;
 
 									/* We found a collision, now we look into the L*_indices to find the corresponding columns numbers */
-									for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += p/4) {
-										for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += p/4) {
-											for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += p/4) {
-												for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += p/4) {"""
+									for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += P/4) {
+										for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += P/4) {
+											for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += P/4) {
+												for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += P/4) {"""
 for i in range(1, 1+ncols):
 	output += """
 													c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
 output += """
-													final_weight = final_test(0, weight_on_one_word, p, """ + repeat("c%d", ncols, ', ') +");"
+													final_weight = final_test(0, weight_on_one_word, P, """ + repeat("c%d", ncols, ', ') +");"
 output += """
 
 													if (final_weight != -1) {"""
 output += """
-														*h = sw_list_add(*h, 0, final_weight, p, """ + repeat("c%d", ncols, ', ') +");"
+														*h = sw_list_add(*h, 0, final_weight, P, """ + repeat("c%d", ncols, ', ') +");"
 output += """
 													}
 												}
@@ -259,13 +259,6 @@ output += """
 	}
 }
 
-
-void sub_isd_report(unsigned long long cycles_per_iter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
-	(void) cycles_per_iter;
-	(void) pivot_cost;
-	(void) bday_cost;
-	(void) final_test_cost;
-}
 
 void sub_isd_free() {
 	waht_free(L1, L1_size);

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "waht.h"
+#include "syscall_macros.h"
 /*
  * waht (word array hash table) is an array hash table containing lists
  * of elements (words). First element of each lists contains the number
@@ -8,7 +9,7 @@
  */
 
 waht waht_init(unsigned long long size) {
-	return (waht) calloc(size, sizeof(waht_list));
+	return (waht) CALLOC(size, sizeof(waht_list));
 }
 
 void waht_store(waht L, word index, waht_elt value) {

@@ -49,6 +49,7 @@ int main(int argc, char **argv)
 
 	params.n = HzeroT->nrows;
 	params.r = HzeroT->ncols;
+	params.k = params.n - params.r;
 
 	// TODO : call workfactor if l not given
 	params.l = args_info.l_arg;

@@ -162,7 +162,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 	unsigned int n = params->n;
 	unsigned int r = params->r;
 	unsigned int l = params->l;
-	unsigned int k = n-r;
+	unsigned int k = params->k;
 
 	unsigned int eff_word_len = min((unsigned int) HzeroT->ncols, (word_len*params->csize)); // number of bits to consider if we handle one word of data.
 
@@ -219,8 +219,11 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 
 	unsigned long long nb_iter = 0;
 	unsigned long long nb_sol = 0;
+
+	printf("\n## START ##\n");
 	unsigned long long start_date = time(NULL);
-	unsigned long long start_cycles = cpucycles();
+	total_stopwatch_start();
+	total_probe_start();
 
 	// Main loop. Stops when 
 	//    max_iter iterations are done 
@@ -376,6 +379,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 			process_solutions_on_the_fly(&h, params->w, l, BT, synds, U, perm_inv, nb_iter);
 		}
 		++nb_iter;
+		incr_iter_counter();
 
 		if (params->max_iter != 0 && nb_iter >= params->max_iter) {
 			stop = 1;
@@ -387,12 +391,12 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 			stop = 1;
 		}
 	}
+
+	total_probe_stop();
+	total_stopwatch_stop();
+	printf("## END ##\n\n");
 	
-	printf("Time spent : %llus\n", time(NULL) - start_date);
-	long long pivot, bday, final;
-	get_costs(nb_iter, &pivot, &bday, &final);
-	sub_isd_report((cpucycles() - start_cycles)/nb_iter, pivot, bday, final);
-	display(nb_iter);
+	report(params);
 	process_solutions_at_end(&h, params->w, l, BT, synds, U, perm_inv);
 
 	sub_isd_free();

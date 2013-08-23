@@ -22,8 +22,8 @@ void htable_init(unsigned long long max_idx, unsigned long long nb_elt) {
 	htable_size = max_idx;
 	htable_col_size = nb_elt;
 	
-	htable = (int*) malloc(htable_size * sizeof(int));
-	htable_col = (int*) malloc(htable_col_size * sizeof(int));
+	htable = (int*) MALLOC(htable_size * sizeof(int));
+	htable_col = (int*) MALLOC(htable_col_size * sizeof(int));
 }
 
 void htable_store(unsigned int index, int value) {

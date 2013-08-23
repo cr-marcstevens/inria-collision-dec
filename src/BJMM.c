@@ -60,6 +60,7 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	syndsprime = local_synds;
 	n = params->n;
 	r = params->r;
+	k = params->k;
 	l = params->l;
 	l2 = params->l2; //  named r2 in the paper
 	l3 = params->l3; //  named r1 in the paper
@@ -71,7 +72,6 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	state = local_state;
 	csize = params->csize;
 
-	k = n-r;
 
 	L_len = k+l;
 
@@ -364,13 +364,6 @@ void sub_isd() {
 	free(observer);
 #endif
 
-}
-
-void sub_isd_report(unsigned long long cycles_per_iter, long long pivot_cost, long long bday_cost, long long final_test_cost) {
-	(void) cycles_per_iter;
-	(void) pivot_cost;
-	(void) bday_cost;
-	(void) final_test_cost;
 }
 
 void sub_isd_free() {
