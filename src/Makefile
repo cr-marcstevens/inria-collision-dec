@@ -6,7 +6,7 @@ LDLIBS += -lpng -lm
 M4RI ?= $(HOME)/Travaux/dev/m4ri
 M4RIG ?= $(HOME)/Travaux/dev/m4ri_dbg
 
-TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 BJMM compute_threshold
+TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold
 
 default:
 
@@ -42,6 +42,7 @@ mmt%.c: gen_mmt.py
 
 mmt4: $(COMMON) mmt4.c iaht.c waht.c nocolht.c
 mmt8: $(COMMON) mmt8.c iaht.c waht.c nocolht.c
+mmt12: $(COMMON) mmt12.c iaht.c waht.c nocolht.c
 
 BJMM: $(COMMON) BJMM.c BJMMtools.c
 

@@ -131,7 +131,16 @@ output += """
 	int ll2shift = word_len - (l-l2); 
 	word index;
 	word value;
+	word tmp_value;
+	
+"""
+output += """/* Intermediate sums */\n"""
+for i in range(1, ncols/4+1):
+	output += "	word sum" + "".join([str(i) for i in range(1, i+1)]) + ";\n"
+#for i in range(1, ncols/4+1):
+#	output += "	word sumS" + "".join([str(i) for i in range(ncols/2+1,ncols/2+i+1)]) + ";\n"
 
+output += """
 	waht_reset(L1, L1_size);
 	waht_reset(L2, L2_size);
 	//waht_reset(L3, L3_size);
@@ -144,9 +153,11 @@ output += """
 """
 	# L1, L3
 output += "	for (c1 = %d; c1 < L_len/2; ++c1) {\n" % (ncols/4-1)
+output += "		sum1 = L[c1];\n"
 for i in range(2,1+ncols/4):
 	output += "	for (c%d = %d; c%d < c%d; ++c%d) {\n" % (i, ncols/4-i, i, i-1, i)
-output += "		value = " + repeat("L[c%d]", ncols/4, " ^ ") + ';'
+	output += "		sum" + "".join([str(j) for j in range(1,i+1)]) + " = sum"  + "".join([str(j) for j in range(1,i)]) + " ^ L[c%d];\n" % (i)
+output += "		value = sum" + "".join([str(j) for j in range(1,ncols/4+1)]) +";"
 
 output += """
 		index = value >> l2shift;
@@ -160,9 +171,11 @@ output += "\n\n"
 
 	# L2, L4
 output += "	for (c1 = (L_len+1)/2 + %d; c1 < L_len; ++c1) {\n" % (ncols/4-1)
+output += "		sum1 = L[c1];\n"
 for i in range(2,1+ncols/4):
 	output += "	for (c%d = (L_len+1)/2 + %d; c%d < c%d; ++c%d) {\n" % (i, ncols/4-i, i, i-1, i)
-output += "		value = " + repeat("L[c%d]", ncols/4, " ^ ") + ';'
+	output += "		sum" + "".join([str(j) for j in range(1,i+1)]) + " = sum"  + "".join([str(j) for j in range(1,i)]) + " ^ L[c%d];\n" % (i)
+output += "		value = sum" + "".join([str(j) for j in range(1,ncols/4+1)]) +";"
 output += """
 		index = value >> l2shift;
 		waht_store(L2, index, value);
@@ -211,15 +224,16 @@ output += """
 				waht_list E4 = waht_get(L4, aprime ^ x);
 				if (E4 != NULL) {
 					for (i = 1; i < 1+E3[0]; ++i) {
+						tmp_value = E3[i] ^ synd;
 						for (j = 1; j < 1+E4[0]; ++j) {
-							value = E3[i] ^ E4[j] ^ synd;
+							value = tmp_value ^ E4[j];
 							index = (value << l2) >> ll2shift;
 							nocolht_elt L12_elt = nocolht_get(L12, index); // we stored only one element per index in L12
 							if (L12_elt != 0) {
 								incr_collision_counter();
 
 								value ^= L12_elt;
-								value = (value << l) >> l; // clear the l MSB; the L12 contained the coresponding x in this place (see building of L12)
+								value = (value << l) >> l; // clear the l MSB; the L12 elt contained the coresponding x in this place (see building of L12)
 
 								weight_on_one_word = isd_weight(value);
 								if(weight_on_one_word <= threshold) {

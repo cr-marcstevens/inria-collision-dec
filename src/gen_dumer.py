@@ -134,7 +134,7 @@ output += "	unsigned int " + repeat("c%d", ncols, ", ") +";\n"
 output += """
 	counter c;
 	word index;
-	word res;
+	word value;
 """
 
 output += """/* Intermediate sums */\n"""
@@ -159,10 +159,11 @@ for i in range(2,1+ncols/2):
 	output += "	for (c%d = %d; c%d < c%d; ++c%d) {\n" % (i, ncols/2-i, i, i-1, i)
 	output += "		sum" + "".join([str(j) for j in range(1,i+1)]) + " = sum"  + "".join([str(j) for j in range(1,i)]) + " ^ L[c%d];\n" % (i)
 
-output += "		res = sum" + "".join([str(j) for j in range(1,i+1)]) +";"
+output += "		value = sum" + "".join([str(j) for j in range(1,i+1)]) +";"
 output += """
-		counterht_store(L0, res >> shift, c);
-		xors_table[c] = res;
+		index = value >> shift;
+		counterht_store(L0, index, c);
+		xors_table[c] = value;
 		++c;
 	"""
 for i in range(ncols/2):
@@ -177,15 +178,15 @@ for i in range(2+ncols/2,1+ncols):
 	output += "	for (c%d = L_len/2 + %d; c%d < c%d; ++c%d) {\n" % (i, ncols-i, i, i-1, i)
 	output += "		sumS" + "".join([str(j) for j in range(ncols/2 + 1,i+1)]) + " = sumS"  + "".join([str(j) for j in range(ncols/2 + 1,i)]) + " ^ L[c%d];\n" % (i)
 
-output += "		res = sumS" + "".join([str(j) for j in range(ncols/2 + 1,i+1)]) + ";"
+output += "		value = sumS" + "".join([str(j) for j in range(ncols/2 + 1,i+1)]) + ";"
 
 output += """
-		index = res >> shift;
+		index = value >> shift;
 		for(c = counterht_get(L0, index); c != NONE; c = counterht_next(L0, index, c)) {
-			res ^= xors_table[c];
-			if (res < max_word_zero_l_bits) {
+			value ^= xors_table[c];
+			if (value < max_word_zero_l_bits) {
 				incr_collision_counter();
-				weight = isd_weight(res);
+				weight = isd_weight(value);
 				if (weight <= threshold) {
 					bday_probe_stop();
 					incr_final_test_counter();
