@@ -49,7 +49,7 @@ void iaht_reset(iaht L, unsigned long long size) {
 	}
 }
 
-void iaht_free(iaht L, int size) {
+void iaht_free(iaht L, unsigned long long size) {
 	iaht_reset(L, size);
 	free(L);
 }

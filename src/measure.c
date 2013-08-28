@@ -64,7 +64,6 @@ void report(isd_params* params) {
 	unsigned long long bday_cost = bday_cycles/nb_iter;
 	unsigned long long final_test_cost = (nb_final_test == 0) ? 0 : final_test_cycles/nb_final_test;
 	unsigned long long cycles_periter = total_cycles / nb_iter;
-	unsigned long long sum_cycles = pivot_cycles+bday_cycles;
 	float iter_persecond;
 
 	/* If stdout is not a tty, we assume it is piped to compute_threshold; you can pipe to 'cat' to see the line */
@@ -86,6 +85,7 @@ void report(isd_params* params) {
 		return;
 	}
 	printf("\n");
+	printf("total_cycles : %lld\n", total_cycles);
 	printf("Per iteration : \n");
 
 	printf("\tCollisions          %12lld\n", nb_collision/nb_iter);
@@ -96,11 +96,11 @@ void report(isd_params* params) {
 	printf("\n");
 	printf("\n");
 
-	printf("\tPivot cycles        %12lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/sum_cycles);
-	printf("\tBirthday cycles     %12lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/sum_cycles);
+	printf("\tPivot cycles        %12lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/total_cycles);
+	printf("\tBirthday cycles     %12lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/total_cycles);
 	printf("\tFinal test cycles   %12lld", final_test_cycles/nb_iter);
 	if (nb_collision != 0) {
-		printf(" (%5.2f%%)", 100*(float)final_test_cycles/sum_cycles);
+		printf(" (%5.2f%%)", 100*(float)final_test_cycles/total_cycles);
 	}
 	printf("\n");
 	printf("\n");

@@ -686,7 +686,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 			*/
 			incr_collision_counter();
 #ifdef STAT
-			*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+			sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 			weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 			if (weight <= threshold) {
@@ -705,7 +705,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^(StockedE[index].sum[0])^Synd[0]));
 				*/
 				if (finalweight != -1) {
-					*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+					sw_list_add_array(AnswerList,0,finalweight,ncolumn,builder.indice);
 				}
 			}
 		}
@@ -723,7 +723,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				*/
 				incr_collision_counter();
 #ifdef STAT
-				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+				sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 				weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
@@ -742,7 +742,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^((*current2).sum[0])^Synd[0]));
 					*/
 					if (finalweight != -1) {
-						*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+						sw_list_add_array(AnswerList,0,finalweight,ncolumn,builder.indice);
 					}
 				}
 			}
@@ -764,7 +764,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				*/
 				incr_collision_counter();
 #ifdef STAT
-				*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+				sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 				weight = isd_weight(((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 				if (weight <= threshold) {
@@ -783,7 +783,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					printf(" diff: %llx \n",((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
 					*/
 					if (finalweight != -1) {
-						*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+						sw_list_add_array(AnswerList,0,finalweight,ncolumn,builder.indice);
 					}
 				}
 			}
@@ -802,7 +802,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					*/
 					incr_collision_counter();
 #ifdef STAT
-					*observer=sw_list_add_array(*observer,0,0,w2,builder.indice);
+					sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 					weight = isd_weight(((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
 					if (weight <= threshold) {
@@ -821,7 +821,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 						printf(" diff: %llx \n",((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
 						*/
 						if (finalweight != -1) {
-							*AnswerList=sw_list_add_array(*AnswerList,0,finalweight,ncolumn,builder.indice);
+							sw_list_add_array(AnswerList,0,finalweight,ncolumn,builder.indice);
 						}
 					}
 				}

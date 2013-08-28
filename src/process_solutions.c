@@ -4,15 +4,22 @@
 #include "process_solutions.h"
 #include "m4ri/m4ri.h"
 
-
-/* function called for each found solution. It takes a sparse word of weight p as an input, multiply it by BT, adds the syndrome, obtains the coresponding vector of weight w-p and write on stdout the w columns solutions of the problem. */
+/* function called after each iteration that found one or more solutions.
+ * It takes a list of sparse word of weight p as an input, removes the multiples and 
+ * for each word 
+ *   multiplies it by BT, 
+ *   adds the syndrome, 
+ *   obtains the coresponding vector of weight w-p, 
+ *   write on stdout the w columns solutions of the problem. 
+ * Finally, the whole input list is freed. */
 
 void process_solutions_on_the_fly(sw_list** h, unsigned int w, unsigned int l, mzd_t* BT, word** syndzero, mzd_t* U, unsigned int* perm_inv, unsigned long long nb_iter) {
+	sw_list_uniq(h);
 	unsigned int i, j;
 	unsigned int sols_idx;
 	unsigned int r = BT->ncols;
 	word chunk;
-	sw_list* solution = sw_list_new(NULL, w);
+	sw* solution = sw_new(w);
 	sw_list* eprime = *h;
 	word* eprimeBT = (word*) malloc(bit_in_words(r) * sizeof(word));
 
@@ -49,15 +56,15 @@ void process_solutions_on_the_fly(sw_list** h, unsigned int w, unsigned int l, m
 		solution->synd_idx = eprime->synd_idx;
 		solution->weight = sols_idx; // the algorithm may have found a word with weight lower than w-p
 
-		sw_list_sort(solution);
+		sw_sort(solution);
 		printf("%12lld ", nb_iter);
 		
-		sw_list_print(solution);
+		sw_print(solution);
 
 		eprime = eprime->next;
 	}
 	free(eprimeBT);
-	sw_list_free(solution);
+	sw_free(solution);
 	sw_list_free(*h);
 	*h = NULL;
 }

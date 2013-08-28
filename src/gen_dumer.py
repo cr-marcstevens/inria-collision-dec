@@ -24,7 +24,7 @@ output += """#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "sub_isd.h"
-#include "counterht.h"
+#include "counterht_nocol.h"
 #include "m4ri/m4ri.h"
 #include "libisd.h"
 #include "final_test.h"
@@ -119,7 +119,7 @@ output +="		++c;\n\t"
 
 for i in range(ncols/2):
 	output += "}"
-output += "}\n\n"
+output += "\n}\n\n"
 
 
 
@@ -146,7 +146,7 @@ for i in range(1, ncols/2+1):
 output += """
 	unsigned int weight;
 	int final_weight;
-	word max_word_zero_l_bits = 1UL << (word_len - l); /* A word with its l MSB zeroed is lower than this value */
+	const word max_word_zero_l_bits = 1UL << (word_len - l); /* A word with its l MSB zeroed is lower than this value */
 
 	counterht_reset(L0, L0_size);
 	c = 0;
@@ -198,7 +198,7 @@ output += "					final_weight = final_test(0, weight, P, " + repeat("c%d", ncols,
 output += """
 					if (final_weight != -1) {
 """
-output += "						*h = sw_list_add(*h, 0, final_weight, P, " + repeat("c%d", ncols, ", ") + ");"
+output += "						sw_list_append(h, sw_filled_new(0, final_weight, P, " + repeat("c%d", ncols, ", ") + "));"
 output += """
 					}
 					final_test_probe_stop();
@@ -214,6 +214,12 @@ output += "}\n"
 
 output += """
 void sub_isd_free() {
+	unsigned long long nb_of_sums = nCr(L_len/2, P/2);
+	unsigned long long i;
+	for (i = 0; i < nb_of_sums; ++i) {
+		free(unpack[i]);
+	}
+	free(unpack);
 	free(L0);
 	free(xors_table);
 }
