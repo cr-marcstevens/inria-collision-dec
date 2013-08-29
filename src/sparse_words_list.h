@@ -24,7 +24,6 @@ void sw_list_add_array(sw_list** h, unsigned int synd_idx, unsigned int synd_wei
 void sw_list_append(sw_list** h, sw* new);
 void sw_list_uniq(sw_list** h);
 void sw_list_print(sw_list* h);
-int sw_list_cmp(sw_list* h1, sw_list* h2);
 void sw_list_free(sw_list* h);
 
 #endif
