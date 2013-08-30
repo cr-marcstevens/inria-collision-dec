@@ -1,4 +1,4 @@
-include Makefile.local
+-include Makefile.local
 CC ?= gcc
 CFLAGS += -Wall -Wextra -std=gnu99 -I$(M4RI)
 LDFLAGS +=
