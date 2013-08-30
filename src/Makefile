@@ -27,6 +27,11 @@ profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RIG)
 profile: all
 
+html/index.html: Doxyfile *.h
+	doxygen
+
+doc: html/index.html
+
 COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a custom_brilliantrussian.c
 
 dumer%.c: gen_dumer.py
@@ -47,6 +52,9 @@ mmt12: $(COMMON) mmt12.c iaht.c waht.c nocolht.c
 BJMM: $(COMMON) BJMM.c BJMMtools.c
 
 compute_threshold: compute_threshold.c
+
+cpucycles/cpucycles.o: cpucycles/*.c cpucycles/*.h
+	cd cpucycles; sh do; cd ..
 
 profgen: CFLAGS += -fprofile-generate
 profgen: all

@@ -1,8 +1,8 @@
-/*
- * BJMMtools.h
+/**
+ * \file BJMMtools.h
+ * \brief Misc functions used by BJMM algorithm
  *
- *  Created on: 27 juin 2013
- *      Author: Mathieu Aria
+ * \author Mathieu Aria
  */
 
 typedef struct draw {
@@ -11,16 +11,17 @@ typedef struct draw {
 	struct draw* next;
 } S ;
 
-/*
- *  About next:
- *  next can be called with 4 method (from 0 to 3) which share the matrix L with different patterns:
+/**
+ * \brief Compute next combination
  *
- *  method 0 : [x------x||0------0] first half
- *	method 1 : [x0x0x0x0x0x0x0x0x0] odd number
- *	method 2 : [x-x||0-0||x-x||0-0]	first and third quarter
- *	method 3 : [x-x||0------0||x-x]	first and final quarter
+ * Can be called with 4 method (from 0 to 3) which share the matrix L with different patterns:
+ * 
+ *  - method 0 : [x------x||0------0] first half
+ *  - method 1 : [x0x0x0x0x0x0x0x0x0] odd number
+ *  - method 2 : [x-x||0-0||x-x||0-0] first and third quarter
+ *  - method 3 : [x-x||0------0||x-x] first and final quarter
+ *
  */
-
 int next(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned int L_len, unsigned int w,int method);
 
 int next2(word* L,unsigned short* indice,word* sums,unsigned int csize,unsigned int L_len, unsigned int w,int method);

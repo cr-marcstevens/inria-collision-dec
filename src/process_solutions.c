@@ -70,7 +70,7 @@ void process_solutions_on_the_fly(sw_list** h, unsigned int w, unsigned int l, m
 }
 
 
-void process_solutions_at_end(sw_list** h, unsigned int w, unsigned int l, mzd_t* BT, word** syndzero, mzd_t* U, unsigned int* perm_inv) {
+void process_solutions_at_end(sw_list** h, unsigned int w, unsigned int l, mzd_t* BT, word** syndzero, mzd_t* U, unsigned int* perm_inv, unsigned long long nb_iter) {
 	(void) h;
 	(void) w;
 	(void) l;
@@ -78,5 +78,6 @@ void process_solutions_at_end(sw_list** h, unsigned int w, unsigned int l, mzd_t
 	(void) syndzero;
 	(void) U;
 	(void) perm_inv;
+	(void) nb_iter;
 	return;
 }

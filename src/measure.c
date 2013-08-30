@@ -17,35 +17,35 @@ static long long nb_iter = 0;
 static long long nb_final_test = 0;
 static long long nb_collision = 0;
 
-void total_stopwatch_start() {
+void total_time_stopwatch_start() {
 	total_time -= time(NULL);
 }
-void total_stopwatch_stop() {
+void total_time_stopwatch_stop() {
 	total_time += time(NULL);
 }
 
-void total_probe_start() {
+void total_cycle_stopwatch_start() {
 	total_cycles -= cpucycles();
 }
-void total_probe_stop() {
+void total_cycle_stopwatch_stop() {
 	total_cycles += cpucycles();
 }
-void pivot_probe_start() {
+void pivot_cycle_stopwatch_start() {
 	pivot_cycles -= cpucycles();
 }
-void pivot_probe_stop() {
+void pivot_cycle_stopwatch_stop() {
 	pivot_cycles += cpucycles();
 }
-void bday_probe_start() {
+void bday_cycle_stopwatch_start() {
 	bday_cycles -= cpucycles();
 }
-void bday_probe_stop() {
+void bday_cycle_stopwatch_stop() {
 	bday_cycles += cpucycles();
 }
-void final_test_probe_start() {
+void final_test_cycle_stopwatch_start() {
 	final_test_cycles -= cpucycles();
 }
-void final_test_probe_stop() {
+void final_test_cycle_stopwatch_stop() {
 	final_test_cycles += cpucycles();
 }
 

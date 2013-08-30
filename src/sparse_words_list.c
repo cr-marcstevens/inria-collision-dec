@@ -21,7 +21,7 @@ sw* sw_filled_new(unsigned int synd_idx, unsigned int synd_weight, unsigned int 
 
 	va_start(columns, p);
 	for (i = 0; i < p; ++i) {
-		new->pos[i] = va_arg(columns, int);
+		new->pos[i] = va_arg(columns, unsigned int);
 	}
 	va_end(columns);
 

@@ -1,3 +1,14 @@
+/**
+ * \file compute_threshold.c
+ * \brief Compute the optimal threshold for the weight of the sum of p columns using exceeding bits, given relative cost of the different steps of the algorithm.
+ * 
+ * This program reads its parameters on stdin. See the sscanf() function call below to see the expected format. 
+ * It computes the probability to trigger a final test given a random input sum (p_false_alarm)
+ * and the probability not to trigger a final test given an input sum giving the solution (1 - p_not_miss).
+ * Finally it minimizes (K0 + K1 + (p_false_alarm * K2 )) / p_not_miss where for one iteration K0 = cost of gaussian elimination; K1 = cost of subisd; and K2 = cost of the final tests
+ *
+ * \author Grégory Landais <gregory.landais@inria.fr>
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "libisd.h"
@@ -27,8 +38,8 @@ int main()
 	int i, T;
 	int k=0, r=0, w=0, p=0, l=0, a=0;
 	unsigned long long K0, K1, K2;
-	double p_false_alarm = 0;
-	double p_not_miss = 0;
+	double p_false_alarm = 0; /* Probability to trigger a final test given a random input sum */
+	double p_not_miss = 0; /* Probability *not* to trigger a final test given an input sum giving the solution */
 	char input[512];
 	double cost;
 	unsigned long long min_cost = 0;

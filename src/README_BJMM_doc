@@ -27,7 +27,7 @@ The options more specifically linked to the BJMM algorithm are the following:
 -p int optional, "p" parameter, default is 8, is the weight of the syndrome in the window L.
 -e int optional, "e1" parameter, default is 0, is the additional error accepted for merging before filter 1 in BJMM Algorithm (p1=p/2+e1).
 -E int optional, "e2" parameter, default is 0, is the additional error accepted for merging before filter 2 in BJMM Algorithm (p2=p1/2+e2).
--c int optional, "csize" parameter, default is 1, is the of 64bit int used to represent a column during list merging. Choose l <= csize*64 <= r . min value for minimum spatial complexity.
+-c int optional, "csize" parameter, default is 1, is the number of 64bit int used to represent a column during list merging. Choose l <= csize*64 <= r . min value for minimum spatial complexity.
 ________________________________________________________________________________________________________________________________________________________________________________________________________
 !  WARNING! There are currently several restriction on the inputs available:															       !
 !  - you MUST choose p, e1 and e2 so that p, p1 and p2 will be even. Odd p, p2, or p1 will probably rise errors.										       !

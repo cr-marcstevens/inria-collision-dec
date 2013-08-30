@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+## \file gen_mmt.py
+#Generate code of the sub_isd module using May, Meurer & Thomae algorithm
+#
+#Parameters p is set as first parameter of the command line. It must multiple of 4.
+
 import os
 import sys
 

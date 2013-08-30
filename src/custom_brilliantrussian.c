@@ -4,10 +4,6 @@
 #include "m4ri/echelonform.h"
 #include "m4ri/graycode.h"
 
-/* This file contain definition of _mzd_partial_echelonize_m4ri; a
-modified version of _mzd_echelonize_m4ri that stops after nb_col columns
-are processed. Are also included the dependency function that were
-static in brilliantrussian.c */
 
 static inline int _mzd_gauss_submatrix(mzd_t *A, rci_t r, rci_t c, rci_t end_row, int k) {
   rci_t start_row = r;

@@ -222,8 +222,8 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 
 	printf("\n## START ##\n");
 	unsigned long long start_date = time(NULL);
-	total_stopwatch_start();
-	total_probe_start();
+	total_time_stopwatch_start();
+	total_cycle_stopwatch_start();
 
 	// Main loop. Stops when 
 	//    max_iter iterations are done 
@@ -236,7 +236,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 			print_status = 0;
 		}
 
-		pivot_probe_start();
+		pivot_cycle_stopwatch_start();
 		generate_permutation(perm, perm_inv, n, state);
 
 		/*
@@ -327,7 +327,7 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 		// This should happen with probability 2^-l
 		
 		if(mzd_partial_echelonize(A_I, l) == 1) {
-			pivot_probe_stop();
+			pivot_cycle_stopwatch_stop();
 			continue;
 		}
 
@@ -366,10 +366,10 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 			}
 		}
 
-		pivot_probe_stop();
-		bday_probe_start();
+		pivot_cycle_stopwatch_stop();
+		bday_cycle_stopwatch_start();
 		sub_isd();
-		bday_probe_stop();
+		bday_cycle_stopwatch_stop();
 		if (h) {
 			sw_list* ptr = h;
 			while(ptr) {
@@ -392,12 +392,12 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 		}
 	}
 
-	total_probe_stop();
-	total_stopwatch_stop();
+	total_cycle_stopwatch_stop();
+	total_time_stopwatch_stop();
 	printf("## END ##\n\n");
 	
 	report(params);
-	process_solutions_at_end(&h, params->w, l, BT, synds, U, perm_inv);
+	process_solutions_at_end(&h, params->w, l, BT, synds, U, perm_inv, nb_iter);
 
 	sub_isd_free();
 	final_test_free();

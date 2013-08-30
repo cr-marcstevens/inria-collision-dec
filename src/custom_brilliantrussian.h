@@ -1,3 +1,10 @@
+/**
+ * \file custom_brilliantrussian.h
+ * \brief Modified version of _mzd_echelonize_m4ri that stops after processing a certain number of columns.
+ * \note Was copy pasted from m4ri/brilliantrussian.c; static dependency functions are included.
+ *
+ * \author Grégory Landais <gregory.landais@inria.fr>
+ */
 #ifndef CUSTOM_BRILLIANTRUSSIAN_H
 #define CUSTOM_BRILLIANTRUSSIAN_H
 

@@ -697,9 +697,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					}
 				}
 				incr_final_test_counter();
-				final_test_probe_start();
+				final_test_cycle_stopwatch_start();
 				finalweight = final_test_array(0, weight, ncolumn, builder.indice);
-				final_test_probe_stop();
+				final_test_cycle_stopwatch_stop();
 				/*
 				printf(" weight %d \n",weight);
 				printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^(StockedE[index].sum[0])^Synd[0]));
@@ -734,9 +734,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 						}
 					}
 					incr_final_test_counter();
-					final_test_probe_start();
+					final_test_cycle_stopwatch_start();
 					finalweight = final_test_array(0, weight, ncolumn, builder.indice);
-					final_test_probe_stop();
+					final_test_cycle_stopwatch_stop();
 					/*
 					printf(" weight %d \n",weight);
 					printf(" diff: %llx \n",((*OnTheFlyE).sum[0]^((*current2).sum[0])^Synd[0]));
@@ -775,9 +775,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 						}
 					}
 					incr_final_test_counter();
-					final_test_probe_start();
+					final_test_cycle_stopwatch_start();
 					finalweight = final_test_array(0, weight, ncolumn, builder.indice);
-					final_test_probe_stop();
+					final_test_cycle_stopwatch_stop();
 					/*
 					printf(" weight %d \n",weight);
 					printf(" diff: %llx \n",((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
@@ -813,9 +813,9 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 							}
 						}
 						incr_final_test_counter();
-						final_test_probe_start();
+						final_test_cycle_stopwatch_start();
 						finalweight = final_test_array(0, weight, ncolumn, builder.indice);
-						final_test_probe_stop();
+						final_test_cycle_stopwatch_stop();
 						/*
 						printf(" weight %d \n",weight);
 						printf(" diff: %llx \n",((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);

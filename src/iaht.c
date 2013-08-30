@@ -4,13 +4,6 @@
 #include "iaht.h"
 #include "syscall_macros.h"
 
-/*
- * iaht (integer array has table) is an array hash table containing list of integer x-uplet
- * First element of each lists is the number
- * of x-uplet in the list. Next x columns are the columns of the first
- * x-uplet and so on...
- */
-
 iaht iaht_init(unsigned long long size) {
 	return (iaht) CALLOC(size, sizeof(iaht_list));
 }
@@ -38,7 +31,7 @@ void iaht_store(iaht L, word index, int x, ...) {
 }
 
 iaht_list iaht_get(iaht L, word index) {
-	return L[index];
+	return L[index]+1;
 }
 
 void iaht_reset(iaht L, unsigned long long size) {

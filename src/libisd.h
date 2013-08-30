@@ -1,3 +1,9 @@
+/**
+ * \file libisd.h
+ * \brief Misc tools
+ *
+ * \author Grégory Landais <gregory.landais@inria.fr>
+ */
 #ifndef LIBISD_H
 #define LIBISD_H
 #include <stdint.h>
@@ -16,16 +22,35 @@
 #define vec_set_bit(vec, j) ((vec)[(j)/word_len] |= (1L << ((j)%word_len)))
 #define vec_get_bit(vec, j) (((vec)[(j)/word_len] >> ((j)%word_len)) &1)
 
+/**
+ * \brief Compute binomial coefficient n choose r
+ */
 double nCr(int n, int r);
 void print_bin(word x);
+
+/**
+ * \brief Generate identity permutation.
+ */
 void generate_id_permutation(unsigned int* perm,unsigned int* perm_inv, unsigned int n, ranctx* state);
+
+/**
+ * \brief Generate random permutation
+ */
 void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state);
+
+/**
+ * \brief Apply a permutation to a matrix
+ */
 void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int n);
 
-unsigned int isd_parity(word w);
+/**
+ * \brief Compute weight of a word (number of non zero position)
+ */
 unsigned int isd_weight(word w);
 
-uint64_t random_seed();
-
+/**
+ * \brief Compute parity of a word (1 if weight is odd; 0 otherwise)
+ */
+unsigned int isd_parity(word w);
 
 #endif

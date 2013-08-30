@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+## \file gen_dumer.py
+#Generate code of the sub_isd module using Dumer algorithm
+#
+#Parameters p is set as first parameter of the command line. It must even.
+
 import os
 import sys
 
-def repeat(format, nb, sep):
-	return sep.join([format % (i) for i in range(1, nb + 1)])
+def repeat(format, start, end, sep):
+	return sep.join([format % (i) for i in range(start, end + 1)])
 
 try:
 	ncols=int(sys.argv[1])
@@ -53,7 +58,7 @@ static short** unpack;
 """
 
 output += """
-void unpack_counter(""" + repeat("unsigned int* c%d", ncols/2, ", ") +", counter c) {\n"
+void unpack_counter(""" + repeat("unsigned int* c%d", 1, ncols/2, ", ") +", counter c) {\n"
 
 for i in range(ncols/2):
 	output += "	*c%d = unpack[c][%d];\n" % (i+1, i)
@@ -102,7 +107,7 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 	unsigned int i;
 """
-output += "	unsigned int " + repeat("c%d", ncols/2, ", ") + ";\n"
+output += "	unsigned int " + repeat("c%d", 1, ncols/2, ", ") + ";\n"
 output += """
 	counter c = 0;
 	unpack = (short**) MALLOC(nb_of_sums * sizeof(short*));
@@ -130,7 +135,7 @@ void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
 """
 
-output += "	unsigned int " + repeat("c%d", ncols, ", ") +";\n"
+output += "	unsigned int " + repeat("c%d", 1, ncols, ", ") +";\n"
 output += """
 	counter c;
 	word index;
@@ -193,12 +198,12 @@ output += """
 					final_test_probe_start();
 """
 
-output += "					unpack_counter(" + repeat("&c%d", ncols/2, ", ") +", c);\n"
-output += "					final_weight = final_test(0, weight, P, " + repeat("c%d", ncols, ", ") +");"
+output += "					unpack_counter(" + repeat("&c%d", 1, ncols/2, ", ") +", c);\n"
+output += "					final_weight = final_test(0, weight, P, " + repeat("c%d", 1, ncols, ", ") +");"
 output += """
 					if (final_weight != -1) {
 """
-output += "						sw_list_append(h, sw_filled_new(0, final_weight, P, " + repeat("c%d", ncols, ", ") + "));"
+output += "						sw_list_append(h, sw_filled_new(0, final_weight, P, " + repeat("c%d", 1, ncols, ", ") + "));"
 output += """
 					}
 					final_test_probe_stop();

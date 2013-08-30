@@ -1,12 +1,6 @@
 #include <stdlib.h>
 #include "waht.h"
 #include "syscall_macros.h"
-/*
- * waht (word array hash table) is an array hash table containing lists
- * of elements (words). First element of each lists contains the number
- * of element of the list.
- * Lists are reallocated when an element is stored.
- */
 
 waht waht_init(unsigned long long size) {
 	return (waht) CALLOC(size, sizeof(waht_list));
