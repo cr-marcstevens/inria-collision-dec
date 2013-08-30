@@ -244,9 +244,9 @@ output += """
 
 								weight_on_one_word = isd_weight(value);
 								if(weight_on_one_word <= threshold) {
-									bday_probe_stop();
+									bday_cycle_stopwatch_stop();
 									incr_final_test_counter();
-									final_test_probe_start();
+									final_test_cycle_stopwatch_start();
 
 									old_x = L12_elt >> l2shift;
 									old_sum = L12_elt & lMSBmask;
@@ -281,8 +281,8 @@ output += """
 											}
 										}
 									}
-									final_test_probe_stop();
-									bday_probe_start();
+									final_test_cycle_stopwatch_stop();
+									bday_cycle_stopwatch_start();
 								}
 							}
 						}

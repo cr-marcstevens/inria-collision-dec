@@ -193,9 +193,9 @@ output += """
 				incr_collision_counter();
 				weight = isd_weight(value);
 				if (weight <= threshold) {
-					bday_probe_stop();
+					bday_cycle_stopwatch_stop();
 					incr_final_test_counter();
-					final_test_probe_start();
+					final_test_cycle_stopwatch_start();
 """
 
 output += "					unpack_counter(" + repeat("&c%d", 1, ncols/2, ", ") +", c);\n"
@@ -206,8 +206,8 @@ output += """
 output += "						sw_list_append(h, sw_filled_new(0, final_weight, P, " + repeat("c%d", 1, ncols, ", ") + "));"
 output += """
 					}
-					final_test_probe_stop();
-					bday_probe_start();
+					final_test_cycle_stopwatch_stop();
+					bday_cycle_stopwatch_start();
 				}	
 			}
 		}
