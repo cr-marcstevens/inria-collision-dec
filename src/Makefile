@@ -1,12 +1,13 @@
--include Makefile.local
-CC ?= gcc
-CFLAGS += -Wall -Wextra -std=gnu99 -I$(M4RI)
-LDFLAGS +=
-LDLIBS += -lpng -lm
-M4RI ?= $(HOME)/Travaux/dev/m4ri
-M4RIG ?= $(HOME)/Travaux/dev/m4ri_dbg
+CC = gcc
+CFLAGS = -Wall -Wextra -std=gnu99 -I$(M4RI)
+LDFLAGS =
+LDLIBS = -lpng -lm
+M4RI = m4ri
+M4RI_DBG = m4ri_dbg
 
 TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold
+
+-include Makefile.local
 
 default:
 
@@ -16,7 +17,7 @@ default: CFLAGS += -O3 -march=native -g -mpopcnt
 default: all
  
 debug: CFLAGS += -DDEBUG -g -O0 -mno-popcnt
-debug: M4RI = $(M4RIG)
+debug: M4RI = $(M4RI_DBG)
 debug: all
 
 stat: CFLAGS += -DSTAT
@@ -24,10 +25,10 @@ stat: all
 
 profile: CFLAGS += -g -mno-popcnt
 profile: LDLIBS += -lprofiler
-profile: M4RI = $(M4RIG)
+profile: M4RI = $(M4RI_DBG)
 profile: all
 
-html/index.html: Doxyfile *.h
+html/index.html: Doxyfile *.dox *.h
 	doxygen
 
 doc: html/index.html

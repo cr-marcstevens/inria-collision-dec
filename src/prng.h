@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 
+/**
+ * \brief Internal state of prng
+ */
 typedef struct ranctx {
 	uint64_t a;
 	uint64_t b;

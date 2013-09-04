@@ -31,7 +31,20 @@ void iaht_store(iaht L, word index, int x, ...) {
 }
 
 iaht_list iaht_get(iaht L, word index) {
+	if (L[index] == NULL) {
+		return NULL;
+	}
 	return L[index]+1;
+}
+
+iaht_list iaht_next(iaht L, word index, iaht_list prev, unsigned int p) {
+	if (L[index] == NULL) {
+		return NULL;
+	}
+	if (prev + 1 + p > L[index] + p * L[index][0]) {
+		return NULL;
+	}
+	return prev + 1;
 }
 
 void iaht_reset(iaht L, unsigned long long size) {

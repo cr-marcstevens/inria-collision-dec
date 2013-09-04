@@ -12,7 +12,7 @@
 void final_test_init(unsigned int local_r, unsigned int local_w, mzd_t* local_BT, mzd_t* local_Usecondmod, word** local_synds);
 
 /**
- * \brief Check wehther a given p-uplet of columns indices output of sub_isd() gives a sum with weight lower than w-p on the complete matrix.
+ * \brief Check whether a given p-uplet of columns indices output of sub_isd() gives a sum with weight lower than w-p on the complete matrix.
  * \param synd_idx The index of the syndrome considered
  * \param weight The weight of the sum of the p columns and considered syndrome on the lower part of the matrix
  * \param p The number of columns

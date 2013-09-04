@@ -5,6 +5,9 @@
  * \author Mathieu Aria
  */
 
+/**
+ * \brief Linked list of sparse words + the coresponding sum
+ */
 typedef struct draw {
 	word* sum;
 	unsigned short* indice;

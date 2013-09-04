@@ -139,6 +139,8 @@ output += """
 	nocolht_elt L12_elt;
 	nocolht_elt L34_elt;
 	word tmp_value;
+	word* E1;
+	word* E2;
 	
 """
 output += """/* Intermediate sums */\n"""
@@ -199,27 +201,21 @@ output += """
 
 		for (x = 0; x < (1UL << l2); ++x) {
 
-			waht_list E1 = waht_get(L1, x);
-			if (E1 != NULL) {
-				waht_list E2 = waht_get(L2, a ^ x);
-				if (E2 != NULL) {
-					for (i = 1; i <= E1[0]; ++i) {
-						for (j = 1; j <= E2[0]; ++j) {
-							L12_elt = E1[i] ^ E2[j];
-							// the index is the l-l2 bits following the l2 most significant ones
-							index = (L12_elt << l2) >> ll2shift;
+			for(E1 = waht_get(L1, x); E1 != NULL; E1 = waht_next(L1, x, E1)) {
+				for(E2 = waht_get(L2, a ^ x); E2 != NULL; E2 = waht_next(L2, a ^ x, E2)) {
+					L12_elt = *E1 ^ *E2;
+					// the index is the l-l2 bits following the l2 most significant ones
+					index = (L12_elt << l2) >> ll2shift;
 
-							// we build the word L12_elt such that it has x on the l2 most significants bits, zero on the l-l2 next bits (wasted space that may be used) and the sum on the rest
-							// |   x    | 0 | u+v |
-							//  <--l2-->
-							//  <----l----->
-							//  <----word_len---->
+					// we build the word L12_elt such that it has x on the l2 most significants bits, zero on the l-l2 next bits (wasted space that may be used) and the sum on the rest
+					// |   x    | 0 | u+v |
+					//  <--l2-->
+					//  <----l----->
+					//  <----word_len---->
 
-							L12_elt &= lMSBmask; // clear the l MSB
-							L12_elt ^= (x << l2shift);  // inject x
-							nocolht_store(L12, index, L12_elt);
-						}
-					}
+					L12_elt &= lMSBmask; // clear the l MSB
+					L12_elt ^= (x << l2shift);  // inject x
+					nocolht_store(L12, index, L12_elt);
 				}
 			}
 		}

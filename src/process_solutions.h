@@ -20,7 +20,7 @@
  * \param perm_inv Inverse permutation of the current permutation
  * \param nb_iter Number of the current iteration
  * \todo Use isd_param struct
- * \todo change it so that it works only on one solution instead of a list (and change subisds so that they filter there list of solutions before returning)
+ * \todo change it so that it works only on one solution instead of a list (and change subisds so that they filter their list of solutions before returning)
  */
 void process_solutions_on_the_fly(sw_list** eprime, unsigned int w, unsigned int l, mzd_t* BT, word** synds, mzd_t* U, unsigned int* perm_inv, unsigned long long nb_iter);
 

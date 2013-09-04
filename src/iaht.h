@@ -32,13 +32,11 @@ void iaht_store(iaht L, word i, int x, ...);
 
 /**
  * \brief Return pointer to the first list of x-uplet at index i
- * \todo Use this
  */
 iaht_list iaht_get(iaht L, word i);
 
 /**
  * \brief Return next list given that ptr was returned previously (by iaht_get() or iaht_next()) and p elements where used.
- * \todo Implement and use this
  */
 iaht_list iaht_next(iaht L, word i, iaht_list ptr, unsigned int p);
 

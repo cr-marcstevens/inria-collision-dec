@@ -11,8 +11,7 @@
 #ifndef WAHT_H
 #define WAHT_H
 #include "m4ri/m4ri.h"
-typedef word waht_elt;
-typedef waht_elt* waht_list;
+typedef word* waht_list;
 typedef waht_list* waht;
 
 /**
@@ -23,12 +22,19 @@ waht waht_init(unsigned long long s);
 /**
  * \brief Store word w at index i of L.
  */
-void waht_store(waht L, word i, waht_elt w);
+void waht_store(waht L, word i, word w);
 
 /**
- * \brief Return pointer to the list stored at index i of L;
+ * \brief Return pointer to the first word stored at index i of L;
+ * \return NULL if index i of L is empty; pointer to a word otherwise
  */
-waht_list waht_get(waht L, word i);
+word* waht_get(waht L, word i);
+
+/**
+ * \brief Return next pointer to the word stored at index i of L given that a previous call to waht_get() or waht_next() returned prev.
+ * \return NULL if index i of L is empty; pointer to a word otherwise
+ */
+word* waht_next(waht L, word index, waht_list prev);
 
 /**
  * \brief Empty the table L
