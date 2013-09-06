@@ -370,14 +370,21 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 		bday_cycle_stopwatch_start();
 		sub_isd();
 		bday_cycle_stopwatch_stop();
+
+		/* Process and free solutions found by sub_isd() */
 		if (h) {
 			sw_list* ptr = h;
+			sw_list* next;
 			while(ptr) {
 				++nb_sol;
-				ptr = ptr->next;
+				next = ptr->next;
+				process_solution(ptr, params->w, l, BT, synds, U, perm_inv, nb_iter);
+				sw_free(ptr);
+				ptr = next;
 			}
-			process_solutions_on_the_fly(&h, params->w, l, BT, synds, U, perm_inv, nb_iter);
+			h = NULL;
 		}
+
 		++nb_iter;
 		incr_iter_counter();
 
@@ -397,7 +404,6 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 	printf("## END ##\n\n");
 	
 	report(params);
-	process_solutions_at_end(&h, params->w, l, BT, synds, U, perm_inv, nb_iter);
 
 	sub_isd_free();
 	final_test_free();

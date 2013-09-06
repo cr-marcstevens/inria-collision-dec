@@ -122,7 +122,7 @@ output += """
 void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
 
-	unsigned int i, j, i1, i2, i3, i4;
+	unsigned int i1, i2, i3, i4;
 """
 output += "	unsigned int " + repeat("c%d", 1, ncols, ", ") + ';'
 
@@ -141,6 +141,8 @@ output += """
 	word tmp_value;
 	word* E1;
 	word* E2;
+	word* E3;
+	word* E4;
 	
 """
 output += """/* Intermediate sums */\n"""
@@ -222,71 +224,66 @@ output += """
 
 
 		for (x = 0; x < (1UL << l2); ++x) {
-			waht_list E3 = waht_get(L3, x);
-			if (E3 != NULL) {
-				waht_list E4 = waht_get(L4, aprime ^ x);
-				if (E4 != NULL) {
-					for (i = 1; i < 1+E3[0]; ++i) {
-						tmp_value = E3[i] ^ synd;
-						for (j = 1; j < 1+E4[0]; ++j) {
-							L34_elt = tmp_value ^ E4[j];
-							index = (L34_elt << l2) >> ll2shift;
-							L12_elt = nocolht_get(L12, index); // we stored only one element per index in L12
-							if (L12_elt != 0) {
-								incr_collision_counter();
+			for(E3 = waht_get(L3, x); E3 != NULL; E3 = waht_next(L3, x, E3)) {
+				tmp_value = *E3 ^ synd;
+				for(E4 = waht_get(L4, aprime ^ x); E4 != NULL; E4 = waht_next(L4, aprime ^ x, E4)) {
+					L34_elt = tmp_value ^ *E4;
+					index = (L34_elt << l2) >> ll2shift;
+					L12_elt = nocolht_get(L12, index); // we stored only one element per index in L12
+					if (L12_elt != 0) {
+						incr_collision_counter();
 
-								value = L12_elt ^ L34_elt;
-								value &= lMSBmask; // clear the l MSB; the L12 elt contained the coresponding x in this place (see building of L12)
+						value = L12_elt ^ L34_elt;
+						value &= lMSBmask; // clear the l MSB; the L12 elt contained the coresponding x in this place (see building of L12)
 
-								weight_on_one_word = isd_weight(value);
-								if(weight_on_one_word <= threshold) {
-									bday_cycle_stopwatch_stop();
-									incr_final_test_counter();
-									final_test_cycle_stopwatch_start();
+						weight_on_one_word = isd_weight(value);
+						if(weight_on_one_word <= threshold) {
+							bday_cycle_stopwatch_stop();
+							incr_final_test_counter();
+							final_test_cycle_stopwatch_start();
 
-									old_x = L12_elt >> l2shift;
-									old_sum = L12_elt & lMSBmask;
-									/* We found a collision, now we look into the L*_indices to find the corresponding columns numbers */
-									for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += P/4) {
-										for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += P/4) {
+							old_x = L12_elt >> l2shift;
+							old_sum = L12_elt & lMSBmask;
+							/* We found a collision, now we look into the L*_indices to find the corresponding columns numbers */
+							for (i1 = 1, p1 = L1_indices[old_x]+1; i1 < 1 + L1_indices[old_x][0]; ++i1, p1 += P/4) {
+								for (i2 = 1, p2 = L2_indices[a ^ old_x]+1; i2 < 1 + L2_indices[a ^ old_x][0]; ++i2, p2 += P/4) {
 """
 for i in range(1, 1+ncols/2):
 	output += """
-											c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
+									c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
 output += """
-											if(((""" + repeat("L[c%d]", 1, ncols/2, " ^ ") + ") & lMSBmask) == old_sum) {\n"
+									if(((""" + repeat("L[c%d]", 1, ncols/2, " ^ ") + ") & lMSBmask) == old_sum) {\n"
 output += """
-												for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += P/4) {
-													for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += P/4) {"""
+										for (i3 = 1, p3 = L3_indices[x]+1; i3 < 1 + L3_indices[x][0]; ++i3, p3 += P/4) {
+											for (i4 = 1, p4 = L4_indices[aprime ^ x]+1; i4 < 1 + L4_indices[aprime ^ x][0]; ++i4, p4 += P/4) {"""
 for i in range(1+ncols/2, 1+ncols):
 	output += """
-														c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
+												c%d = p%d[%d];""" % (i, 1+(i-1)/(ncols/4), (i-1)%(ncols/4))
 output += """
-														if(((""" + repeat("L[c%d]", 1+ncols/2, ncols, " ^ ") + " ^ synd)) == L34_elt) {\n"
+												if(((""" + repeat("L[c%d]", 1+ncols/2, ncols, " ^ ") + " ^ synd)) == L34_elt) {\n"
 output += """
-															final_weight = final_test(0, weight_on_one_word, P, """ + repeat("c%d", 1, ncols, ', ') +");"
+													final_weight = final_test(0, weight_on_one_word, P, """ + repeat("c%d", 1, ncols, ', ') +");"
 output += """
-															if (final_weight != -1) {"""
+													if (final_weight != -1) {"""
 output += """
-																sw_list_append(h, sw_filled_new(0, final_weight, P, """ + repeat("c%d", 1, ncols, ', ') +"));"
+														sw_list_append(h, sw_filled_new(0, final_weight, P, """ + repeat("c%d", 1, ncols, ', ') +"));"
 output += """
-															}
-														}
 													}
 												}
 											}
 										}
 									}
-									final_test_cycle_stopwatch_stop();
-									bday_cycle_stopwatch_start();
 								}
 							}
+							final_test_cycle_stopwatch_stop();
+							bday_cycle_stopwatch_start();
 						}
 					}
 				}
 			}
 		}
 	}
+	sw_list_uniq(h);
 }
 
 
