@@ -29,7 +29,11 @@ output += """#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "sub_isd.h"
-#include "counterht_nocol.h"
+#ifdef MANAGE_COL
+	#include "counterht.h"
+#else
+	#include "counterht_col.h"
+#endif
 #include "m4ri/m4ri.h"
 #include "libisd.h"
 #include "final_test.h"
@@ -95,7 +99,10 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	threshold = params->weight_threshold;
 
 	unsigned long long nb_of_sums = nCr(L_len/2, P/2);
+	// lprime can be used to tune hash table size. It should be less than or equal to l. Best case is when the table fits in the cache. 
+	// Lowering lprime will rise hash table occupation ratio but also intern collision probability. That means it will reduce number of generated collisions if table collisions are discarded.
 	lprime = (l+ log(nb_of_sums)/log(2))/2;
+	lprime = l;
 	printf("lprime : %d\\n", lprime);
 
 	shift = min(r, word_len) - lprime;
@@ -138,6 +145,7 @@ void sub_isd() {
 output += "	unsigned int " + repeat("c%d", 1, ncols, ", ") +";\n"
 output += """
 	counter c;
+	counter_container* ccont;
 	word index;
 	word value;
 """
@@ -187,7 +195,8 @@ output += "		value = sumS" + "".join([str(j) for j in range(ncols/2 + 1,i+1)]) +
 
 output += """
 		index = value >> shift;
-		for(c = counterht_get(L0, index); c != NONE; c = counterht_next(L0, index, c)) {
+		for(ccont = counterht_get(L0, index); ccont != NULL; ccont = counterht_next(L0, index, ccont)) {
+			c = counter_container_open(ccont);
 			value ^= xors_table[c];
 			if (value < max_word_zero_l_bits) {
 				incr_collision_counter();

@@ -1,17 +1,13 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=gnu99 -I$(M4RI)
 LDFLAGS =
-LDLIBS = -lpng -lm
+LDLIBS = -lpng -lm $(M4RI)/.libs/libm4ri.a cpucycles/cpucycles.o
 M4RI = m4ri
 M4RI_DBG = m4ri_dbg
 
-TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold
-
 -include Makefile.local
 
-default:
-
-all: $(TARGET)
+.SUFFIXES:
 
 default: CFLAGS += -O3 -march=native -g -mpopcnt
 default: all
@@ -28,45 +24,38 @@ profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RI_DBG)
 profile: all
 
-html/index.html: Doxyfile *.dox *.h
-	doxygen
+TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold dumer4_col dumer6_col dumer8_col
+all: $(TARGET)
 
-doc: html/index.html
-
-COMMON = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c cpucycles/cpucycles.o io.c prng.c isd_cmdline.c measure.c $(M4RI)/.libs/libm4ri.a custom_brilliantrussian.c
+SOURCES = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c io.c prng.c isd_cmdline.c measure.c custom_brilliantrussian.c
 
 dumer%.c: gen_dumer.py
 	python gen_dumer.py $* > $@
 
-dumer4: $(COMMON) dumer4.c counterht_nocol.c
-dumer6: $(COMMON) dumer6.c counterht_nocol.c
-dumer8: $(COMMON) dumer8.c counterht_nocol.c
+dumer%: $(SOURCES) dumer%.c counterht.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
+dumer%_col: CFLAGS += -DMANAGE_COL
+dumer%_col: $(SOURCES) dumer%.c counterht_col.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 mmt%.c: gen_mmt.py
 	python gen_mmt.py $* > $@
 
-mmt4: $(COMMON) mmt4.c iaht.c waht.c nocolht.c
-mmt8: $(COMMON) mmt8.c iaht.c waht.c nocolht.c
-mmt12: $(COMMON) mmt12.c iaht.c waht.c nocolht.c
+mmt%: $(SOURCES) mmt%.c iaht.c waht.c nocolht.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-BJMM: $(COMMON) BJMM.c BJMMtools.c
-
-compute_threshold: compute_threshold.c
+BJMM: $(SOURCES) BJMM.c BJMMtools.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 cpucycles/cpucycles.o: cpucycles/*.c cpucycles/*.h
 	cd cpucycles; sh do; cd ..
 
-profgen: CFLAGS += -fprofile-generate
-profgen: all
-profuse: CFLAGS += -fprofile-use
-profuse: all
-
-test: $(TARGET)
-	for i in $(TARGET); do echo $$i; ./$$i -i small_challenge.txt -l 15 -I 1; done
-
 %_cmdline.c %_cmdline.h: %.ggo
 	gengetopt -i $^ -F $*_cmdline
+
+compute_threshold: compute_threshold.c
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean: 
 	-rm -f $(TARGET)
