@@ -3,7 +3,7 @@
 ## \file gen_dumer.py
 #Generate code of the sub_isd module using Dumer algorithm
 #
-#Parameters p is set as first parameter of the command line. It must even.
+#Parameters p is set as first parameter of the command line. It must be even.
 
 import os
 import sys
@@ -30,9 +30,13 @@ output += """#include <stdio.h>
 #include <time.h>
 #include "sub_isd.h"
 #ifdef MANAGE_COL
-	#include "counterht.h"
+	#if	MANAGE_COL == 2
+		#include "counterht_col2.h"
+	#else
+		#include "counterht_col.h"
+	#endif
 #else
-	#include "counterht_col.h"
+	#include "counterht.h"
 #endif
 #include "m4ri/m4ri.h"
 #include "libisd.h"
@@ -99,6 +103,7 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	threshold = params->weight_threshold;
 
 	unsigned long long nb_of_sums = nCr(L_len/2, P/2);
+
 	// lprime can be used to tune hash table size. It should be less than or equal to l. Best case is when the table fits in the cache. 
 	// Lowering lprime will rise hash table occupation ratio but also intern collision probability. That means it will reduce number of generated collisions if table collisions are discarded.
 	lprime = (l+ log(nb_of_sums)/log(2))/2;
@@ -108,7 +113,7 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 	shift = min(r, word_len) - lprime;
 
 	L0_size = 1ULL << lprime;
-	L0 = counterht_init(L0_size);
+	L0 = counterht_init(L0_size, nb_of_sums);
 
 	xors_table = (word*) MALLOC(nb_of_sums * sizeof(word));
 
@@ -138,6 +143,11 @@ output += "\n}\n\n"
 
 
 output += """
+int cmp (const void * a, const void * b)
+{
+	  return ( *(word*)a - *(word*)b );
+}
+
 void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
 """
@@ -163,6 +173,8 @@ output += """
 
 	counterht_reset(L0, L0_size);
 	c = 0;
+	//qsort(L, L_len/2, sizeof(word), cmp);
+	//qsort(L+L_len/2, L_len - L_len/2, sizeof(word), cmp);
 """
 
 output += "	for (c1 = %d; c1 < L_len/2; ++c1) {\n" % (ncols/2-1)
@@ -201,7 +213,7 @@ output += """
 			if (value < max_word_zero_l_bits) {
 				incr_collision_counter();
 				weight = isd_weight(value);
-				if (weight <= threshold) {
+				if (weight < threshold) {
 					bday_cycle_stopwatch_stop();
 					incr_final_test_counter();
 					final_test_cycle_stopwatch_start();
@@ -234,7 +246,7 @@ void sub_isd_free() {
 		free(unpack[i]);
 	}
 	free(unpack);
-	free(L0);
+	counterht_free(L0);
 	free(xors_table);
 }
 """

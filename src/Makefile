@@ -24,7 +24,7 @@ profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RI_DBG)
 profile: all
 
-TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold dumer4_col dumer6_col dumer8_col
+TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold #dumer4_col dumer6_col dumer8_col dumer4_col2
 all: $(TARGET)
 
 SOURCES = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c io.c prng.c isd_cmdline.c measure.c custom_brilliantrussian.c
@@ -35,8 +35,12 @@ dumer%.c: gen_dumer.py
 dumer%: $(SOURCES) dumer%.c counterht.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-dumer%_col: CFLAGS += -DMANAGE_COL
+dumer%_col: CFLAGS += -DMANAGE_COL=1
 dumer%_col: $(SOURCES) dumer%.c counterht_col.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+dumer%_col2: CFLAGS += -DMANAGE_COL=2
+dumer%_col2: $(SOURCES) dumer%.c counterht_col2.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 mmt%.c: gen_mmt.py
@@ -54,7 +58,7 @@ cpucycles/cpucycles.o: cpucycles/*.c cpucycles/*.h
 %_cmdline.c %_cmdline.h: %.ggo
 	gengetopt -i $^ -F $*_cmdline
 
-compute_threshold: compute_threshold.c
+compute_threshold: compute_threshold.c libisd.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean: 

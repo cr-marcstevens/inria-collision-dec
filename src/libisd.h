@@ -26,22 +26,16 @@
  * \brief Compute binomial coefficient n choose r
  */
 double nCr(int n, int r);
+
+/**
+ * \brief Print binary representation of word (MSB to the left)
+ */
 void print_bin(word x);
 
 /**
- * \brief Generate identity permutation.
+ * \brief Compare two words (usable with qsort)
  */
-void generate_id_permutation(unsigned int* perm,unsigned int* perm_inv, unsigned int n, ranctx* state);
-
-/**
- * \brief Generate random permutation
- */
-void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state);
-
-/**
- * \brief Apply a permutation to a matrix
- */
-void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int n);
+int word_cmp (const void * a, const void * b);
 
 /**
  * \brief Compute weight of a word (number of non zero position)

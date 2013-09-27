@@ -689,7 +689,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 			sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 			weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
-			if (weight <= threshold) {
+			if (weight < threshold) {
 				ncolumn = w2;
 				for (i=0;i < w2; i++){
 					if (builder.indice[i] == USHRT_MAX){
@@ -726,7 +726,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 				weight = isd_weight(((*OnTheFlyE).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
-				if (weight <= threshold) {
+				if (weight < threshold) {
 					ncolumn = w2;
 					for (i=0;i < w2; i++){
 						if (builder.indice[i] == USHRT_MAX){
@@ -767,7 +767,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 				sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 				weight = isd_weight(((*current3).sum[0]^(StockedE[index].sum[0]))^Synd[0]);
-				if (weight <= threshold) {
+				if (weight < threshold) {
 					ncolumn = w2;
 					for (i=0;i < w2; i++){
 						if (builder.indice[i] == USHRT_MAX){
@@ -805,7 +805,7 @@ void FinalFusionFilter64(sw_list** AnswerList, S* StockedE,S* OnTheFlyE,word* Sy
 					sw_list_add_array(observer,0,0,w2,builder.indice);
 #endif
 					weight = isd_weight(((*current3).sum[0]^((*current2).sum[0]))^Synd[0]);
-					if (weight <= threshold) {
+					if (weight < threshold) {
 						ncolumn = w2;
 						for (i=0;i < w2; i++){
 							if (builder.indice[i] == USHRT_MAX){

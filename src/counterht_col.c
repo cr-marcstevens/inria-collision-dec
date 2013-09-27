@@ -6,8 +6,9 @@ counter counter_container_open(counter_container* c) {
 	return c->value;
 }
 
-counterht counterht_init(unsigned long long size) {
-	counterht ret = (counterht) CALLOC(size, sizeof(*ret));
+counterht counterht_init(unsigned long long nb_of_hash_val, unsigned long long nb_of_insert) {
+	(void) nb_of_insert;
+	counterht ret = (counterht) CALLOC(nb_of_hash_val, sizeof(*ret));
 	return ret;
 }
 

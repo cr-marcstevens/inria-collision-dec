@@ -237,7 +237,7 @@ output += """
 						value &= lMSBmask; // clear the l MSB; the L12 elt contained the coresponding x in this place (see building of L12)
 
 						weight_on_one_word = isd_weight(value);
-						if(weight_on_one_word <= threshold) {
+						if(weight_on_one_word < threshold) {
 							bday_cycle_stopwatch_stop();
 							incr_final_test_counter();
 							final_test_cycle_stopwatch_start();

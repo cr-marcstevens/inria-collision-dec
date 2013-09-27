@@ -1,5 +1,5 @@
 /**
- * \file counterht.h
+ * \file counterht_col2.h
  * \brief Hash table storing counters
  *
  * \author Grégory Landais <gregory.landais@inria.fr>
@@ -9,12 +9,16 @@
 #include <stdint.h>
 #include "libisd.h"
 
-typedef int32_t counter;
-
-typedef counter counter_container;
 #define NONE -1
+typedef int32_t counter;
+typedef counter counter_container;
 
-typedef counter_container* counterht;
+typedef struct {
+	counter_container* main_table;
+	counter_container* col_table;
+	unsigned long long main_table_size;
+	unsigned long long col_table_size;
+} *counterht;
 
 /**
  * \brief Return the counter contained in the container

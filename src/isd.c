@@ -28,6 +28,41 @@ void stop_handler() {
 	stop = 1;
 }
 
+/* Used for debugging */
+void generate_id_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state) {
+	(void) state; // remove warning, useful only to keep same prototype as generate_permutation
+	unsigned int i;
+	fprintf(stderr, "WARNING : NOT PERMUTING\n");
+	for (i = 0; i < n; ++i) {
+		perm[i] = i;
+		perm_inv[i] = i;
+	}
+}
+
+
+void generate_permutation(unsigned int* perm, unsigned int* perm_inv, unsigned int n, ranctx* state) {
+	unsigned int i, j, tmp;
+	for (i = 0; i < n; ++i) {
+		perm[i] = i;
+	}
+	for (i = n-1; i >= 1; --i) {
+		j = random_range(state, i+1);
+		tmp = perm[j]; perm[j] = perm[i]; perm[i] = tmp;
+	}
+	if (perm_inv != NULL) {
+		for (i = 0; i < n; ++i) {
+			perm_inv[perm[i]] = i;
+		}
+	}
+}
+
+void apply_permutation(mzd_t* dst, mzd_t* src, unsigned int* perm, unsigned int n) {
+	unsigned int i;
+	for (i = 0; i < n; ++i) {
+		mzd_copy_row (dst, perm[i], src, i);
+	}
+}
+
 void scramble(mzd_t* H, unsigned int N, word** synds) {
 	int r = H->ncols;
 	mzd_t* M = mzd_init(r, r);

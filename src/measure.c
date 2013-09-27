@@ -112,7 +112,7 @@ void report(isd_params* params) {
 		 */
 	double p_miss = 0;
 	unsigned int i;
-	unsigned int eff_word_len = min(params->r, word_len);
+	unsigned int d = min(params->r, word_len);
 
 	double nb_col_needed;
 	double nb_col_periter;
@@ -136,14 +136,13 @@ void report(isd_params* params) {
 
 	L_len = k+l;
 
-	for (i = 0; i < params->weight_threshold; ++i) {
-		p_miss += nCr(eff_word_len - l, i)*nCr(r - eff_word_len, w-p-i);
+	for (i = 0; i < weight_threshold; ++i) {
+		p_miss += nCr(d - l, i)*nCr(r - d, w-p-i);
 	}
 	p_miss /= nCr(r-l, w-p);
-	p_miss = 1 - p_miss;
 
 	nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
-	nb_col_needed += p_miss * nb_col_needed;
+	nb_col_needed += nb_col_needed / p_miss;
 	nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
 	nb_iter_needed = nb_col_needed / nb_col_periter;
 	cycles_needed = nb_iter_needed*cycles_periter;
@@ -151,6 +150,9 @@ void report(isd_params* params) {
 
 	time = (time_t) time_needed;
 	tm_now = gmtime (&time);
+
+	printf("Threshold : %u\n", params->weight_threshold);
+	printf("Miss prob : %g\n", p_miss);
 
 	printf("Average requirement per solution\n");
 	printf("\tCollisions (log2) : %12.4g\n", (double)log(nb_col_needed)/log(2));

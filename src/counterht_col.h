@@ -26,9 +26,9 @@ typedef counter_container** counterht;
 counter counter_container_open(counter_container* c);
 
 /**
- * \brief Initialize an hash table of size s
+ * \brief Initialize an hash table of size nb_of_hash_val
  */
-counterht counterht_init(unsigned long long s);
+counterht counterht_init(unsigned long long nb_of_hash_val, unsigned long long nb_of_insert);
 
 void counterht_store(counterht L, word index, counter value);
 
