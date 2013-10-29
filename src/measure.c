@@ -59,6 +59,17 @@ void incr_collision_counter() {
 	++nb_collision;
 }
 
+void reset() {
+	total_time = 0;
+	total_cycles = 0;
+	pivot_cycles = 0;
+	bday_cycles = 0;
+	final_test_cycles = 0;
+	nb_iter = 0;
+	nb_final_test = 0;
+	nb_collision = 0;
+}
+
 void report(isd_params* params) {
 	unsigned long long pivot_cost = pivot_cycles/nb_iter;
 	unsigned long long bday_cost = bday_cycles/nb_iter;
@@ -66,50 +77,6 @@ void report(isd_params* params) {
 	unsigned long long cycles_periter = total_cycles / nb_iter;
 	float iter_persecond;
 
-	/* If stdout is not a tty, we assume it is piped to compute_threshold; you can pipe to 'cat' to see the line */
-	if (!isatty(fileno(stdout))) {
-		printf("couts pour k=%d r=%d w=%d p=%d l=%d : %lld %lld %lld\n", params->k, params->r, params->w, params->p, params->l, pivot_cost, bday_cost, final_test_cost); // this line can be parsed by compute_threshold
-	}
-	
-	if (total_time != 0) {
-		iter_persecond = (float)nb_iter/total_time;
-	}
-	else {
-		iter_persecond = (float)cpucycles_persecond() / cycles_periter;
-	}
-
-	printf("%lld iterations done in %lld seconds (%.2f iter/s)\n", nb_iter, total_time, iter_persecond);
-
-	if (nb_iter == 0) {
-		printf("No iteration done\n");
-		return;
-	}
-	printf("\n");
-	printf("total_cycles : %lld\n", total_cycles);
-	printf("Per iteration : \n");
-
-	printf("\tCollisions          %12lld\n", nb_collision/nb_iter);
-	printf("\tFinal tests         %12.2f", (float)nb_final_test/nb_iter);
-	if (nb_collision != 0) {
-		printf(" (%5.2f%%)", 100*(float)nb_final_test/nb_collision);
-	}
-	printf("\n");
-	printf("\n");
-
-	printf("\tPivot cycles        %12lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/total_cycles);
-	printf("\tBirthday cycles     %12lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/total_cycles);
-	printf("\tFinal test cycles   %12lld", final_test_cycles/nb_iter);
-	if (nb_collision != 0) {
-		printf(" (%5.2f%%)", 100*(float)final_test_cycles/total_cycles);
-	}
-	printf("\n");
-	printf("\n");
-
-
-	/* p_miss is the proportion of candidates that are eliminated by the
-		 weight threshold condition whereas they where the solution. That's why
-		 we have to multiply the number of collision needed by this proportion
-		 */
 	double p_miss = 0;
 	unsigned int i;
 	unsigned int d = min(params->r, word_len);
@@ -136,6 +103,51 @@ void report(isd_params* params) {
 
 	L_len = k+l;
 
+	/* If stdout is not a tty, we assume it is piped to compute_threshold; you can pipe to 'cat' to see the line */
+	if (!isatty(fileno(stdout))) {
+		printf("couts pour k=%d r=%d w=%d p=%d l=%d : %lld %lld %lld\n", params->k, params->r, params->w, params->p, params->l, pivot_cost, bday_cost, final_test_cost); // this line can be parsed by compute_threshold
+	}
+	
+	if (total_time != 0) {
+		iter_persecond = (float)nb_iter/total_time;
+	}
+	else {
+		iter_persecond = (float)cpucycles_persecond() / cycles_periter;
+	}
+
+	printf("%lld iterations done in %lld seconds (%.2f iter/s)\n", nb_iter, total_time, iter_persecond);
+
+	if (nb_iter == 0) {
+		printf("No iteration done\n");
+		return;
+	}
+	printf("\n");
+	printf("Total cycles : %lld\n\n", total_cycles);
+	printf("Per iteration : \n");
+
+	printf("\tCollisions          %12lld (%5.2f%% of max)\n", nb_collision/nb_iter, 100*(nb_collision/nb_iter)/(nCr(L_len, p)/(1ULL<<l)));
+	printf("\tFinal tests         %12.2f", (float)nb_final_test/nb_iter);
+	if (nb_collision != 0) {
+		printf(" (%5.2f%%)", 100*(float)nb_final_test/nb_collision);
+	}
+	printf("\n");
+	printf("\n");
+
+	printf("\tPivot cycles        %12lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/total_cycles);
+	printf("\tBirthday cycles     %12lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/total_cycles);
+	printf("\tFinal test cycles   %12lld", final_test_cycles/nb_iter);
+	if (nb_collision != 0) {
+		printf(" (%5.2f%%)", 100*(float)final_test_cycles/total_cycles);
+	}
+	printf("\n");
+	printf("\n");
+
+
+	/* p_miss is the proportion of candidates that are eliminated by the
+		 weight threshold condition whereas they where the solution. That's why
+		 we have to multiply the number of collision needed by this proportion
+		 */
+
 	for (i = 0; i < weight_threshold; ++i) {
 		p_miss += nCr(d - l, i)*nCr(r - d, w-p-i);
 	}
@@ -143,7 +155,8 @@ void report(isd_params* params) {
 
 	nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
 	nb_col_needed += nb_col_needed / p_miss;
-	nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l);
+	//nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l); // <- theoretical for dumer disjoint support
+	nb_col_periter = nb_collision/nb_iter;
 	nb_iter_needed = nb_col_needed / nb_col_periter;
 	cycles_needed = nb_iter_needed*cycles_periter;
 	time_needed = (cycles_periter * nb_col_needed / nb_col_periter) / cpucycles_persecond();
@@ -152,7 +165,7 @@ void report(isd_params* params) {
 	tm_now = gmtime (&time);
 
 	printf("Threshold : %u\n", params->weight_threshold);
-	printf("Miss prob : %g\n", p_miss);
+	printf("Miss prob : %g\n", 1-p_miss);
 
 	printf("Average requirement per solution\n");
 	printf("\tCollisions (log2) : %12.4g\n", (double)log(nb_col_needed)/log(2));

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=gnu99 -I$(M4RI)
+CFLAGS += -Wall -Wextra -std=gnu99 -I$(M4RI)
 LDFLAGS =
 LDLIBS = -lpng -lm $(M4RI)/.libs/libm4ri.a cpucycles/cpucycles.o
 M4RI = m4ri
@@ -19,12 +19,12 @@ debug: all
 stat: CFLAGS += -DSTAT
 stat: all
 
-profile: CFLAGS += -g -mno-popcnt
+profile: CFLAGS += -g -mno-popcnt -O0
 profile: LDLIBS += -lprofiler
 profile: M4RI = $(M4RI_DBG)
 profile: all
 
-TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold #dumer4_col dumer6_col dumer8_col dumer4_col2
+TARGET = dumer4 dumer6 dumer8 mmt4 mmt8 mmt12 BJMM compute_threshold
 all: $(TARGET)
 
 SOURCES = main.c isd.c libisd.c final_test.c process_solutions.c sparse_words_list.c io.c prng.c isd_cmdline.c measure.c custom_brilliantrussian.c
@@ -33,14 +33,6 @@ dumer%.c: gen_dumer.py
 	python gen_dumer.py $* > $@
 
 dumer%: $(SOURCES) dumer%.c counterht.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
-dumer%_col: CFLAGS += -DMANAGE_COL=1
-dumer%_col: $(SOURCES) dumer%.c counterht_col.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
-dumer%_col2: CFLAGS += -DMANAGE_COL=2
-dumer%_col2: $(SOURCES) dumer%.c counterht_col2.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 mmt%.c: gen_mmt.py

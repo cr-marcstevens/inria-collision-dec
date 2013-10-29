@@ -30,6 +30,7 @@ output += """#include <stdio.h>
 #include <time.h>
 #include "sub_isd.h"
 #ifdef MANAGE_COL
+	#warning Managing collisions
 	#if	MANAGE_COL == 2
 		#include "counterht_col2.h"
 	#else
@@ -143,11 +144,6 @@ output += "\n}\n\n"
 
 
 output += """
-int cmp (const void * a, const void * b)
-{
-	  return ( *(word*)a - *(word*)b );
-}
-
 void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
 """
@@ -173,8 +169,10 @@ output += """
 
 	counterht_reset(L0, L0_size);
 	c = 0;
-	//qsort(L, L_len/2, sizeof(word), cmp);
-	//qsort(L+L_len/2, L_len - L_len/2, sizeof(word), cmp);
+	#ifdef SORT_L
+		qsort(L, L_len/2, sizeof(word), word_cmp);
+		qsort(L+L_len/2, L_len - L_len/2, sizeof(word), word_cmp);
+	#endif
 """
 
 output += "	for (c1 = %d; c1 < L_len/2; ++c1) {\n" % (ncols/2-1)
