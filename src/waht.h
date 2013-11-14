@@ -10,7 +10,7 @@
 
 #ifndef WAHT_H
 #define WAHT_H
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 typedef word* waht_list;
 typedef waht_list* waht;
 

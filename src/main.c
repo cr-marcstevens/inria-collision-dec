@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <signal.h>
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "isd.h"
 #include "libisd.h"
 #include "io.h"
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	raninit(state, seed);
 
   // Read CSD instance from file
-	// TODO : change file format to png ?
+	// TODO : change file format to png and store syndromes in some text fields of the png file ?
 	FILE* fd;
   if (!args_info.input_given) {
     fd=stdin;

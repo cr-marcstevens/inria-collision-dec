@@ -6,7 +6,7 @@
  */
 #ifndef PROCESS_SOLUTIONS_H
 #define PROCESS_SOLUTIONS_H
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "sparse_words_list.h"
 
 /**

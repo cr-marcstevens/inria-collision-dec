@@ -6,7 +6,7 @@
  */
 #ifndef ISD_H
 #define ISD_H
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "sparse_words_list.h"
 #include "prng.h"
 

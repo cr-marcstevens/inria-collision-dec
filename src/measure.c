@@ -2,7 +2,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "measure.h"
-#include "cpucycles/cpucycles.h"
+#include "cpucycles.h"
 #include "isd.h"
 #include "libisd.h"
 
@@ -125,7 +125,7 @@ void report(isd_params* params) {
 	printf("Total cycles : %lld\n\n", total_cycles);
 	printf("Per iteration : \n");
 
-	printf("\tCollisions          %12lld (%5.2f%% of max)\n", nb_collision/nb_iter, 100*(nb_collision/nb_iter)/(nCr(L_len, p)/(1ULL<<l)));
+	printf("\tCollisions          %12lld (%5.2f%% of nCr(L_len/2, p/2)^2/2^l)\n", nb_collision/nb_iter, 100*(nb_collision/nb_iter)/(nCr(L_len/2, p/2)*nCr(L_len/2, p/2)/(1ULL<<l)));
 	printf("\tFinal tests         %12.2f", (float)nb_final_test/nb_iter);
 	if (nb_collision != 0) {
 		printf(" (%5.2f%%)", 100*(float)nb_final_test/nb_collision);

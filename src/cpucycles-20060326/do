@@ -35,7 +35,7 @@ rm -f $output $cleanup
     env COMPILER=$compiler ./compile -o test test.c cpucycles-impl.o || continue
     ./test || continue
     echo ===== Success. Using $name.c. >&2
-    mv cpucycles-impl.o cpucycles.o
+    mv cpucycles-impl.c cpucycles.c
     mv cpucycles-impl.h cpucycles.h
     rm -f $cleanup
     exit 0

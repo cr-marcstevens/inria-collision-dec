@@ -4,7 +4,7 @@
  *
  * \author Grégory Landais <gregory.landais@inria.fr>
  */
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 
 /**
  * \brief Initialize the final_test() routine. Allocate required memory, put parameters and pointers to inputs in static global variables for future call to final_test().

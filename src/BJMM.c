@@ -11,15 +11,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include "sub_isd.h"
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "libisd.h"
 #include "sparse_words_list.h"
 #include "final_test.h"
 #include "measure.h"
-#include "cpucycles/cpucycles.h"
+#include "cpucycles.h"
 #include "BJMMtools.h"
 #include "measure.h"
-#include "cpucycles/cpucycles.h"
 #include "prng.h"
 
 static ranctx* state;

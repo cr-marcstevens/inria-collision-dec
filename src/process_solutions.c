@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "libisd.h"
 #include "process_solutions.h"
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 
 /** function called called on each solution an iteration could find
  * It takes a sparse word of weight p as an input, 

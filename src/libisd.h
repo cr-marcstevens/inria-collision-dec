@@ -8,7 +8,7 @@
 #define LIBISD_H
 #include <stdint.h>
 #include <stdlib.h>
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "prng.h"
 
 #define max(a, b) ((a) > (b) ? (a) : (b))

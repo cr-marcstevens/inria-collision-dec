@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include "final_test.h"
 #include "libisd.h"
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 
 static unsigned int r;
 static unsigned int w;

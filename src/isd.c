@@ -4,7 +4,7 @@
 //#include <signal.h>
 #include <time.h>
 #include "isd.h"
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "custom_brilliantrussian.h"
 #include "sub_isd.h"
 #include "libisd.h"
@@ -13,7 +13,7 @@
 #include "sparse_words_list.h"
 //#include "io.h"
 #include "prng.h"
-#include "cpucycles/cpucycles.h"
+#include "cpucycles.h"
 
 #include "measure.h"
 

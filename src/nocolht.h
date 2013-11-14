@@ -6,7 +6,7 @@
  */
 #ifndef NOCOLHT_H
 #define NOCOLHT_H
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 typedef word nocolht_elt;
 typedef nocolht_elt* nocolht;
 

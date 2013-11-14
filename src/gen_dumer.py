@@ -39,7 +39,7 @@ output += """#include <stdio.h>
 #else
 	#include "counterht.h"
 #endif
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "libisd.h"
 #include "final_test.h"
 #include "sparse_words_list.h"

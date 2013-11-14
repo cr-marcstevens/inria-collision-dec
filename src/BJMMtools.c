@@ -8,13 +8,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "sparse_words_list.h"
 #include "final_test.h"
 #include "BJMMtools.h"
 #include "libisd.h"
 #include "measure.h"
-#include "cpucycles/cpucycles.h"
+#include "cpucycles.h"
 
 
 // see BJMMtools.h for method description

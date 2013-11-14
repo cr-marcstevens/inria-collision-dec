@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
-#include "m4ri/m4ri.h"
+#include <m4ri/m4ri.h>
 #include "iaht.h"
 #include "syscall_macros.h"
 
