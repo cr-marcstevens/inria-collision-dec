@@ -13,7 +13,6 @@
 #include "sparse_words_list.h"
 //#include "io.h"
 #include "prng.h"
-#include "cpucycles.h"
 
 #include "measure.h"
 

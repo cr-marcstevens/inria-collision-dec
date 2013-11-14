@@ -14,7 +14,7 @@
 #include "BJMMtools.h"
 #include "libisd.h"
 #include "measure.h"
-#include "cpucycles.h"
+#include "cpucycles/cpucycles.h"
 
 
 // see BJMMtools.h for method description

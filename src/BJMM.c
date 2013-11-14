@@ -16,7 +16,7 @@
 #include "sparse_words_list.h"
 #include "final_test.h"
 #include "measure.h"
-#include "cpucycles.h"
+#include "cpucycles/cpucycles.h"
 #include "BJMMtools.h"
 #include "measure.h"
 #include "prng.h"

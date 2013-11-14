@@ -2,7 +2,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "measure.h"
-#include "cpucycles.h"
+#include "cpucycles/cpucycles.h"
 #include "isd.h"
 #include "libisd.h"
 
