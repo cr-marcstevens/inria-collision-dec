@@ -3,6 +3,7 @@ AM_CPPFLAGS = -I$(M4RI_INCLUDE)
 bin_PROGRAMS = dumer4 dumer6 dumer8 mmt4 mmt8
 
 BUILT_SOURCES = dumer4.c dumer6.c dumer8.c mmt4.c mmt8.c isd_cmdline.h
+EXTRA_DIST = isd.ggo gen_dumer.py gen_mmt.py
 
 isd_cmdline.h: isd_cmdline.c
 isd_cmdline.c: isd.ggo
