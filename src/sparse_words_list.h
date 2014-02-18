@@ -31,6 +31,12 @@ sw* sw_new(unsigned int p);
  * \param ... A va_list of p unsigned int with the non-null positions of the word
  */
 sw* sw_filled_new(unsigned int synd_idx, unsigned int synd_weight, unsigned int p, ...);
+
+/**
+ * \brief Allocate a new sparse word of weight p and fill its fields with the input values
+ * \param columns An array containing the p non-null positions of the word
+ */
+sw* sw_filled_new_array(unsigned int synd_idx, unsigned int synd_weight, unsigned int p, unsigned short* columns);
 /**
  * \brief Sort the pos array
  */
@@ -46,6 +52,7 @@ void sw_free(sw_list* h);
 
 /**
  * \brief Allocate a new sparse word of weight p, fill its fields with the input values, fill the pos field with the value in the columns array and append it to h
+ * TODO : delete this function and use sw_list_append(sw_list_new_array
  */
 void sw_list_add_array(sw_list** h, unsigned int synd_idx, unsigned int synd_weight, unsigned int p, unsigned short* columns);
 

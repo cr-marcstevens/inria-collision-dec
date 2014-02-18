@@ -1,9 +1,40 @@
 AM_CPPFLAGS = -I$(M4RI_INCLUDE)
 
-bin_PROGRAMS = dumer4 dumer6 dumer8 mmt4 mmt8
+bin_PROGRAMS = dumer4 dumer6 dumer8 mmt4 mmt8 generic_dumer
 
 BUILT_SOURCES = dumer4.c dumer6.c dumer8.c mmt4.c mmt8.c isd_cmdline.h
 EXTRA_DIST = isd.ggo gen_dumer.py gen_mmt.py
+
+generic_dumer_SOURCES = \
+	generic_dumer.c \
+	main.c \
+	isd.c \
+	libisd.c \
+	final_test.c \
+	process_solutions.c \
+	sparse_words_list.c \
+	io.c \
+	prng.c \
+	isd_cmdline.c \
+	measure.c \
+	custom_brilliantrussian.c \
+	counterht.c \
+	custom_brilliantrussian.h \
+	isd_cmdline.h \
+	libisd.h \
+	prng.h \
+	sparse_words_list.h \
+	syscall_macros.h \
+	counterht.h \
+	final_test.h \
+	io.h \
+	isd.h \
+	measure.h \
+	process_solutions.h \
+	sub_isd.h \
+	cpucycles/cpucycles.h
+
+
 
 isd_cmdline.h: isd_cmdline.c
 isd_cmdline.c: isd.ggo
@@ -180,3 +211,4 @@ dumer6_LDADD = $(M4RI_LIB)/libm4ri.a cpucycles/libcpucycles.a -lm
 dumer8_LDADD = $(M4RI_LIB)/libm4ri.a cpucycles/libcpucycles.a -lm
 mmt4_LDADD = $(M4RI_LIB)/libm4ri.a cpucycles/libcpucycles.a -lm
 mmt8_LDADD = $(M4RI_LIB)/libm4ri.a cpucycles/libcpucycles.a -lm
+generic_dumer_LDADD = $(M4RI_LIB)/libm4ri.a cpucycles/libcpucycles.a -lm

@@ -31,6 +31,20 @@ sw* sw_filled_new(unsigned int synd_idx, unsigned int synd_weight, unsigned int 
 	return new;
 }
 
+sw* sw_filled_new_array(unsigned int synd_idx, unsigned int synd_weight, unsigned int p, unsigned short* columns) {
+	unsigned int i;
+	sw* new = sw_new(p);
+
+	for (i = 0; i < p; ++i) {
+		new->pos[i] = columns[i];
+	}
+
+	new->synd_idx = synd_idx;
+	new->synd_weight = synd_weight;
+
+	return new;
+}
+
 void sw_list_append(sw_list** h, sw* new) {
 	new->next = *h;
 	*h = new;
