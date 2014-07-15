@@ -33,7 +33,6 @@ int final_test(unsigned int synd_idx, unsigned int weight, unsigned int p, ... )
 	int col;
 
 	unsigned int i, j;
-	word chunk;
 
 	/* generating e'*BT adding p lines of BT */
 	va_start(columns, p);
@@ -51,11 +50,7 @@ int final_test(unsigned int synd_idx, unsigned int weight, unsigned int p, ... )
 
 	/* applying gaussian elimination transformation to e'*BT (except eff_word_len first bits since we know their weight), and computing the weight of the result */
 	for (i = 0; i < r - eff_word_len; ++i) {
-		chunk = 0;
-		for (j = 0; j < bit_in_words(r); ++j) {
-			chunk ^= eprimeBT[j] & Usecondmod->rows[i][j];
-		}
-		if (isd_parity(chunk)) {
+		if (pscal(eprimeBT, Usecondmod->rows[i], r)) {
 			++weight;
 		}
 		if (weight > w-p) {
@@ -69,7 +64,6 @@ int final_test(unsigned int synd_idx, unsigned int weight, unsigned int p, ... )
 int final_test_array(unsigned int synd_idx, unsigned int weight, unsigned int p, unsigned short* columns ) {
 
 	unsigned int i, j;
-	word chunk;
 
 	/* generating e'*BT adding p lines of BT */
 	for (i = 0; i < bit_in_words(r); ++i) {
@@ -83,11 +77,7 @@ int final_test_array(unsigned int synd_idx, unsigned int weight, unsigned int p,
 
 	/* applying gaussian elimination transformation to e'*BT (except eff_word_len first bits since we know their weight), and computing the weight of the result */
 	for (i = 0; i < r - eff_word_len; ++i) {
-		chunk = 0;
-		for (j = 0; j < bit_in_words(r); ++j) {
-			chunk ^= eprimeBT[j] & Usecondmod->rows[i][j];
-		}
-		if (isd_parity(chunk)) {
+		if (pscal(eprimeBT, Usecondmod->rows[i], r)) {
 			++weight;
 		}
 		if (weight > w-p) {

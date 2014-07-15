@@ -16,6 +16,19 @@
 
 #include "measure.h"
 
+/**
+ *
+ * About csize : csize is used by the BJMM variant. Mathieu Aria wanted
+ * to be able to handle l with value greater than word_len. In order
+ * to allow this behavior, the exceeding part of simple_HprimemodT are
+ * stored as (csize-1)*(k+l) additional columns.
+ *
+ * Example : let word_len = 64 and l = 84. simple_HprimemodT will
+ * consist in (k+l) words containing the 64 lower bits of HprimemodT
+ * followed by (k+l) words containing the 20 remaining bits
+ *
+ */
+
 static int print_status = 0;
 static int stop = 0;
 
@@ -192,7 +205,7 @@ int mzd_partial_echelonize(mzd_t* A, int l) {
 
 
 sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ranctx* state, unsigned int skip) {
-	unsigned int i, j ,ii;
+	unsigned int i, ii;
 	unsigned int n = params->n;
 	unsigned int r = params->r;
 	unsigned int l = params->l;
@@ -386,14 +399,9 @@ sw_list* isd(mzd_t* HzeroT, unsigned int N, word** synds, isd_params* params, ra
 			for (s = 0; s < N; ++s) {
 
 				syndsprime[s+t*N] = 0;
-				word chunk;
 
 				for (i = 0; i < eff_word_len; ++i) {
-					chunk = 0;
-					for (j = 0; j < bit_in_words(r); ++j) {
-						chunk ^= synds[s][j] & Uprimemod->rows[i][j];
-					}
-					if(isd_parity(chunk)){
+					if (pscal(synds[s], Uprimemod->rows[i], r)) {
 						syndsprime[s+t*N] ^= (1UL << (i%64));
 					}
 				}

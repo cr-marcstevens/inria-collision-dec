@@ -38,6 +38,11 @@ void print_bin(word x);
 int word_cmp (const void * a, const void * b);
 
 /**
+ * \brief Compute scalar product a*b^t
+ */
+int pscal(word* a, word* b, int nb_bits);
+
+/**
  * \brief Compute weight of a word (number of non zero position)
  */
 unsigned int isd_weight(word w);

@@ -38,6 +38,15 @@ int word_cmp (const void * a, const void * b) {
 	return 0;
 }
 
+int pscal(word* a, word* b, int nb_bits) {
+	unsigned int j;
+	word chunk = 0;
+	for (j = 0; j < bit_in_words(nb_bits); ++j) {
+		chunk ^= a[j] & b[j];
+	}
+	return isd_parity(chunk);
+}
+
 unsigned int isd_parity(word w) {
 	return __builtin_parityll(w);
 }

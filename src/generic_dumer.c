@@ -40,11 +40,6 @@ static unsigned short* final_test_input;
 
 static short** unpack;
 
-void unpack_counter(unsigned int* c1, unsigned int* c2, counter c) {
-	*c1 = unpack[c][0];
-	*c2 = unpack[c][1];
-}
-
 void unpack_counter_array(unsigned short* t, counter c, unsigned int p) {
 	unsigned int i;
 	for (i = 0; i < p; ++i) {
@@ -67,18 +62,19 @@ void print_parameters(isd_params* params) {
  * \return biggest indices of modified slot in t. -1 if last p-uplet reached.
  */
 int next(unsigned int* t, int p, unsigned int max) {
-	if (p == 0) {
+	int i = p-1;
+	while ((i >= 0) && (t[i] >= max-p+i)) {
+		--i;
+	}
+	if (i < 0) {
 		return -1;
 	}
-	if (t[p-1] != max-1) {
-		++t[p-1];
-		return p-1;
+	int l = i;
+	++t[i];
+	for (i = i+1; i < p; ++i) {
+		t[i] = t[i-1]+1;
 	}
-	int lidx = next(t, p-1, max-1);
-	if (lidx != -1) {
-		t[p-1] = t[p-2] + 1;
-	}
-	return lidx;
+	return l;
 }
 
 void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned int local_N, sw_list** local_h, ranctx* state) {
@@ -126,15 +122,6 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 		unpack[i] = (short*) MALLOC(p/2 * sizeof(short));
 	}
 
-	/*
-	for (c1 = 1; c1 < L_len/2; ++c1) {
-	for (c2 = 0; c2 < c1; ++c2) {
-		unpack[c][0] = c1;
-		unpack[c][1] = c2;
-		++c;
-	}}
-	*/
-
 	for (i = 0; i < p/2; ++i) {
 		indices[i] = i;
 	}
@@ -155,7 +142,6 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 void sub_isd() {
 	word synd = syndsprime[0]; //DOOM not implemented
-	unsigned int c1, c2, c3, c4;
 	int lidx;
 	unsigned int i;
 
@@ -219,7 +205,6 @@ void sub_isd() {
 					bday_cycle_stopwatch_stop();
 					incr_final_test_counter();
 					final_test_cycle_stopwatch_start();
-					unpack_counter(&c1, &c2, c);
 					unpack_counter_array(final_test_input, c, p/2);
 					for (i = 0; i < p/2; ++i) {
 						final_test_input[i+p/2] = indices[i];
