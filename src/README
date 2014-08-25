@@ -3,6 +3,7 @@ This program takes as input a binary matrix M, target symdromes and a integer w 
 
 # Building the program :
 You need the m4ri lib with version >= 20130416 (m4ri.sagemath.org). You can find packages for this version on most linux distributions (from 13.10 on Ubuntu for example).
+http://packages.ubuntu.com/trusty/libm4ri-0.0.20130416
 
 # Binaries built :
 Several binaries are created by the build process. dumerX and mmtX are the Dumer and the MMT variants where the parameter p is hardcoded to X.

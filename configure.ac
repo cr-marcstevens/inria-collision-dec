@@ -7,22 +7,9 @@ AM_INIT_AUTOMAKE([subdir-objects]) #create objects in sub-directories
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
 
+AM_PATH_PYTHON([2.7])
 
-# Get m4ri library and include locations
-AC_ARG_WITH([m4ri-include-path],
-  [AS_HELP_STRING([--with-m4ri-include-path],
-    [location of the m4ri headers, defaults to /usr/include/m4ri])],
-  [M4RI_INCLUDE="$withval"],
-  [M4RI_INCLUDE="/usr/include/m4ri"])
-AC_SUBST([M4RI_INCLUDE])
+PKG_CHECK_MODULES(M4RI, m4ri >= 20130416)
 
-AC_ARG_WITH([m4ri-lib-path],
-  [AS_HELP_STRING([--with-m4ri-lib-path],
-		[location of the m4ri librarie, default to /usr/lib])],
-  [M4RI_LIB="$withval"],
-  [M4RI_LIB="/usr/lib"])
-AC_SUBST([M4RI_LIB])
-
-
-AC_CONFIG_FILES([Makefile src/Makefile src/cpucycles/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT

@@ -4,7 +4,7 @@ LIBS = $(M4RI_LIBS)
 bin_PROGRAMS = dumer4 dumer6 dumer8 mmt4 mmt8 generic_dumer
 
 BUILT_SOURCES = dumer4.c dumer6.c dumer8.c mmt4.c mmt8.c isd_cmdline.h cpucycles/cpucycles.c cpucycles/cpucycles.h
-EXTRA_DIST = isd.ggo gen_dumer.py gen_mmt.py cpucycles/
+EXTRA_DIST = isd.ggo gen_dumer.py gen_mmt.py cpucycles/ workfactor myworkfactor.sh easy_challenge.txt
 
 isd_cmdline.h: isd_cmdline.c
 isd_cmdline.c: isd.ggo

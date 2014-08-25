@@ -1,1 +1,1 @@
-SUBDIRS = src/cpucycles src
+SUBDIRS = src
