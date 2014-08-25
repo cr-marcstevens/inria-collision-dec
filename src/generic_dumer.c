@@ -3,19 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "sub_isd.h"
-#ifdef MANAGE_COL
-	#warning Managing collisions
-	#if	MANAGE_COL == 2
-		#include "counterht_col2.h"
-	#else
-		#include "counterht_col.h"
-	#endif
-#else
-	#include "counterht.h"
-#endif
 #include <m4ri/m4ri.h>
+#include "sub_isd.h"
 #include "libisd.h"
+#include "ciht.h"
+#include "support.h"
 #include "final_test.h"
 #include "sparse_words_list.h"
 #include "measure.h"
@@ -27,25 +19,21 @@ static unsigned int n, k, r, l, p, w, L_len, threshold;
 static unsigned int lprime;
 static int shift;
 
-static unsigned int* indices;
+static ci_t* L0_c;
+static ci_t* L1_c;
 static word* subsums;
 
+unsigned int L0_support_len;
+word* L0_support;
+unsigned int L1_support_len;
+word* L1_support;
+
 static unsigned int L0_size;
-static counterht L0;
-static word* xors_table;
+static ciht_t L0;
 
 static sw_list** h;
 
-static unsigned short* final_test_input;
-
-static short** unpack;
-
-void unpack_counter_array(unsigned short* t, counter c, unsigned int p) {
-	unsigned int i;
-	for (i = 0; i < p; ++i) {
-		t[i] = unpack[c][i];
-	}
-}
+ci_t* candidate;
 
 void print_parameters(isd_params* params) {
 	printf("n : %d\n", params->n);
@@ -61,7 +49,7 @@ void print_parameters(isd_params* params) {
  * \brief Updates t such that it contains the next p-uplet among the nCr(max, p)
  * \return biggest indices of modified slot in t. -1 if last p-uplet reached.
  */
-int next(unsigned int* t, int p, unsigned int max) {
+int next(ci_t* t, int p, unsigned int max) {
 	int i = p-1;
 	while ((i >= 0) && (t[i] >= max-p+i)) {
 		--i;
@@ -106,37 +94,17 @@ void sub_isd_init(isd_params* params, word* local_L, word* local_synds, unsigned
 
 	shift = min(r, word_len) - lprime;
 
-	indices = (unsigned int*) malloc((p/2)*sizeof(unsigned int));
+	L0_c = (ci_t*) malloc((p/2)*sizeof(unsigned int));
+	L1_c = (ci_t*) malloc((p/2)*sizeof(unsigned int));
 	subsums = (word*) malloc((p/2+1)*sizeof(word));
 
+	prepare_half0(&L0_support, &L0_support_len, L_len);
+	prepare_half1(&L1_support, &L1_support_len, L_len);
+
 	L0_size = 1ULL << lprime;
-	L0 = counterht_init(L0_size, nb_of_sums);
+	L0 = ciht_init(L0_size, p/2, 0);
 
-	xors_table = (word*) MALLOC(nb_of_sums * sizeof(word));
-
-	unsigned int i;
-
-	counter c = 0;
-	unpack = (short**) MALLOC(nb_of_sums * sizeof(short*));
-	for (i = 0; i < nb_of_sums; ++i) {
-		unpack[i] = (short*) MALLOC(p/2 * sizeof(short));
-	}
-
-	for (i = 0; i < p/2; ++i) {
-		indices[i] = i;
-	}
-
-	int lidx = 0; 
-	c = 0;
-	while (lidx != -1) {
-		for (i = 0; i < p/2; ++i) {
-			unpack[c][i] = indices[i];
-		}
-		++c;
-		lidx = next(indices, p/2, L_len/2);
-	}
-
-	final_test_input = (unsigned short*) malloc(p*sizeof(unsigned short));
+	candidate = (ci_t*) malloc(p*sizeof(ci_t));
 }
 
 
@@ -145,92 +113,86 @@ void sub_isd() {
 	int lidx;
 	unsigned int i;
 
-	counter c;
-	counter_container* ccont;
 	word index;
 	word value;
-	/* Intermediate sums */
 
 	unsigned int weight;
 	int final_weight;
 	const word max_word_zero_l_bits = 1UL << (word_len - l); /* A word with its l MSB zeroed is lower than this value */
-
 
 #ifdef SORT_L
 	qsort(L, L_len/2, sizeof(word), word_cmp);
 	qsort(L+L_len/2, L_len - L_len/2, sizeof(word), word_cmp);
 #endif
 
-	counterht_reset(L0, L0_size);
+	build_half0(L0_support, L, L_len);
+	build_half1(L1_support, L, L_len);
+
+	ciht_reset(L0, L0_size, p/2);
 
 	for (i = 0; i < p/2; ++i) {
-		indices[i] = i;
+		L0_c[i] = i;
 	}
 
 	subsums[0] = 0;
 
 	lidx = 0; 
-	c = 0;
 	while (lidx != -1) {
 		for (i = lidx; i < p/2; ++i) {
-			subsums[i+1] = subsums[i] ^ L[indices[i]];
+			subsums[i+1] = subsums[i] ^ L0_support[L0_c[i]];
 		}
 
 		value = subsums[p/2];
 		index = value >> shift;
-		counterht_store(L0, index, c);
-		xors_table[c] = value;
-		++c;
-		lidx = next(indices, p/2, L_len/2);
+		ciht_store(L0, index, L0_c, p/2);
+		lidx = next(L0_c, p/2, L0_support_len);
 	}
 
 	for (i = 0; i < p/2; ++i) {
-		indices[i] = L_len/2+i;
+		L1_c[i] = i;
 	}
 	subsums[0] = synd;
 	lidx = 0;
 	while (lidx != -1) {
 		for (i = lidx; i < p/2; ++i) {
-			subsums[i+1] = subsums[i] ^ L[indices[i]];
+			subsums[i+1] = subsums[i] ^ L1_support[L1_c[i]];
 		}
 		value = subsums[p/2];
 		index = value >> shift;
-		for(ccont = counterht_get(L0, index); ccont != NULL; ccont = counterht_next(L0, index, ccont)) {
-			c = counter_container_open(ccont);
-			value ^= xors_table[c];
-			if (value < max_word_zero_l_bits) {
-				incr_collision_counter();
-				weight = isd_weight(value);
-				if (weight < threshold) {
-					bday_cycle_stopwatch_stop();
-					incr_final_test_counter();
-					final_test_cycle_stopwatch_start();
-					unpack_counter_array(final_test_input, c, p/2);
-					for (i = 0; i < p/2; ++i) {
-						final_test_input[i+p/2] = indices[i];
-					}
-					
-					final_weight = final_test_array(0, weight, p, final_test_input);
-					if (final_weight != -1) {
-						sw_list_append(h, sw_filled_new_array(0, final_weight, p, final_test_input));
-					}
-					final_test_cycle_stopwatch_stop();
-					bday_cycle_stopwatch_start();
-				}	
+		ci_t* t0 = ciht_get(L0, index, p/2);
+		if (t0) {
+			for (i = 0; i < p/2; ++i) {
+				value ^= L0_support[t0[i]];
 			}
+			incr_collision_counter();
+			
+			weight = isd_weight(value);
+			if (weight < threshold) {
+				bday_cycle_stopwatch_stop();
+				incr_final_test_counter();
+				final_test_cycle_stopwatch_start();
+				for (i = 0; i < p/2; ++i) {
+					candidate[i] = inv_half0(t0[i], L_len);
+				}
+				for (i = 0; i < p/2; ++i) {
+					candidate[i+p/2] = inv_half1(L1_c[i], L_len);
+				}
+
+				final_weight = final_test_array(0, weight, p, candidate);
+				if (final_weight != -1) {
+					sw_list_append(h, sw_filled_new_array(0, final_weight, p, candidate));
+				}
+				final_test_cycle_stopwatch_stop();
+				bday_cycle_stopwatch_start();
+			}	
 		}
-		lidx = next(indices, p/2, L_len);
+		lidx = next(L1_c, p/2, L1_support_len);
 	}
 }
 
 void sub_isd_free() {
-	unsigned long long nb_of_sums = nCr(L_len/2, p/2);
-	unsigned long long i;
-	for (i = 0; i < nb_of_sums; ++i) {
-		free(unpack[i]);
-	}
-	free(unpack);
-	counterht_free(L0);
-	free(xors_table);
+	free(L0_support);
+	free(L1_support);
+	ciht_free(L0);
 }
 

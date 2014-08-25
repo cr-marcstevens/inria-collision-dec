@@ -11,12 +11,16 @@ option "max_time" T "Number of second to spend before stopping" longlong optiona
 
 option "w" w "Maximum weight of the word to find (overrides input file value)" int optional
 option "l" l "Height of the window" int required
-option "l2" L "Height of the window" int optional
-option "l3" r "Height of the window" int optional
 option "p" p "Weight of the error in the window" int optional
-option "e1" e "Additional error accepted for fusion before filter 1 in BJMM alg" int optional
-option "e2" E "Additional error accepted for fusion before filter 2 in BJMM alg" int optional
+
 option "threshold" t "Threshold on the weight of the first word" int optional
+
+option "l2" L "Height of the window in MMT and BJMM algorithms" int optional
+option "alpha" a "Inverse proportion of elements of {0, 1}^l2 used to form the set A in MMT algorithm. The set will be composed of 2^(l2-alpha)" int optional
+
+option "l3" r "Height of the window" int optional
+option "e1" e "Additional error accepted for fusion before filter 1 in BJMM algorithm" int optional
+option "e2" E "Additional error accepted for fusion before filter 2 in BJMM algorithm" int optional
 option "csize" c "number of 64bit int used to represent a column during list merging. Choose l <= csize*64 <= r . min value for minimum spatial complexity, max value for minimum temporal complexity " int optional
 
 option "skip" k	"Number of iteration to skip before beginning" int optional default="0"

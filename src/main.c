@@ -64,6 +64,7 @@ int main(int argc, char **argv)
 	params.e1 = args_info.e1_given ? (unsigned int) args_info.e1_arg : 0;
 	params.e2 = args_info.e2_given ? (unsigned int) args_info.e2_arg : 0;
 	params.csize = args_info.csize_given ? (unsigned int) args_info.csize_arg : 1;
+	params.alpha = args_info.alpha_given ? (unsigned int) args_info.alpha_arg : 4; // heuristic
 
 	params.max_iter = args_info.max_iter_arg;
 	params.max_sol = args_info.max_sol_arg;

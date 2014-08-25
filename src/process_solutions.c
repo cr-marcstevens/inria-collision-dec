@@ -5,7 +5,7 @@
 #include <m4ri/m4ri.h>
 
 /** function called called on each solution an iteration could find
- * It takes a sparse word of weight p as an input, 
+ * It takes a pointer to sparse word of weight p as an input, 
  * then
  *   multiplies it by BT, 
  *   adds the syndrome, 
@@ -13,13 +13,12 @@
  *   write on stdout the w columns solutions of the problem. 
  */
 
-void process_solution(sw_list* partial_sol, unsigned int w, unsigned int l, mzd_t* BT, word** syndzero, mzd_t* U, unsigned int* perm_inv, unsigned long long nb_iter) {
+void process_solution(sw_list* eprime, unsigned int w, unsigned int l, mzd_t* BT, word** syndzero, mzd_t* U, unsigned int* perm_inv, unsigned long long nb_iter) {
 	unsigned int i, j;
 	unsigned int sols_idx;
 	unsigned int r = BT->ncols;
 	word chunk;
 	sw* complete_sol = sw_new(w);
-	sw_list* eprime = partial_sol;
 	word* eprimeBT = (word*) malloc(bit_in_words(r) * sizeof(word));
 
 	// compute syndzero + e'*BT

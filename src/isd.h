@@ -10,6 +10,9 @@
 #include "sparse_words_list.h"
 #include "prng.h"
 
+/* A column index. This bounds k+l */
+typedef uint16_t ci_t;
+
 /**
  * \brief Parameters of the ISD algorithm and the sub_isd algorithm
  * \note Some parameters are specific to a sub_isd algorithm and won't impact others
@@ -21,6 +24,7 @@ typedef struct {
 	unsigned int l;                 /**< Optimisation parameter (all) */
 	unsigned int l2;                /**< Optimisation parameter (MMT, BJMM) */
 	unsigned int l3;                /**< Optimisation parameter (BJMM) */
+	unsigned int alpha;             /**< Optimisation parameter (MMT) */
 	unsigned int p;                 /**< Optimisation parameter (all) */
 	unsigned int e1;                /**< Optimisation parameter (BJMM) */
 	unsigned int e2;                /**< Optimisation parameter (BJMM) */

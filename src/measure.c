@@ -95,7 +95,6 @@ void report(isd_params* params) {
 		char s_now[80];
 
 		unsigned int n, r, k, l, w, weight_threshold, p;
-		unsigned int L_len;
 
 		n = params->n;
 		r = params->r;
@@ -104,8 +103,6 @@ void report(isd_params* params) {
 		w = params->w;
 		p = params->p;
 		weight_threshold = params->weight_threshold;
-
-		L_len = k+l;
 
 		/* If stdout is not a tty, we assume it is piped to compute_threshold; you can pipe to 'cat' to see the line */
 		if (!isatty(fileno(stdout))) {
@@ -129,17 +126,18 @@ void report(isd_params* params) {
 		printf("Total cycles : %lld\n\n", total_cycles);
 		printf("Per iteration : \n");
 
-		printf("\tCollisions          %12lld (%5.2f%% of nCr(L_len/2, p/2)^2/2^l)\n", nb_collision/nb_iter, 100*(nb_collision/nb_iter)/(nCr(L_len/2, p/2)*nCr(L_len/2, p/2)/(1ULL<<l)));
-		printf("\tFinal tests         %12.2f", (float)nb_final_test/nb_iter);
+		printf("\t(k+l choose p)/2^l %13.2f\n", (float)nCr(k+l, p)/(1ULL<<l));
+		printf("\tCollisions         %13.2f (%5.2f%%)\n", (float)nb_collision/nb_iter, 100*((float)nb_collision/nb_iter)/(nCr(k+l, p)/(1ULL<<l)));
+		printf("\tFinal tests        %13.2f", (float)nb_final_test/nb_iter);
 		if (nb_collision != 0) {
 			printf(" (%5.2f%%)", 100*(float)nb_final_test/nb_collision);
 		}
 		printf("\n");
 		printf("\n");
 
-		printf("\tPivot cycles        %12lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/total_cycles);
-		printf("\tBirthday cycles     %12lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/total_cycles);
-		printf("\tFinal test cycles   %12lld", final_test_cycles/nb_iter);
+		printf("\tPivot cycles       %13lld (%5.2f%%)\n", pivot_cycles/nb_iter, 100.0*pivot_cycles/total_cycles);
+		printf("\tBirthday cycles    %13lld (%5.2f%%)\n", bday_cycles/nb_iter, 100.0*bday_cycles/total_cycles);
+		printf("\tFinal test cycles  %13lld", final_test_cycles/nb_iter);
 		if (nb_collision != 0) {
 			printf(" (%5.2f%%)", 100*(float)final_test_cycles/total_cycles);
 		}
@@ -159,7 +157,7 @@ void report(isd_params* params) {
 
 		nb_col_needed = nCr(n, w) / nCr(r-l, w-p) / (1ULL<<l);
 		nb_col_needed += nb_col_needed / p_miss;
-		//nb_col_periter = nCr(L_len/2, p/2) * nCr(L_len - L_len/2, p/2) / (1ULL<<l); // <- theoretical for dumer disjoint support
+		//nb_col_periter = nCr((k+l)/2, p/2) * nCr((k+l) - (k+l)/2, p/2) / (1ULL<<l); // <- theoretical for dumer disjoint support
 		nb_col_periter = nb_collision/nb_iter;
 		nb_iter_needed = nb_col_needed / nb_col_periter;
 		cycles_needed = nb_iter_needed*cycles_periter;

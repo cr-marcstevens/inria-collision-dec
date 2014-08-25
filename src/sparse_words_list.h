@@ -11,8 +11,8 @@
  * \brief Sparse word node
  */
 typedef struct sw {
-	unsigned int weight;      /**< Weight of the word */
 	unsigned int *pos;        /**< Array of size weight containing the indices of the non-null positions of the word */
+	unsigned int weight;      /**< Weight of the word */
 	unsigned int synd_idx;    /**< Index of the target syndrom considered */
 	unsigned int synd_weight; /**< Weight of the syndrom of the word added to the target syndrom */
 	unsigned int sorted;      /**< 1 if pos is sorted, 0 instead */
@@ -57,19 +57,32 @@ void sw_free(sw_list* h);
 void sw_list_add_array(sw_list** h, unsigned int synd_idx, unsigned int synd_weight, unsigned int p, unsigned short* columns);
 
 /**
- * \brief Append a sparse word to a sparse word list
+ * \brief Append a sparse word to a sparse words list
  */
 void sw_list_append(sw_list** h, sw* new);
 
 /**
- * \brief Filter a sparse word list by removing duplicates
+ * \brief Filter a sparse words list by removing duplicates
+ * \return Number of elements kept in the list
  * \note will call sw_sort() on each word in input list
  */
-void sw_list_uniq(sw_list** h);
+int sw_list_uniq(sw_list** h);
 void sw_list_print(sw_list* h);
 
 /**
- * \brief Free all words in a sparse word list
+ * \brief Sort a sparse words list using sw_cmp(). The input list if rearanged.
+ * \return The new head of the list.
+ */
+void sw_list_sort(sw_list** h);
+
+/**
+ * \brief Compute length of a sparse words list
+ * \return Number of elements in the list
+ */
+unsigned int sw_list_len(sw_list* h);
+
+/**
+ * \brief Free all words in a sparse words list
  */
 void sw_list_free(sw_list* h);
 
