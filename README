@@ -6,7 +6,7 @@ You need the m4ri lib with version >= 20130416 (m4ri.sagemath.org). You can find
 http://packages.ubuntu.com/trusty/libm4ri-0.0.20130416
 
 # Binaries built :
-Several binaries are created by the build process. dumerX and mmtX are the Dumer and the MMT variants where the parameter p is hardcoded to X.
+Several binaries are created by the build process. dumerX and mmtX are the Dumer and the MMT variants where the parameter p is hardcoded to X. generic_dumer is a less efficient version of dumer where parameter p has to be specified on the command line.
 
 # Input file format :
 Input file are pure ASCII files. They are formatted this way 
@@ -51,5 +51,5 @@ Input will be read from the file specified with the -i parameter or stdin if omi
 
 Example : ./dumer4 -i small_challenge.txt -l 15 -S 1
 
-Modifying the program :
+# Modifying the program :
 The program should be usable as a libray with few modifications. See the main function to set up the parameters of the isd function. The variant to use is specified by the linked file (see src/Makefile.am).
