@@ -1,3 +1,8 @@
+# InriaForge project 
+
+This github repository is a clone of the InriaForge SVN project collision-dec:
+https://gforge.inria.fr/projects/collision-dec/
+
 # What this program does : 
 This program takes as input a binary matrix M, target symdromes and a integer w (see Input file format), and looks for w rows in M that once XORed give one the syndromes. Current implementation takes into account only the first syndrome.
 
